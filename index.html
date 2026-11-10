@@ -992,7 +992,6 @@ html.neg :is(.bt,.msRow button,.meImg) img{filter:none}
     <button class="swh r" id="swR" aria-label="Save" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
     </div>
     <div class="bin" id="bin" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g class="lid"><path d="M3 6h18"/><path d="M9 6V4h6v2"/></g><path d="M5 6l1 14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-14"/><path d="M10 11v6M14 11v6"/></svg></div>
-    <p class="hint">Right to save · left to skip · tap to book</p>
     <div class="msights" id="mSights" hidden aria-label="Top sights"></div>
    </div>
    <aside class="dinfo" id="dInfo" hidden aria-live="polite"></aside>
@@ -1156,7 +1155,7 @@ const I18N=(()=>{
   "Sea":"Mare","Food":"Cibo","Culture":"Cultura","City":"Città","Nightlife":"Vita notturna","Relax":"Relax","Free cancel":"Cancellazione gratis","Direct":"Diretti","Any":"Tutti","Maximum flight time":"Durata massima del volo",
   "From":"Da","Depart":"Andata","Return":"Ritorno","Leave after":"Parti dopo le","Fly home after":"Rientra dopo le","Adults":"Adulti","Update":"Aggiorna","Budget":"Budget","No budget":"Nessun budget","Set":"Imposta","No limit":"Nessun limite",
   "Pass the phone":"Passa il telefono","Skip":"Scarta","Back":"Indietro","Save":"Salva","SAVE":"SALVA","SKIP":"SCARTA","Bring back the last card":"Riporta l'ultima carta",
-  "Right to save · left to skip · tap to book":"Destra per salvare · sinistra per scartare · tocca per prenotare",
+  
   "Saved weekends":"Weekend salvati","Show price per person":"Mostra il prezzo a persona","Decide together":"Decidete insieme",
   "Everyone swipes the same deck. Only weekends you all like show up.":"Tutti scorrono le stesse carte. Compaiono solo i weekend che piacciono a tutti.",
   "Game lobby":"Sala giocatori","↻ Start over":"↻ Ricomincia","Start over":"Ricomincia","Your matches":"I vostri match","Send me the Top 3 every Tuesday":"Mandami la Top 3 ogni martedì",
@@ -1246,7 +1245,7 @@ const I18N=(()=>{
   "Fits your mood:":"In linea con il tuo mood:","Closest to a deal:":"Quasi un match:","like it":"lo vogliono",
   "Finding weekends in more cities":"Cerco weekend in altre città","Searching live prices from":"Cerco prezzi live da","Live prices for":"Prezzi live per",
   "Prices checked at":"Prezzi verificati alle","final price confirmed by lastminute.com at checkout":"prezzo finale confermato da lastminute.com al checkout",
-  "lastminute.com answered with an error:":"lastminute.com ha risposto con un errore:","No booking link returned":"nessun link di prenotazione ricevuto","is no longer available for these dates.":"non è più disponibile per queste date.",
+  "lastminute.com answered with an error:":"lastminute.com ha risposto con un errore:","No booking link returned":"nessun link di prenotazione ricevuto","just sold out for these dates. We refreshed the live hotels: pick one below.":"è appena esaurito per queste date. Abbiamo aggiornato gli hotel dal vivo: scegline uno qui sotto.","is no longer available for these dates.":"non è più disponibile per queste date.",
   "choose a room":"scegli una camera","prices are flight + hotel total":"i prezzi sono il totale volo + hotel","flight + hotel total":"totale volo + hotel","total with hotel":"totale con hotel",
   "Flight + hotel":"Volo + hotel","flight + hotel":"volo + hotel","Left in budget":"Resta nel budget","/day to spend":"/giorno da spendere","per person":"a persona","from centre":"dal centro","photos and rooms":"foto e camere","trip details":"· dettagli",
   "Top sights in":"Da vedere a","tap to enlarge":"tocca per ingrandire","Tap a card to flip it":"Tocca una carta per girarla","Flip card":"Gira la carta","Photo":"Foto",
@@ -2102,7 +2101,10 @@ async function wzRoom(){
       const r1=await mcp.callTool(LM,"search_flight_and_hotel_package",{origin:ORI(),destination:d.code,...DATES_(),adults:String(S.trip.adults),max_results:20,lang:uiLang(),sort:"recommended"});
       if(!wzLive(w)||w.step!==1) return;
       const p1=r1.payload||{}, hit=(p1.products_summary||[]).find(x=>x.internal_id_hotel===h.hid);
-      if(!hit){w.err=`${esc_(h.name)} is no longer available for these dates. Pick another hotel.`; wzGo(0); return;}
+      if(!hit){
+        const lst=p1.products_summary||[];
+        if(lst.length){ setHotels(d,lst); delete S.choice[d.code]; renderDeck(); }
+        w.err=`${esc_(h.name)} just sold out for these dates. We refreshed the live hotels: pick one below.`; wzGo(0); return;}
       const r=await mcp.callTool(LM,"select_hotel_options",{search_id:p1.search_id,hotel_internal_id:h.hid,...DATES_()});
       if(!wzLive(w)||w.step!==1) return;
       const p=r.payload||{};
