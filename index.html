@@ -139,6 +139,23 @@ textarea{flex:1;min-width:0;resize:none;height:62px;font:inherit;font-size:15px;
 .pfrom{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:2px}
 .card .cardFacts{order:1}.card .evPill{order:2}.card .upg{display:none}
 .card .art{min-height:190px}
+.hook{font-size:17px;line-height:1.3;font-weight:700;color:var(--ink);text-align:center;margin:2px auto 0;max-width:440px;padding:0 8px;min-height:22px}
+.hook b{color:#0E8F80;font-weight:800}
+.cover{position:absolute;inset:0;z-index:30;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:12px;text-align:center;color:#fff;cursor:pointer;
+  background:radial-gradient(120% 80% at 50% 25%,#2B3AA8 0%,#0B1A5E 55%,#041654 100%);transform-origin:50% 50%;padding:48px 24px 24px}
+.cover img{width:124px;height:124px;border-radius:34px;box-shadow:0 14px 40px rgba(0,0,0,.35);animation:cvFloat 2.4s ease-in-out infinite}
+.cover .cvT{font-size:24px;font-weight:800;line-height:1.2;max-width:280px}
+.cover .cvT b{color:#1CD6C9}
+.cover .cvS{font-size:14px;font-weight:600;opacity:.8}
+.cover .cvTap{margin-top:6px;background:#FF4FA3;color:#fff;font-weight:800;font-size:16px;padding:12px 26px;border-radius:999px;box-shadow:0 8px 22px rgba(255,79,163,.4);animation:cvPulse 1.6s ease-in-out infinite}
+.cover .cvDots{position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(rgba(255,255,255,.12) 1.2px,transparent 1.3px);background-size:22px 22px;border-radius:22px}
+.card.rvOut{animation:rvOut .22s ease-in forwards}
+@keyframes rvOut{from{transform:none}to{transform:perspective(900px) rotateY(90deg)}}
+.card.rv{animation:rvIn .42s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes rvIn{from{transform:perspective(900px) rotateY(-90deg)}to{transform:none}}
+@keyframes cvFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(3deg)}}
+@keyframes cvPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@media (prefers-reduced-motion:reduce){.cover img,.cover .cvTap{animation:none}.card.rv{animation:none}}
 .card .evPill .evT{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .card .leg .fn{display:none}
 .price{font-family:var(--display);font-weight:700;font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
@@ -979,6 +996,7 @@ html.neg :is(.bt,.msRow button,.meImg) img{filter:none}
     <div class="learned" id="learned"></div>
    </div>
    <div class="dright">
+    <div class="hook notr" id="hook" aria-live="polite"></div>
 
     <div class="actions">
       
@@ -1332,7 +1350,7 @@ const I18N=(()=>{
   function set(l,user){
     if(l===lang&&!user) return; lang=l; try{localStorage.setItem("fa_lang",l)}catch(e){}
     if(l==="it") walk(document.body); else restore();
-    swapQ(); sync(); if(user) try{trk("lang",{l})}catch(e){}
+    swapQ(); sync(); try{window.dispatchEvent(new Event("fa-lang"))}catch(e){} if(user) try{trk("lang",{l})}catch(e){}
   }
   function start(){
     mo.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:ATTR});
@@ -1857,16 +1875,45 @@ function renderDeck(){
     w.innerHTML=`<div class="empty"><h3>No flights at those times</h3><p class="muted">${FC.err||`No city has flights that match your times (${timeTxt()}). Try earlier times.`}</p><button class="btn" id="clrT">Clear times</button></div>`;
     $("clrT").onclick=()=>{$("tOut").value="";$("tIn").value="";S.trip.tOut="";S.trip.tIn="";S.seen.clear();checkTimes()};renderLearned();return}
   if(!deck.length){
+    setHook(null);
     const none=S.filterOn&&!S.poolN;
     w.innerHTML=none?`<div class="empty"><h3>No match</h3><p class="muted">Raise the budget or drop a filter.</p><button class="btn" id="again">Show all</button></div>`
       :`<div class="empty"><h3>That's all</h3><p class="muted">${S.saved.length?`${S.saved.length} saved`:"Nothing saved yet"}</p><button class="btn" id="again">Start over</button></div>`;
     $("again").onclick=()=>{if(none)S.filterOn=false;S.seen.clear();renderDeck()};renderLearned();return}
   w.innerHTML=deck.slice(0,4).map((o,i)=>cardHTML(o,i)).reverse().join("");
   const top=w.querySelector(`.card[data-code="${deck[0].d.code}"]`);
-  attachDrag(top);
+  attachDrag(top); setHook(deck[0]); addCover(top,deck[0]);
   if(S.backCode===deck[0].d.code&&top){top.classList.add("back",S.backDir);setTimeout(()=>top.classList.remove("back","fromL","fromR"),450);}
-  S.backCode=null; undoState(); deck.slice(0,2).forEach(o=>loadSplit(o.d.code)); if(!S.demoDone&&top){S.demoDone=true;setTimeout(()=>demo(top),900);} document.querySelector(".deckarea").classList.remove("empty");
+  S.backCode=null; undoState(); deck.slice(0,2).forEach(o=>loadSplit(o.d.code)); if(!S.demoDone&&top&&S.cover!=='on'){S.demoDone=true;setTimeout(()=>demo(top),900);} document.querySelector(".deckarea").classList.remove("empty");
   renderLearned();
+}
+const isIT=()=>document.documentElement.lang==="it";
+function setHook(o){
+  const el=$("hook"); if(!el) return;
+  if(!o){el.innerHTML="";return}
+  const p=eur(o.h.price/(S.split?S.trip.adults:1)), c=o.d.city;
+  el.innerHTML=isIT()?`Con <b>${p}</b> questo weekend puoi essere ${/^[aàAÀ]/.test(c)?"ad":"a"} <b>${c}</b>`:`With <b>${p}</b> this weekend you could be in <b>${c}</b>`;
+}
+/* first card arrives face down: one tap flips it (auto-flips after 5 s) */
+if(S.cover==null){let seen=false;try{seen=sessionStorage.getItem("fa_cover")==="1"}catch(e){} S.cover=seen?"done":"on";}
+function addCover(card,o){
+  if(!card||S.cover!=="on") return;
+  const p=eur(o.h.price/(S.split?S.trip.adults:1)), it=isIT();
+  const cv=document.createElement("div"); cv.className="cover notr";
+  cv.innerHTML=`<div class="cvDots"></div><img src="/icons/icon-512.png" alt=""><div class="cvT">${it?`Il tuo prossimo weekend da <b>${p}</b>`:`Your next weekend from <b>${p}</b>`}</div><div class="cvS">${it?"Volo + hotel, già scelti per te":"Flight + hotel, already picked for you"}</div><div class="cvTap">${it?"Tocca per scoprirlo":"Tap to reveal"}</div>`;
+  card.appendChild(cv);
+  const t0=Date.now();
+  const go=(auto)=>{ if(S.cover!=="on") return; revealCover(card,cv,auto,Date.now()-t0); };
+  cv.addEventListener("pointerdown",e=>{e.stopPropagation();e.preventDefault();go(false)});
+  clearTimeout(S.coverT); S.coverT=setTimeout(()=>{const c=document.querySelector("#deck .cover"); if(c&&S.cover==="on") revealCover(c.parentElement,c,true,Date.now()-t0)},5000);
+}
+window.addEventListener("fa-lang",()=>{try{if(S.cover==="on"&&document.querySelector("#deck .cover"))renderDeck();else if(deck&&deck[0])setHook(deck[0])}catch(e){}});
+function revealCover(card,cv,auto,ms){
+  S.cover="done"; clearTimeout(S.coverT); try{sessionStorage.setItem("fa_cover","1")}catch(e){}
+  try{trk("reveal",{auto,ms:Math.round(ms/100)/10})}catch(e){}
+  const fin=()=>{cv.remove(); if(RM()) return; card.classList.add("rv"); setTimeout(()=>{card.classList.remove("rv"); if(!S.demoDone){S.demoDone=true;setTimeout(()=>demo(card),700)}},450)};
+  if(RM()){fin();if(!S.demoDone){S.demoDone=true;demo(card)}return}
+  card.classList.add("rvOut"); setTimeout(()=>{card.classList.remove("rvOut");fin()},220);
 }
 function renderLearned(){
   const parts=[];
@@ -1900,6 +1947,7 @@ function binState(dx){const b=$("bin"); if(!b) return; b.classList.toggle("show"
 const RM=()=>window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
 function fling(card,dir){
   if(!card||card.classList.contains("flying")) return;
+  if(S.cover==="on"){const cv=card.querySelector(".cover"); if(cv){revealCover(card,cv,false,0);return}}
   const code=card.dataset.code;
   card.querySelector(dir>0?".stamp.like":".stamp.nope").style.opacity=1;
   const toSaved=dir>0&&!S.together.on;
