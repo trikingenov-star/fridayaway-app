@@ -144,17 +144,17 @@ textarea{flex:1;min-width:0;resize:none;height:62px;font:inherit;font-size:15px;
 .cover{position:absolute;inset:0;z-index:30;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:12px;text-align:center;color:#fff;cursor:pointer;
   background:radial-gradient(120% 80% at 50% 25%,#2B3AA8 0%,#0B1A5E 55%,#041654 100%);transform-origin:50% 50%;padding:48px 24px 24px}
 .cover img{width:124px;height:124px;border-radius:34px;box-shadow:0 14px 40px rgba(0,0,0,.35);animation:cvFloat 2.4s ease-in-out infinite}
-.cover .cvQ{position:relative;width:132px;height:132px;border-radius:36px;display:grid;place-items:center;background:linear-gradient(145deg,#1CD6C9 0%,#14b8b0 45%,#FF4FA3 100%);box-shadow:0 14px 40px rgba(0,0,0,.35),0 0 0 6px rgba(255,255,255,.08),0 0 60px rgba(28,214,201,.45);animation:cvFloat 2.4s ease-in-out infinite}
-.cover .cvQ span{font-size:96px;font-weight:900;line-height:1;color:#fff;text-shadow:0 4px 0 rgba(4,22,84,.25);animation:cvWig 3s ease-in-out infinite}
-.cover .cvQ::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);background-size:250% 100%;animation:cvShine 2.6s ease-in-out infinite}
+.cover .cvQ{position:relative;overflow:hidden;will-change:transform;width:132px;height:132px;border-radius:36px;display:grid;place-items:center;background:linear-gradient(145deg,#1CD6C9 0%,#14b8b0 45%,#FF4FA3 100%);box-shadow:0 14px 40px rgba(0,0,0,.35),0 0 0 6px rgba(255,255,255,.08),0 0 60px rgba(28,214,201,.45);animation:cvFloat 2.4s ease-in-out infinite}
+.cover .cvQ span{will-change:transform;font-size:96px;font-weight:900;line-height:1;color:#fff;text-shadow:0 4px 0 rgba(4,22,84,.25);animation:cvWig 3s ease-in-out infinite}
+.cover .cvQ::after{content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:60%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.45),transparent);transform:translateX(-120%) skewX(-12deg);will-change:transform;animation:cvShine 2.6s ease-in-out infinite}
 .cvFS .cvQ{width:156px;height:156px;border-radius:42px}.cvFS .cvQ span{font-size:116px}
 .cover .cvS b{color:#1CD6C9;font-weight:800}
 @keyframes cvWig{0%,70%,100%{transform:rotate(0)}76%{transform:rotate(-12deg)}84%{transform:rotate(10deg)}92%{transform:rotate(-5deg)}}
-@keyframes cvShine{0%{background-position:150% 0}60%,100%{background-position:-60% 0}}
+@keyframes cvShine{0%{transform:translateX(-120%) skewX(-12deg)}60%,100%{transform:translateX(260%) skewX(-12deg)}}
 .cover .cvT{font-size:24px;font-weight:800;line-height:1.2;max-width:280px}
 .cover .cvT b{color:#1CD6C9}
 .cover .cvS{font-size:14px;font-weight:600;opacity:.8}
-.cover .cvTap{margin-top:6px;background:#FF4FA3;color:#fff;font-weight:800;font-size:16px;padding:12px 26px;border-radius:999px;box-shadow:0 8px 22px rgba(255,79,163,.4);animation:cvPulse 1.6s ease-in-out infinite}
+.cover .cvTap{will-change:transform;margin-top:6px;background:#FF4FA3;color:#fff;font-weight:800;font-size:16px;padding:12px 26px;border-radius:999px;box-shadow:0 8px 22px rgba(255,79,163,.4);animation:cvPulse 1.6s ease-in-out infinite}
 .cover .cvDots{position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(rgba(255,255,255,.12) 1.2px,transparent 1.3px);background-size:22px 22px;border-radius:22px}
 .card.rvOut{animation:rvOut .22s ease-in forwards}
 @keyframes rvOut{from{transform:none}to{transform:perspective(900px) rotateY(90deg)}}
@@ -962,8 +962,9 @@ html.neg :is(.bt,.msRow button,.meImg) img{filter:none}
 @media (max-width:600px){.topR{gap:6px}}
 @media (max-width:440px){.top .instBtn .ibT{display:none}}
 @media (max-width:389px){.top .brand span{display:none}}
-.cvFS{position:fixed;z-index:200;border-radius:0;overflow:hidden;padding-top:max(18vh,48px);will-change:clip-path}
-.cvFS .cvIn{display:flex;flex-direction:column;align-items:center;gap:12px;will-change:transform,opacity}
+.cvFS{position:fixed;z-index:200;border-radius:0;padding-top:max(18vh,48px);background:none!important;will-change:opacity}
+.cvFS .cvBg{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:0 0;will-change:transform;background:radial-gradient(120% 80% at 50% 25%,#2B3AA8 0%,#0B1A5E 55%,#041654 100%);overflow:hidden}
+.cvFS .cvIn{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;will-change:transform,opacity}
 .cvFS .cvIn .cvDots{display:none}
 .cvFS .cvT{font-size:28px;max-width:320px}
 .darkBtn{flex:none;width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
@@ -1933,7 +1934,7 @@ if(S.cover==null){let seen=false;try{seen=sessionStorage.getItem("fa_cover")==="
 /* first visit: the face-down card starts full screen, then shrinks into its place in the deck */
 const FS={el:null,t0:Date.now(),done:false};
 function coverHTML(p,it){return `<div class="cvDots"></div><div class="cvQ" aria-hidden="true"><span>?</span></div><div class="cvT">${it?"Dove sarai <b>il prossimo weekend</b>?":"Where will you be <b>next weekend</b>?"}</div><div class="cvS">${it?`Volo + hotel${p?` da <b>${p}</b>`:""}. La meta è nascosta qui sotto.`:`Flight + hotel${p?` from <b>${p}</b>`:""}. The destination is hidden under this card.`}</div><div class="cvTap">${it?"Girala e scoprilo 👀":"Flip it and find out 👀"}</div>`;}
-function fsText(p){let it=isIT();try{it=I18N.lang==="it"}catch(e){}return `<div class="cvIn">${coverHTML(p,it)}</div>`;}
+function fsText(p){let it=isIT();try{it=I18N.lang==="it"}catch(e){}return `<div class="cvBg"><div class="cvDots"></div></div><div class="cvIn">${coverHTML(p,it)}</div>`;}
 function fsStart(){
   if(S.cover!=="on"||RM()||FS.el) return;
   const el=document.createElement("div"); el.className="cover cvFS notr"; el.style.cssText="top:0;left:0;width:100vw;height:100vh;height:100dvh";
@@ -1949,16 +1950,14 @@ function fsShrink(tap){
   if(!card){FS.done=false;fsEnd();return}
   try{card.scrollIntoView({block:"nearest"})}catch(e){}
   requestAnimationFrame(()=>{
-    const r=card.getBoundingClientRect(), W=innerWidth, H=innerHeight, inn=el.querySelector(".cvIn");
-    const D=760, E="cubic-bezier(.22,1,.36,1)";
-    const end=`inset(${r.top}px ${W-r.right}px ${H-r.bottom}px ${r.left}px round 22px)`;
-    // the frame closes in on the card (compositor-friendly clip, no layout work)…
-    el.animate([{clipPath:"inset(0px 0px 0px 0px round 0px)"},{clipPath:end}],{duration:D,easing:E,fill:"forwards"});
-    // …the big text drifts towards the card and fades…
+    const r=card.getBoundingClientRect(), W=innerWidth, H=innerHeight, inn=el.querySelector(".cvIn"), bg=el.querySelector(".cvBg");
+    const sx=r.width/W, sy=r.height/H, D=700, E="cubic-bezier(.22,1,.36,1)";
+    bg.style.borderRadius=`${22/sx}px / ${22/sy}px`; // ends as the card's 22px corners once scaled
+    // everything below runs on the GPU (transform/opacity only), so it stays smooth while the page is busy
+    bg.animate([{transform:"translate(0,0) scale(1,1)"},{transform:`translate(${r.left}px,${r.top}px) scale(${sx},${sy})`}],{duration:D,easing:E,fill:"forwards"});
     const cy=(r.top+r.height*.35)-H*.4;
     inn.animate([{opacity:1,transform:"translateY(0) scale(1)"},{opacity:0,transform:`translateY(${cy}px) scale(.82)`}],{duration:D*.45,easing:"ease-in",fill:"forwards"});
-    // …and the layer dissolves into the card underneath, which already shows the same face-down cover
-    const f=el.animate([{opacity:1},{opacity:1,offset:.55},{opacity:0}],{duration:D,easing:"linear",fill:"forwards"});
+    const f=el.animate([{opacity:1},{opacity:1,offset:.6},{opacity:0}],{duration:D,easing:"linear",fill:"forwards"});
     f.onfinish=()=>{FS.el=null; el.remove(); const cv=document.querySelector("#deck .cover"); if(tap&&cv&&S.cover==="on") revealCover(cv.parentElement,cv,false,Date.now()-FS.t0); else armCover();};
   });
 }
