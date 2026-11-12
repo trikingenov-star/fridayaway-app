@@ -1,6 +1,9 @@
 // Tiny Upstash Redis client over REST (no dependencies). Env vars come from the Vercel Upstash integration.
-const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || process.env.REDIS_REST_URL || "";
-const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || process.env.REDIS_REST_TOKEN || "";
+// Vercel's Upstash integration may add a custom prefix to the variable names, so look for them by suffix too.
+const env = process.env;
+const find = (re, not) => { const k = Object.keys(env).find((n) => re.test(n) && !(not && not.test(n)) && env[n]); return k ? env[k] : ""; };
+const URL_ = env.KV_REST_API_URL || env.UPSTASH_REDIS_REST_URL || env.REDIS_REST_URL || find(/REST_API_URL$|REDIS_REST_URL$|REST_URL$/i);
+const TOKEN = env.KV_REST_API_TOKEN || env.UPSTASH_REDIS_REST_TOKEN || env.REDIS_REST_TOKEN || find(/REST_API_TOKEN$|REDIS_REST_TOKEN$|REST_TOKEN$/i, /READ_ONLY/i);
 const ready = () => !!(URL_ && TOKEN);
 async function cmd(args) {
   if (!ready()) throw new Error("database not configured");
@@ -16,4 +19,4 @@ async function pipe(list) {
   if (!r.ok || !Array.isArray(j)) throw new Error("db " + r.status);
   return j.map((x) => { if (x.error) throw new Error(x.error); return x.result; });
 }
-module.exports = { cmd, pipe, ready };
+module.exports = { cmd, pipe, ready, names: () => Object.keys(env).filter((n) => /KV|UPSTASH|REDIS|STORAGE/i.test(n)) };

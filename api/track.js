@@ -1,7 +1,7 @@
 // POST /api/track  {sid, ev:[{t, ts, d}]}
 // Anonymous product analytics: what people do inside Fridayaway (no names, emails or IP addresses are stored).
 // Each flush from a browser becomes one small JSON file in the project's Vercel Blob store.
-const { cmd, pipe } = require("./_kv");
+const { cmd, pipe, ready, names } = require("./_kv");
 const TYPES = new Set(["open", "search", "swipe", "undo", "sheet", "book", "checkout", "hotel_switch", "fly_filter", "together_start", "together_end", "install", "sight_open", "install_popup", "install_click", "install_choice", "install_close", "lang", "time", "events_open", "book_step", "theme", "hotel_section", "ready", "alert_shown", "alert_signup", "alert_close", "vibe_chip", "reveal"]);
 const clean = (d) => {
   if (!d || typeof d !== "object") return undefined;
@@ -20,6 +20,7 @@ module.exports = async (req, res) => {
   if (req.method === "GET" && req.query && req.query.health) {
     // Health check without any user data: how many event batches were stored per day in the last 7 days
     const out = {}; const now = Date.now();
+    if (!ready()) return res.status(500).json({ error: "database not configured", seenVariables: names() }); // names only, never values
     try {
       const days = Array.from({ length: 7 }, (_, i) => new Date(now - i * 864e5).toISOString().slice(0, 10));
       const n = await pipe(days.map((d) => ["LLEN", "ev:" + d]));
