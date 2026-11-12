@@ -2009,6 +2009,26 @@ function sndWhoosh(){ if(!sndOK()) return; const c=SND.ctx, t=c.currentTime; con
   const lp=c.createBiquadFilter(); lp.type="bandpass"; lp.Q.value=.8; lp.frequency.setValueAtTime(300,t); lp.frequency.exponentialRampToValueAtTime(2600,t+.32); lp.frequency.exponentialRampToValueAtTime(250,t+.75);
   const g=c.createGain(); g.gain.setValueAtTime(.001,t); g.gain.exponentialRampToValueAtTime(.28,t+.25); g.gain.exponentialRampToValueAtTime(.001,t+.8);
   src.connect(lp).connect(g).connect(c.destination); src.start(t); src.stop(t+.85); }
+/* Cabin announcement (GTA links, sound on): after the tap the chime rings, a voice announces the flight and the board lands on the city as it is spoken */
+function annVoice(it){ try{const vs=speechSynthesis.getVoices(), L=it?"it":"en", own=vs.filter(v=>(v.lang||"").toLowerCase().startsWith(L));
+  const fem=/female|donna|alice|federica|elsa|paola|samantha|karen|serena|martha|moira|tessa|victoria|zira|kate|susan|google uk english female|google italiano/i;
+  return own.find(v=>fem.test(v.name)&&/it-IT|en-GB/i.test(v.lang))||own.find(v=>fem.test(v.name))||own.find(v=>/it-IT|en-GB/i.test(v.lang))||own[0]||null;}catch(e){return null} }
+function annCan(){ return sndWanted()&&!sndMuted()&&!SND.track&&"speechSynthesis" in window&&typeof SpeechSynthesisUtterance!=="undefined"; }
+function annUnlock(){ try{const u=new SpeechSynthesisUtterance(" "); u.volume=0; speechSynthesis.speak(u);}catch(e){} } // iPhone: speech must first be started inside the tap
+function annStart(){
+  const d=typeof deck!=="undefined"?deck:[]; if(!d||!d[0]){fbStop(false);return}
+  const it=fbLang(), city=fbCity(d[0]);
+  const pre=it?"Volo Fridayaway per ":"Fridayaway flight to ", txt=pre+city+(it?": imbarco immediato!":": now boarding!");
+  FS.state="announce"; clearTimeout(FS.auto); const b=FS.el.querySelector(".fbBtn"); if(b){b.textContent=fbLabels().go;b.disabled=true;b.classList.add("go")}
+  let fired=false; const fire=()=>{ if(fired) return; fired=true; FS.state="spin"; fbStop(false,true); };
+  setTimeout(()=>{ try{
+    speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(txt); u.lang=it?"it-IT":"en-GB"; const v=annVoice(it); if(v) u.voice=v; u.rate=it?1.02:.98; u.pitch=1.08; u.volume=1;
+    u.onboundary=e=>{ if(e.charIndex>=pre.length-1) fire(); };
+    u.onstart=()=>{ setTimeout(fire,pre.length/13.5*1000+250); };   // no word timing on this device: estimate when the city is said
+    u.onerror=()=>fire(); speechSynthesis.speak(u);
+    setTimeout(fire,5000);
+  }catch(e){fire()} },550);
+}
 function fbRow(n,cls){return `<div class="fbRow ${cls}" style="--n:${n}">${'<i class="fbT"> </i>'.repeat(n)}</div>`;}
 function fsStart(){
   if(S.cover!=="on"||RM()||FS.el) return;
@@ -2036,7 +2056,9 @@ function fsStart(){
     if(FS.state==="stopping"&&rows.every(r=>r.tiles.every(t=>t.dataset.fin==="1"))) fbLanded();
   },85);
   sndMusicPrep();
-  el.querySelector(".fbBtn").addEventListener("click",e=>{e.preventDefault(); if(FS.state==="spin"&&!SND.musicAt){sndInit();myTrackPlay();} fbStop(false)});
+  el.querySelector(".fbBtn").addEventListener("click",e=>{e.preventDefault(); if(FS.state!=="spin") return;
+    if(FS.ready&&annCan()){ sndInit(); annUnlock(); try{SND.music&&SND.music.load()}catch(x){} if(SND.music){const m=SND.music;m.muted=true;const p=m.play();if(p&&p.then)p.then(()=>{m.pause();m.muted=false}).catch(()=>{m.muted=false})} sndDing(); FS.ann=true; annStart(); return; }
+    if(!SND.musicAt){sndInit();myTrackPlay();} fbStop(false)});
   const pk=el.querySelector(".fbPick input"); if(pk) pk.addEventListener("change",()=>{const f=pk.files&&pk.files[0]; if(!f) return; SND.track=new Audio(URL.createObjectURL(f)); SND.track.preload="auto"; pk.parentElement.firstChild.textContent="✅ "+f.name.slice(0,28)+" ";});
   const mb=el.querySelector(".fbMute"); if(mb) mb.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();const m=!sndMuted();try{localStorage.setItem("fa_mute",m?"1":"0")}catch(x){} mb.textContent=m?"🔇":"🔊"; if(!m){sndInit();sndClack(.4)} try{trk("theme",{mute:m})}catch(x){}});
   FS.auto=setTimeout(()=>fbStop(true),6500);
@@ -2049,22 +2071,23 @@ function fsReady(){ if(!FS.el||FS.done||FS.state!=="spin") return;
   for(let k=0;k<4;k++){const o=d[k+1]; FS.rows[2+k*2].target=o?fbNorm(fbCity(o),11):" ".repeat(11); FS.rows[3+k*2].target=o?fbNorm(fbPrice(o),5,1):" ".repeat(5);}
   if(FS.want) fbStop(FS.want==="auto");
 }
-function fbStop(auto){
+function fbStop(auto,fast){
   if(!FS.el||FS.state!=="spin") return;
   if(!FS.ready){FS.want=auto?"auto":"tap";const b=FS.el.querySelector(".fbBtn");if(b&&!auto)b.textContent="…";return}
   clearTimeout(FS.auto); FS.state="stopping"; FS.auto2=auto;
-  const now=Date.now(); FS.rows.forEach((r,i)=>{r.at=now+(i<2?(i===0?0:600):900+(i-2)*90)});
+  const now=Date.now(); FS.rows.forEach((r,i)=>{r.at=now+(fast?(i===0?0:i===1?420:520+(i-2)*55):(i<2?(i===0?0:600):900+(i-2)*90))});
   const b=FS.el.querySelector(".fbBtn"); if(b){b.textContent=fbLabels().go;b.disabled=true;b.classList.add("go")}
   if(!auto){ try{navigator.vibrate&&navigator.vibrate(15)}catch(e){} sndInit(); }
 }
 function fbLanded(){
   FS.state="landed"; clearInterval(FS.tick);
   try{navigator.vibrate&&navigator.vibrate([20,40,30])}catch(e){}
-  FS.el.querySelector(".fbMain").classList.add("won"); sndDing();
+  FS.el.querySelector(".fbMain").classList.add("won"); if(!FS.ann) sndDing();
   // the destination is now known: open the real card as soon as the board has shrunk into it
   const cv=document.querySelector("#deck .cover"); S.cover="done"; clearTimeout(S.coverT); try{sessionStorage.setItem("fa_cover","1");localStorage.setItem("fa_intro","1")}catch(e){}
   try{trk("reveal",{auto:!!FS.auto2,board:1,ms:Math.round((Date.now()-FS.t0)/100)/10})}catch(e){}
   if(cv) cv.remove();
+  if(FS.ann&&SND.music&&!sndMuted()){ const m=SND.music, OFF=2.3; try{m.currentTime=OFF; m.volume=1; const p=m.play(); SND.musicAt=Date.now()-OFF*1000; if(p&&p.catch)p.catch(()=>{});}catch(e){} setTimeout(()=>fsSplit(),Math.round((3.2-OFF)*1000)-260); return; }
   setTimeout(()=>fsSplit(),SND.musicAt&&!SND.track?Math.max(300,2860-(Date.now()-SND.musicAt)):950);
 }
 function fsSplit(){
