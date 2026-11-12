@@ -1970,8 +1970,10 @@ const fbNorm=(t,n,right)=>{let v=String(t||"").split(/[,(]/)[0].normalize("NFD")
 function fbCity(o){let c=o.d.city;try{if(fbLang())c=I18N.tr(c)}catch(e){} return c;}
 function fbPrice(o){return "€"+Math.round(o.h.price/(S.split?S.trip.adults:1));}
 function fbLabels(){const it=fbLang(), d=S.trip&&S.trip.from?new Date(S.trip.from+"T12:00:00").toLocaleDateString(it?"it-IT":"en-GB",{weekday:"short",day:"numeric",month:"short"}).toUpperCase().replace(/\./g,""):"";
-  return {head:it?"PARTENZE":"DEPARTURES",date:d,you:it?"IL TUO PROSSIMO WEEKEND":"YOUR NEXT WEEKEND",more:it?"ALTRE PARTENZE":"MORE DEPARTURES",
-    t:it?"Dove ti porta <b>il tabellone</b>?":"Where will <b>the board</b> take you?",s:it?"Fermalo tu: volo + hotel già inclusi.":"You stop it: flight + hotel included.",
+  let gta=false; try{gta=/gta/i.test(CAMP)||CAMP==="52607143293559"}catch(e){} // visitors from the "last free weekend before GTA 6" post
+  return {head:it?"PARTENZE":"DEPARTURES",date:d,you:gta?(it?"MISSIONE: WEEKEND":"MISSION: WEEKEND"):(it?"IL TUO PROSSIMO WEEKEND":"YOUR NEXT WEEKEND"),more:it?"ALTRE PARTENZE":"MORE DEPARTURES",
+    t:gta?(it?"L'ultimo weekend libero <b>prima di GTA&nbsp;6</b>":"Your last free weekend <b>before GTA&nbsp;6</b>"):(it?"Dove ti porta <b>il tabellone</b>?":"Where will <b>the board</b> take you?"),
+    s:gta?(it?"Ferma il tabellone: la tua prossima missione, volo + hotel già inclusi.":"Stop the board: your next mission, flight + hotel included."):(it?"Fermalo tu: volo + hotel già inclusi.":"You stop it: flight + hotel included."),
     btn:it?"Ferma il tabellone ✋":"Stop the board ✋",go:it?"Si parte! ✈":"Let's go! ✈"};}
 function fbRow(n,cls){return `<div class="fbRow ${cls}" style="--n:${n}">${'<i class="fbT"> </i>'.repeat(n)}</div>`;}
 function fsStart(){
