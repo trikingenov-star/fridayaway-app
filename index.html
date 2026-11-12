@@ -990,15 +990,9 @@ html.neg :is(.bt,.msRow button,.meImg) img{filter:none}
 @media (max-height:700px){.fb.cvFS{padding-top:28px}.fbSide .fbLine:nth-child(n+3){display:none}}
 .cvFS{position:fixed;z-index:200;border-radius:0;padding-top:max(18vh,48px);background:none!important;will-change:opacity}
 .cvFS.fb{padding-top:max(6vh,22px)}
-.fbWin{position:absolute;inset:0;z-index:5;pointer-events:none;display:grid;place-items:center;will-change:transform,opacity}
-.fbHole{position:relative;width:min(62vw,290px);aspect-ratio:1/1.4;border-radius:46%/36%;overflow:hidden;
-  box-shadow:0 0 0 200vmax #E4E8F0,inset 0 0 0 8px #CDD3DF,inset 0 0 0 11px #A9B1C2,inset 0 10px 24px rgba(0,0,0,.45)}
-.fbWin::before{content:"";position:absolute;inset:0;background:radial-gradient(130% 70% at 50% 40%,transparent 0 30%,rgba(10,20,60,.10) 70%);pointer-events:none}
-.fbFrame{position:absolute;left:50%;top:50%;width:calc(min(62vw,290px) + 44px);aspect-ratio:1/1.32;transform:translate(-50%,-50%);border-radius:47%/37%;
-  box-shadow:inset 0 0 0 22px #F6F7FA,inset 0 0 0 24px #B8C0CF,0 10px 28px rgba(20,30,70,.16),0 -2px 0 rgba(255,255,255,.9)}
-.fbShade{position:absolute;inset:0;background:repeating-linear-gradient(180deg,#F7F8FB 0 9px,#E6E9F0 9px 10px);box-shadow:inset 0 -2px 0 #C9CFDB;will-change:transform}
-.fbShade::after{content:"";position:absolute;left:50%;bottom:12px;width:44px;height:9px;margin-left:-22px;border-radius:6px;background:#C3C9D6;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
-.fbHint{position:absolute;left:0;right:0;bottom:max(12vh,60px);text-align:center;font-size:13px;font-weight:800;letter-spacing:.18em;color:#7A839B}
+.fsHalf{will-change:transform;box-shadow:0 0 40px rgba(0,0,0,.45)}
+.fsHalf .fbT,.fsHalf .cvTap{animation:none!important}
+.fsCut{position:fixed;left:0;right:0;height:3px;margin-top:-1px;z-index:202;pointer-events:none;background:linear-gradient(90deg,transparent,#1CD6C9 20%,#fff 50%,#FF4FA3 80%,transparent);box-shadow:0 0 18px 4px rgba(28,214,201,.6);transform-origin:50% 50%}
 
 .cvFS .cvBg{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:0 0;will-change:transform;background:radial-gradient(120% 80% at 50% 25%,#2B3AA8 0%,#0B1A5E 55%,#041654 100%);overflow:hidden}
 .cvFS .cvIn{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;will-change:transform,opacity}
@@ -1997,15 +1991,7 @@ function fsStart(){
       <div class="fbSide">${[0,1,2,3].map(()=>`<div class="fbLine">${fbRow(11,"sm")}${fbRow(5,"sm pr")}</div>`).join("")}</div></div>
     <div class="cvT" data-l="t">${L.t}</div><div class="cvS" data-l="s">${L.s}</div>
     <button class="cvTap fbBtn" data-l="btn">${L.btn}</button></div>`;
-  // opening: an aircraft window with the blind down; the blind lifts and we fly through the window into the board
-  const win=document.createElement("div"); win.className="fbWin"; win.innerHTML=`<div class="fbFrame"></div><div class="fbHole"><div class="fbShade"></div></div><div class="fbHint">${fbLabels().head}</div>`;
-  el.appendChild(win);
   document.body.appendChild(el); FS.el=el;
-  { const sh=win.querySelector(".fbShade"), hint=win.querySelector(".fbHint");
-    sh.animate([{transform:"translateY(0)"},{transform:"translateY(4%)",offset:.18},{transform:"translateY(-104%)"}],{duration:520,delay:200,easing:"cubic-bezier(.45,0,.2,1)",fill:"forwards"});
-    hint.animate([{opacity:1},{opacity:0}],{duration:200,delay:620,fill:"forwards"});
-    const z=win.animate([{transform:"scale(1)",opacity:1},{transform:"scale(3.2)",opacity:1,offset:.6},{transform:"scale(6.5)",opacity:0}],{duration:620,delay:740,easing:"cubic-bezier(.55,0,.35,1)",fill:"forwards"});
-    z.onfinish=()=>win.remove(); }
   const rows=[...el.querySelectorAll(".fbRow")].map((r,i)=>({tiles:[...r.children],main:i<2,target:null,done:false}));
   FS.rows=rows; FS.state="spin";
   rows.forEach(r=>r.tiles.forEach(t=>{t.dataset.k=0;t.textContent=FB_CH[Math.random()*FB_CH.length|0]}));
@@ -2046,24 +2032,28 @@ function fbLanded(){
   const cv=document.querySelector("#deck .cover"); S.cover="done"; clearTimeout(S.coverT); try{sessionStorage.setItem("fa_cover","1")}catch(e){}
   try{trk("reveal",{auto:!!FS.auto2,board:1,ms:Math.round((Date.now()-FS.t0)/100)/10})}catch(e){}
   if(cv) cv.remove();
-  setTimeout(()=>fsShrink(),1100);
+  setTimeout(()=>fsSplit(),950);
 }
-function fsShrink(){
+function fsSplit(){
   if(!FS.el||FS.done) return; FS.done=true;
   const el=FS.el, card=document.querySelector("#deck .card");
   if(!card){FS.done=false;fsEnd();return}
   try{card.scrollIntoView({block:"nearest"})}catch(e){}
   requestAnimationFrame(()=>{
-    const r=card.getBoundingClientRect(), W=innerWidth, H=innerHeight, inn=el.querySelector(".cvIn"), bg=el.querySelector(".cvBg");
-    const sx=r.width/W, sy=r.height/H, D=700, E="cubic-bezier(.22,1,.36,1)";
-    bg.style.borderRadius=`${22/sx}px / ${22/sy}px`;
-    // GPU only (transform/opacity): smooth even while the page is busy
-    bg.animate([{transform:"translate(0,0) scale(1,1)"},{transform:`translate(${r.left}px,${r.top}px) scale(${sx},${sy})`}],{duration:D,easing:E,fill:"forwards"});
-    const cy=(r.top+r.height*.3)-H*.3;
-    inn.animate([{opacity:1,transform:"translateY(0) scale(1)"},{opacity:0,transform:`translateY(${cy}px) scale(.8)`}],{duration:D*.5,easing:"ease-in",fill:"forwards"});
-    const f=el.animate([{opacity:1},{opacity:1,offset:.55},{opacity:0}],{duration:D,easing:"linear",fill:"forwards"});
-    f.onfinish=()=>{FS.el=null; el.remove(); const c=document.querySelector("#deck .card"); if(c){c.classList.add("rv");setTimeout(()=>c.classList.remove("rv"),450)}
-      if(!S.demoDone){S.demoDone=true;setTimeout(()=>{const t=document.querySelector("#deck .card");if(t)demo(t)},900)}};
+    const H=innerHeight, m=el.querySelector(".fbMain").getBoundingClientRect();
+    const y=Math.round(Math.min(H*.8,Math.max(H*.2,m.bottom+6))); // the cut runs just under the destination
+    // two copies of the (now still) board, each showing one side of the cut; they slide apart on the GPU
+    const bot=el.cloneNode(true); bot.classList.add("fsHalf"); el.classList.add("fsHalf");
+    el.style.clipPath=`inset(0 0 ${H-y}px 0)`; bot.style.clipPath=`inset(${y}px 0 0 0)`;
+    document.body.appendChild(bot);
+    const line=document.createElement("div"); line.className="fsCut"; line.style.top=y+"px"; document.body.appendChild(line);
+    line.animate([{transform:"scaleX(0)",opacity:1},{transform:"scaleX(1)",opacity:1,offset:.6},{transform:"scaleX(1)",opacity:0}],{duration:420,easing:"cubic-bezier(.3,0,.2,1)",fill:"forwards"});
+    const D=620, E="cubic-bezier(.7,0,.25,1)", o={duration:D,delay:240,easing:E,fill:"forwards"};
+    el.animate([{transform:"translateY(0)"},{transform:`translateY(${-y-40}px)`}],o);
+    const f=bot.animate([{transform:"translateY(0)"},{transform:`translateY(${H-y+40}px)`}],o);
+    card.animate([{transform:"scale(.9)",opacity:.4},{transform:"scale(1)",opacity:1}],{duration:D,delay:300,easing:"cubic-bezier(.2,.9,.3,1.15)",fill:"backwards"});
+    f.onfinish=()=>{FS.el=null; el.remove(); bot.remove(); line.remove();
+      if(!S.demoDone){S.demoDone=true;setTimeout(()=>{const t=document.querySelector("#deck .card");if(t)demo(t)},700)}};
   });
 }
 function armCover(){ const t0=Date.now(); clearTimeout(S.coverT); S.coverT=setTimeout(()=>{const c=document.querySelector("#deck .cover"); if(c&&S.cover==="on") revealCover(c.parentElement,c,true,Date.now()-t0)},5000); }
