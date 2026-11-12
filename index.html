@@ -1961,7 +1961,8 @@ function setHook(o){
   el.innerHTML=isIT()?`Con <b>${p}</b> questo weekend puoi essere ${/^[aàAÀ]/.test(c)?"ad":"a"} <b>${c}</b>`:`With <b>${p}</b> this weekend you could be in <b>${c}</b>`;
 }
 /* first card arrives face down: one tap flips it (auto-flips after 5 s) */
-if(S.cover==null){let seen=false;try{seen=sessionStorage.getItem("fa_cover")==="1"}catch(e){} S.cover=seen?"done":"on";}
+/* the intro (departures board / face-down card) is for the very first visit only; ?intro=1 shows it again for testing */
+if(S.cover==null){let seen=false;try{const f=new URLSearchParams(location.search).get("intro");if(f==="1")localStorage.removeItem("fa_intro");seen=localStorage.getItem("fa_intro")==="1"||sessionStorage.getItem("fa_cover")==="1"}catch(e){} S.cover=seen?"done":"on";}
 /* first visit: the face-down card starts full screen, then shrinks into its place in the deck */
 const FS={el:null,t0:Date.now(),done:false};
 function coverHTML(p,it){return `<div class="cvDots"></div><div class="cvQ" aria-hidden="true"><span>?</span></div><div class="cvT">${it?"Dove sarai <b>il prossimo weekend</b>?":"Where will you be <b>next weekend</b>?"}</div><div class="cvS">${it?`Volo + hotel${p?` da <b>${p}</b>`:""}. La meta è nascosta qui sotto.`:`Flight + hotel${p?` from <b>${p}</b>`:""}. The destination is hidden under this card.`}</div><div class="cvTap">${it?"Girala e scoprilo 👀":"Flip it and find out 👀"}</div>`;}
@@ -2029,7 +2030,7 @@ function fbLanded(){
   try{navigator.vibrate&&navigator.vibrate([20,40,30])}catch(e){}
   FS.el.querySelector(".fbMain").classList.add("won");
   // the destination is now known: open the real card as soon as the board has shrunk into it
-  const cv=document.querySelector("#deck .cover"); S.cover="done"; clearTimeout(S.coverT); try{sessionStorage.setItem("fa_cover","1")}catch(e){}
+  const cv=document.querySelector("#deck .cover"); S.cover="done"; clearTimeout(S.coverT); try{sessionStorage.setItem("fa_cover","1");localStorage.setItem("fa_intro","1")}catch(e){}
   try{trk("reveal",{auto:!!FS.auto2,board:1,ms:Math.round((Date.now()-FS.t0)/100)/10})}catch(e){}
   if(cv) cv.remove();
   setTimeout(()=>fsSplit(),950);
@@ -2071,7 +2072,7 @@ function addCover(card,o){
 }
 window.addEventListener("fa-lang",()=>{try{if(FS.el&&!FS.done){const L=fbLabels();FS.el.querySelectorAll("[data-l]").forEach(x=>{x.innerHTML=x.dataset.l==="btn"&&FS.state!=="spin"?L.go:L[x.dataset.l]});fsReady()}}catch(e){} try{if(S.cover==="on"&&document.querySelector("#deck .cover"))renderDeck();else if(deck&&deck[0])setHook(deck[0])}catch(e){}});
 function revealCover(card,cv,auto,ms){
-  S.cover="done"; clearTimeout(S.coverT); try{sessionStorage.setItem("fa_cover","1")}catch(e){}
+  S.cover="done"; clearTimeout(S.coverT); try{sessionStorage.setItem("fa_cover","1");localStorage.setItem("fa_intro","1")}catch(e){}
   try{trk("reveal",{auto,ms:Math.round(ms/100)/10})}catch(e){}
   const fin=()=>{cv.remove(); if(RM()) return; card.classList.add("rv"); setTimeout(()=>{card.classList.remove("rv"); if(!S.demoDone){S.demoDone=true;setTimeout(()=>demo(card),700)}},450)};
   if(RM()){fin();if(!S.demoDone){S.demoDone=true;demo(card)}return}
