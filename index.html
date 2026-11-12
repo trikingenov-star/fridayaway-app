@@ -144,6 +144,13 @@ textarea{flex:1;min-width:0;resize:none;height:62px;font:inherit;font-size:15px;
 .cover{position:absolute;inset:0;z-index:30;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:12px;text-align:center;color:#fff;cursor:pointer;
   background:radial-gradient(120% 80% at 50% 25%,#2B3AA8 0%,#0B1A5E 55%,#041654 100%);transform-origin:50% 50%;padding:48px 24px 24px}
 .cover img{width:124px;height:124px;border-radius:34px;box-shadow:0 14px 40px rgba(0,0,0,.35);animation:cvFloat 2.4s ease-in-out infinite}
+.cover .cvQ{position:relative;width:132px;height:132px;border-radius:36px;display:grid;place-items:center;background:linear-gradient(145deg,#1CD6C9 0%,#14b8b0 45%,#FF4FA3 100%);box-shadow:0 14px 40px rgba(0,0,0,.35),0 0 0 6px rgba(255,255,255,.08),0 0 60px rgba(28,214,201,.45);animation:cvFloat 2.4s ease-in-out infinite}
+.cover .cvQ span{font-size:96px;font-weight:900;line-height:1;color:#fff;text-shadow:0 4px 0 rgba(4,22,84,.25);animation:cvWig 3s ease-in-out infinite}
+.cover .cvQ::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);background-size:250% 100%;animation:cvShine 2.6s ease-in-out infinite}
+.cvFS .cvQ{width:156px;height:156px;border-radius:42px}.cvFS .cvQ span{font-size:116px}
+.cover .cvS b{color:#1CD6C9;font-weight:800}
+@keyframes cvWig{0%,70%,100%{transform:rotate(0)}76%{transform:rotate(-12deg)}84%{transform:rotate(10deg)}92%{transform:rotate(-5deg)}}
+@keyframes cvShine{0%{background-position:150% 0}60%,100%{background-position:-60% 0}}
 .cover .cvT{font-size:24px;font-weight:800;line-height:1.2;max-width:280px}
 .cover .cvT b{color:#1CD6C9}
 .cover .cvS{font-size:14px;font-weight:600;opacity:.8}
@@ -155,7 +162,7 @@ textarea{flex:1;min-width:0;resize:none;height:62px;font:inherit;font-size:15px;
 @keyframes rvIn{from{transform:perspective(900px) rotateY(-90deg)}to{transform:none}}
 @keyframes cvFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(3deg)}}
 @keyframes cvPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
-@media (prefers-reduced-motion:reduce){.cover img,.cover .cvTap{animation:none}.card.rv{animation:none}}
+@media (prefers-reduced-motion:reduce){.cover img,.cover .cvTap,.cover .cvQ,.cover .cvQ span,.cover .cvQ::after{animation:none}.card.rv{animation:none}}
 .card .evPill .evT{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .card .leg .fn{display:none}
 .price{font-family:var(--display);font-weight:700;font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
@@ -1923,7 +1930,8 @@ function setHook(o){
 if(S.cover==null){let seen=false;try{seen=sessionStorage.getItem("fa_cover")==="1"}catch(e){} S.cover=seen?"done":"on";}
 /* first visit: the face-down card starts full screen, then shrinks into its place in the deck */
 const FS={el:null,t0:Date.now(),done:false};
-function fsText(p){let it=isIT();try{it=I18N.lang==="it"}catch(e){}return `<div class="cvDots"></div><img src="/icons/icon-512.png" alt=""><div class="cvT">${it?`Il tuo prossimo weekend${p?` da <b>${p}</b>`:""}`:`Your next weekend${p?` from <b>${p}</b>`:""}`}</div><div class="cvS">${it?"Volo + hotel, già scelti per te":"Flight + hotel, already picked for you"}</div><div class="cvTap">${it?"Tocca per scoprirlo":"Tap to reveal"}</div>`;}
+function coverHTML(p,it){return `<div class="cvDots"></div><div class="cvQ" aria-hidden="true"><span>?</span></div><div class="cvT">${it?"Dove sarai <b>il prossimo weekend</b>?":"Where will you be <b>next weekend</b>?"}</div><div class="cvS">${it?`Volo + hotel${p?` da <b>${p}</b>`:""}. La meta è nascosta qui sotto.`:`Flight + hotel${p?` from <b>${p}</b>`:""}. The destination is hidden under this card.`}</div><div class="cvTap">${it?"Girala e scoprilo 👀":"Flip it and find out 👀"}</div>`;}
+function fsText(p){let it=isIT();try{it=I18N.lang==="it"}catch(e){}return coverHTML(p,it);}
 function fsStart(){
   if(S.cover!=="on"||RM()||FS.el) return;
   const el=document.createElement("div"); el.className="cover cvFS notr"; el.style.cssText="top:0;left:0;width:100vw;height:100vh;height:100dvh";
@@ -1949,7 +1957,7 @@ function addCover(card,o){
   if(!card||S.cover!=="on") return;
   const p=eur(o.h.price/(S.split?S.trip.adults:1)), it=isIT();
   const cv=document.createElement("div"); cv.className="cover notr";
-  cv.innerHTML=`<div class="cvDots"></div><img src="/icons/icon-512.png" alt=""><div class="cvT">${it?`Il tuo prossimo weekend da <b>${p}</b>`:`Your next weekend from <b>${p}</b>`}</div><div class="cvS">${it?"Volo + hotel, già scelti per te":"Flight + hotel, already picked for you"}</div><div class="cvTap">${it?"Tocca per scoprirlo":"Tap to reveal"}</div>`;
+  cv.innerHTML=coverHTML(p,it);
   card.appendChild(cv);
   const t0=Date.now();
   const go=(auto)=>{ if(S.cover!=="on") return; revealCover(card,cv,auto,Date.now()-t0); };
