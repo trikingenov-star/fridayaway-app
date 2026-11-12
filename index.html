@@ -990,6 +990,7 @@ html.neg :is(.bt,.msRow button,.meImg) img{filter:none}
 @media (max-height:700px){.fb.cvFS{padding-top:28px}.fbSide .fbLine:nth-child(n+3){display:none}}
 .cvFS{position:fixed;z-index:200;border-radius:0;padding-top:max(18vh,48px);background:none!important;will-change:opacity}
 .cvFS.fb{padding-top:max(6vh,22px)}
+.fbMute{position:absolute;top:max(12px,env(safe-area-inset-top,0px));right:12px;z-index:3;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(3,10,40,.55);font-size:18px;cursor:pointer;display:grid;place-items:center;padding:0}
 .fsHalf{will-change:transform;box-shadow:0 0 40px rgba(0,0,0,.45)}
 .fsHalf .fbT,.fsHalf .cvTap{animation:none!important}
 .fsCut{position:fixed;left:0;right:0;height:3px;margin-top:-1px;z-index:202;pointer-events:none;background:linear-gradient(90deg,transparent,#1CD6C9 20%,#fff 50%,#FF4FA3 80%,transparent);box-shadow:0 0 18px 4px rgba(28,214,201,.6);transform-origin:50% 50%}
@@ -1983,6 +1984,25 @@ function fbLabels(){const it=fbLang(), d=new Date(fbDep()+"T12:00:00").toLocaleD
     t:gta?(it?"L'ultimo weekend libero <b>prima di GTA&nbsp;6</b>":"Your last free weekend <b>before GTA&nbsp;6</b>"):(it?"Dove ti porta <b>il tabellone</b>?":"Where will <b>the board</b> take you?"),
     s:gta?(it?"Ferma il tabellone: la tua prossima missione, volo + hotel già inclusi.":"Stop the board: your next mission, flight + hotel included."):(it?"Fermalo tu: volo + hotel già inclusi.":"You stop it: flight + hotel included."),
     btn:it?"Ferma il tabellone ✋":"Stop the board ✋",go:it?"Si parte! ✈":"Let's go! ✈"};}
+/* Board sounds (only on campaign links with "gta"): split-flap clacks, an airport chime and a whoosh, all synthesised with Web Audio */
+const SND={ctx:null,noise:null,last:0,on:false};
+function sndWanted(){let g=false;try{g=/gta/i.test(CAMP)||CAMP==="52607143293559"}catch(e){} return g;}
+function sndMuted(){try{return localStorage.getItem("fa_mute")==="1"}catch(e){return false}}
+function sndInit(){ if(SND.ctx||!sndWanted()) return; try{const C=window.AudioContext||window.webkitAudioContext; if(!C) return; SND.ctx=new C(); SND.ctx.resume&&SND.ctx.resume();
+  const n=SND.ctx.createBuffer(1,SND.ctx.sampleRate*.5,SND.ctx.sampleRate), d=n.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1; SND.noise=n; SND.on=true;}catch(e){} }
+const sndOK=()=>SND.on&&SND.ctx&&!sndMuted();
+function sndClack(vol){ if(!sndOK()) return; const c=SND.ctx, t=c.currentTime; if(t-SND.last<.022) return; SND.last=t;
+  const src=c.createBufferSource(); src.buffer=SND.noise; const bp=c.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=1800+Math.random()*1800; bp.Q.value=3;
+  const g=c.createGain(); g.gain.setValueAtTime((vol||.35),t); g.gain.exponentialRampToValueAtTime(.001,t+.035);
+  src.connect(bp).connect(g).connect(c.destination); src.start(t,Math.random()*.4,.04); }
+function sndDing(){ if(!sndOK()) return; const c=SND.ctx, t=c.currentTime+.05;
+  [[784,0],[988,.24]].forEach(([f,dt])=>[1,2.01,3.02].forEach((h,k)=>{const o=c.createOscillator(), g=c.createGain(); o.type="sine"; o.frequency.value=f*h;
+    const v=[.22,.06,.025][k]; g.gain.setValueAtTime(0,t+dt); g.gain.linearRampToValueAtTime(v,t+dt+.01); g.gain.exponentialRampToValueAtTime(.0008,t+dt+1.3);
+    o.connect(g).connect(c.destination); o.start(t+dt); o.stop(t+dt+1.35);})); }
+function sndWhoosh(){ if(!sndOK()) return; const c=SND.ctx, t=c.currentTime; const src=c.createBufferSource(); src.buffer=SND.noise; src.loop=true;
+  const lp=c.createBiquadFilter(); lp.type="bandpass"; lp.Q.value=.8; lp.frequency.setValueAtTime(300,t); lp.frequency.exponentialRampToValueAtTime(2600,t+.32); lp.frequency.exponentialRampToValueAtTime(250,t+.75);
+  const g=c.createGain(); g.gain.setValueAtTime(.001,t); g.gain.exponentialRampToValueAtTime(.28,t+.25); g.gain.exponentialRampToValueAtTime(.001,t+.8);
+  src.connect(lp).connect(g).connect(c.destination); src.start(t); src.stop(t+.85); }
 function fbRow(n,cls){return `<div class="fbRow ${cls}" style="--n:${n}">${'<i class="fbT"> </i>'.repeat(n)}</div>`;}
 function fsStart(){
   if(S.cover!=="on"||RM()||FS.el) return;
@@ -1994,7 +2014,7 @@ function fsStart(){
       <div class="fbLbl" data-l="more">${L.more}</div>
       <div class="fbSide">${[0,1,2,3].map(()=>`<div class="fbLine">${fbRow(11,"sm")}${fbRow(5,"sm pr")}</div>`).join("")}</div></div>
     <div class="cvT" data-l="t">${L.t}</div><div class="cvS" data-l="s">${L.s}</div>
-    <button class="cvTap fbBtn" data-l="btn">${L.btn}</button></div>`;
+    <button class="cvTap fbBtn" data-l="btn">${L.btn}</button></div>${sndWanted()?`<button class="fbMute" aria-label="Sound">${sndMuted()?"🔇":"🔊"}</button>`:""}`;
   document.body.appendChild(el); FS.el=el;
   const rows=[...el.querySelectorAll(".fbRow")].map((r,i)=>({tiles:[...r.children],main:i<2,target:null,done:false}));
   FS.rows=rows; FS.state="spin";
@@ -2004,12 +2024,13 @@ function fsStart(){
   FS.tick=setInterval(()=>{const now=Date.now();
     rows.forEach(r=>r.tiles.forEach((t,i)=>{
       if(t.dataset.fin==="1") return;
-      if(r.at&&now>=r.at+i*75){const ch=r.target[i]||" "; flip(t,ch===" "?" ":ch); t.dataset.fin="1"; t.classList.add("fin"); return;}
+      if(r.at&&now>=r.at+i*75){const ch=r.target[i]||" "; flip(t,ch===" "?" ":ch); t.dataset.fin="1"; t.classList.add("fin"); sndClack(r.main?.4:.22); return;}
       if(r.main||Math.random()<.45) flip(t,FB_CH[Math.random()*FB_CH.length|0]);
     }));
     if(FS.state==="stopping"&&rows.every(r=>r.tiles.every(t=>t.dataset.fin==="1"))) fbLanded();
   },85);
   el.querySelector(".fbBtn").addEventListener("click",e=>{e.preventDefault();fbStop(false)});
+  const mb=el.querySelector(".fbMute"); if(mb) mb.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();const m=!sndMuted();try{localStorage.setItem("fa_mute",m?"1":"0")}catch(x){} mb.textContent=m?"🔇":"🔊"; if(!m){sndInit();sndClack(.4)} try{trk("theme",{mute:m})}catch(x){}});
   FS.auto=setTimeout(()=>fbStop(true),6500);
   setTimeout(()=>{if(FS.el&&FS.state==="spin"&&!FS.ready) fsEnd()},12000); // cards never came: get out of the way
 }
@@ -2026,12 +2047,12 @@ function fbStop(auto){
   clearTimeout(FS.auto); FS.state="stopping"; FS.auto2=auto;
   const now=Date.now(); FS.rows.forEach((r,i)=>{r.at=now+(i<2?(i===0?0:600):900+(i-2)*90)});
   const b=FS.el.querySelector(".fbBtn"); if(b){b.textContent=fbLabels().go;b.disabled=true;b.classList.add("go")}
-  if(!auto) try{navigator.vibrate&&navigator.vibrate(15)}catch(e){}
+  if(!auto){ try{navigator.vibrate&&navigator.vibrate(15)}catch(e){} sndInit(); }
 }
 function fbLanded(){
   FS.state="landed"; clearInterval(FS.tick);
   try{navigator.vibrate&&navigator.vibrate([20,40,30])}catch(e){}
-  FS.el.querySelector(".fbMain").classList.add("won");
+  FS.el.querySelector(".fbMain").classList.add("won"); sndDing();
   // the destination is now known: open the real card as soon as the board has shrunk into it
   const cv=document.querySelector("#deck .cover"); S.cover="done"; clearTimeout(S.coverT); try{sessionStorage.setItem("fa_cover","1");localStorage.setItem("fa_intro","1")}catch(e){}
   try{trk("reveal",{auto:!!FS.auto2,board:1,ms:Math.round((Date.now()-FS.t0)/100)/10})}catch(e){}
@@ -2052,6 +2073,7 @@ function fsSplit(){
     document.body.appendChild(bot);
     const line=document.createElement("div"); line.className="fsCut"; line.style.top=y+"px"; document.body.appendChild(line);
     line.animate([{transform:"scaleX(0)",opacity:1},{transform:"scaleX(1)",opacity:1,offset:.6},{transform:"scaleX(1)",opacity:0}],{duration:420,easing:"cubic-bezier(.3,0,.2,1)",fill:"forwards"});
+    setTimeout(sndWhoosh,200);
     const D=620, E="cubic-bezier(.7,0,.25,1)", o={duration:D,delay:240,easing:E,fill:"forwards"};
     el.animate([{transform:"translateY(0)"},{transform:`translateY(${-y-40}px)`}],o);
     const f=bot.animate([{transform:"translateY(0)"},{transform:`translateY(${H-y+40}px)`}],o);
