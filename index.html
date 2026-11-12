@@ -1993,8 +1993,10 @@ function sndInit(){ if(SND.ctx||!sndWanted()) return; try{const C=window.AudioCo
   const n=SND.ctx.createBuffer(1,SND.ctx.sampleRate*.5,SND.ctx.sampleRate), d=n.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1; SND.noise=n; SND.on=true;}catch(e){} }
 const sndOK=()=>SND.on&&SND.ctx&&!sndMuted();
 const MYTRACK=(()=>{try{return new URLSearchParams(location.search).get("mytrack")==="1"}catch(e){return false}})();
-function myTrackPlay(){ if(!SND.track||sndMuted()) return; try{const a=SND.track; a.currentTime=0; a.volume=1; a.play().catch(()=>{});}catch(e){} }
-function myTrackFade(){ const a=SND.track; if(!a||a.paused) return; const t0=Date.now(); const iv=setInterval(()=>{const k=1-(Date.now()-t0)/1500; if(k<=0){a.pause();clearInterval(iv)} else a.volume=Math.max(0,k)},60); }
+// Fridayaway's own phonk loop (original, 8 s): its drop at 3.2 s is timed with the screen splitting open
+function sndMusicPrep(){ if(!sndWanted()||SND.music) return; try{SND.music=new Audio("/audio/fridayaway-phonk.mp3"); SND.music.preload="auto";}catch(e){} }
+function myTrackPlay(){ const a=SND.track||SND.music; if(!a||sndMuted()) return; try{a.currentTime=0; a.volume=1; const p=a.play(); SND.musicAt=Date.now(); if(p&&p.catch)p.catch(()=>{SND.musicAt=0});}catch(e){} }
+function myTrackFade(){ const a=SND.track||SND.music; if(!a||a.paused) return; const t0=Date.now(); const iv=setInterval(()=>{const k=1-(Date.now()-t0)/1500; if(k<=0){a.pause();clearInterval(iv)} else a.volume=Math.max(0,k)},60); }
 function sndClack(vol){ if(!sndOK()) return; const c=SND.ctx, t=c.currentTime; if(t-SND.last<.022) return; SND.last=t;
   const src=c.createBufferSource(); src.buffer=SND.noise; const bp=c.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=1800+Math.random()*1800; bp.Q.value=3;
   const g=c.createGain(); g.gain.setValueAtTime((vol||.35),t); g.gain.exponentialRampToValueAtTime(.001,t+.035);
@@ -2033,7 +2035,8 @@ function fsStart(){
     }));
     if(FS.state==="stopping"&&rows.every(r=>r.tiles.every(t=>t.dataset.fin==="1"))) fbLanded();
   },85);
-  el.querySelector(".fbBtn").addEventListener("click",e=>{e.preventDefault();fbStop(false)});
+  sndMusicPrep();
+  el.querySelector(".fbBtn").addEventListener("click",e=>{e.preventDefault(); if(FS.state==="spin"&&!SND.musicAt){sndInit();myTrackPlay();} fbStop(false)});
   const pk=el.querySelector(".fbPick input"); if(pk) pk.addEventListener("change",()=>{const f=pk.files&&pk.files[0]; if(!f) return; SND.track=new Audio(URL.createObjectURL(f)); SND.track.preload="auto"; pk.parentElement.firstChild.textContent="✅ "+f.name.slice(0,28)+" ";});
   const mb=el.querySelector(".fbMute"); if(mb) mb.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();const m=!sndMuted();try{localStorage.setItem("fa_mute",m?"1":"0")}catch(x){} mb.textContent=m?"🔇":"🔊"; if(!m){sndInit();sndClack(.4)} try{trk("theme",{mute:m})}catch(x){}});
   FS.auto=setTimeout(()=>fbStop(true),6500);
@@ -2052,7 +2055,7 @@ function fbStop(auto){
   clearTimeout(FS.auto); FS.state="stopping"; FS.auto2=auto;
   const now=Date.now(); FS.rows.forEach((r,i)=>{r.at=now+(i<2?(i===0?0:600):900+(i-2)*90)});
   const b=FS.el.querySelector(".fbBtn"); if(b){b.textContent=fbLabels().go;b.disabled=true;b.classList.add("go")}
-  if(!auto){ try{navigator.vibrate&&navigator.vibrate(15)}catch(e){} sndInit(); myTrackPlay(); }
+  if(!auto){ try{navigator.vibrate&&navigator.vibrate(15)}catch(e){} sndInit(); }
 }
 function fbLanded(){
   FS.state="landed"; clearInterval(FS.tick);
@@ -2062,7 +2065,7 @@ function fbLanded(){
   const cv=document.querySelector("#deck .cover"); S.cover="done"; clearTimeout(S.coverT); try{sessionStorage.setItem("fa_cover","1");localStorage.setItem("fa_intro","1")}catch(e){}
   try{trk("reveal",{auto:!!FS.auto2,board:1,ms:Math.round((Date.now()-FS.t0)/100)/10})}catch(e){}
   if(cv) cv.remove();
-  setTimeout(()=>fsSplit(),950);
+  setTimeout(()=>fsSplit(),SND.musicAt&&!SND.track?Math.max(300,2860-(Date.now()-SND.musicAt)):950);
 }
 function fsSplit(){
   if(!FS.el||FS.done) return; FS.done=true;
