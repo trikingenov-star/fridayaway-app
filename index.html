@@ -962,7 +962,34 @@ html.neg :is(.bt,.msRow button,.meImg) img{filter:none}
 @media (max-width:600px){.topR{gap:6px}}
 @media (max-width:440px){.top .instBtn .ibT{display:none}}
 @media (max-width:389px){.top .brand span{display:none}}
+.fb .cvIn{gap:14px;padding:0 16px;width:100%;max-width:440px;margin:0 auto}
+.fbBoard{width:100%;background:rgba(3,10,40,.72);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:14px 12px 12px;box-shadow:0 18px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.08);display:flex;flex-direction:column;gap:8px}
+.fbHead{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:800;letter-spacing:.14em;color:#FFD34D}
+.fbHead b{font-weight:900}.fbDate{color:#1CD6C9}
+.fbLbl{font-size:10.5px;font-weight:800;letter-spacing:.16em;color:rgba(255,255,255,.55);text-align:left;margin-top:4px}
+.fbMain{display:flex;flex-direction:column;gap:6px}
+.fbMain .fbRow.pr{align-self:flex-end;width:47%}
+.fbLine{display:grid;grid-template-columns:11fr 5fr;gap:10px}
+.fbRow{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:3px}
+.fbRow.sm{gap:2px}
+.fbT{position:relative;display:grid;place-items:center;font-style:normal;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-weight:800;color:#FFE27A;background:linear-gradient(#141c3f 0 49%,#0a1030 51% 100%);border-radius:4px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05),0 2px 3px rgba(0,0,0,.4);animation-duration:.06s;animation-timing-function:ease-out;will-change:transform}
+.fbT::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.65)}
+.fbRow.big .fbT{aspect-ratio:.7;font-size:min(6vw,26px)}
+.fbRow.sm .fbT{aspect-ratio:.72;font-size:min(3.6vw,15px);color:rgba(255,226,122,.75)}
+.fbRow.pr .fbT{color:#1CD6C9}
+.fbSide{display:flex;flex-direction:column;gap:5px}
+.fbMain.won .fbT.fin{color:#fff;background:linear-gradient(#17a39d 0 49%,#11908a 51% 100%);animation:fbWin .5s ease-out}
+.fbMain.won .fbRow.pr .fbT.fin{background:linear-gradient(#ff5fae 0 49%,#e8418f 51% 100%)}
+@keyframes fbA{from{transform:scaleY(.15)}to{transform:none}}
+@keyframes fbB{from{transform:scaleY(.15)}to{transform:none}}
+@keyframes fbWin{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+.fb .cvT{font-size:24px;max-width:340px}
+.fb .cvS{font-size:14px}
+.fbBtn{border:0;font:inherit;cursor:pointer}
+.fbBtn.go{animation:none;background:#14b8b0;box-shadow:0 8px 22px rgba(20,184,176,.4)}
+@media (max-height:700px){.fb.cvFS{padding-top:28px}.fbSide .fbLine:nth-child(n+3){display:none}}
 .cvFS{position:fixed;z-index:200;border-radius:0;padding-top:max(18vh,48px);background:none!important;will-change:opacity}
+.cvFS.fb{padding-top:max(6vh,22px)}
 .cvFS .cvBg{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:0 0;will-change:transform;background:radial-gradient(120% 80% at 50% 25%,#2B3AA8 0%,#0B1A5E 55%,#041654 100%);overflow:hidden}
 .cvFS .cvIn{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;will-change:transform,opacity}
 .cvFS .cvIn .cvDots{display:none}
@@ -1934,17 +1961,74 @@ if(S.cover==null){let seen=false;try{seen=sessionStorage.getItem("fa_cover")==="
 /* first visit: the face-down card starts full screen, then shrinks into its place in the deck */
 const FS={el:null,t0:Date.now(),done:false};
 function coverHTML(p,it){return `<div class="cvDots"></div><div class="cvQ" aria-hidden="true"><span>?</span></div><div class="cvT">${it?"Dove sarai <b>il prossimo weekend</b>?":"Where will you be <b>next weekend</b>?"}</div><div class="cvS">${it?`Volo + hotel${p?` da <b>${p}</b>`:""}. La meta è nascosta qui sotto.`:`Flight + hotel${p?` from <b>${p}</b>`:""}. The destination is hidden under this card.`}</div><div class="cvTap">${it?"Girala e scoprilo 👀":"Flip it and find out 👀"}</div>`;}
-function fsText(p){let it=isIT();try{it=I18N.lang==="it"}catch(e){}return `<div class="cvBg"><div class="cvDots"></div></div><div class="cvIn">${coverHTML(p,it)}</div>`;}
+/* Departures board: split-flap letters spin until the visitor stops them on their weekend, then the board shrinks into the card */
+const FB_CH="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789€";
+const fbLang=()=>{try{return I18N.lang==="it"}catch(e){return isIT()}};
+const fbNorm=(t,n,right)=>{let v=String(t||"").split(/[,(]/)[0].normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z0-9€ ]/g," ").replace(/\s+/g," ").trim();
+  if(v.length>n){let o="";for(const x of v.split(" ")){if((o?o+" "+x:x).length<=n)o=o?o+" "+x:x;else break}v=o||v.slice(0,n)} // "PALMA DE MALLORCA" -> "PALMA DE"
+  return right?v.padStart(n," "):v.padEnd(n," ");};
+function fbCity(o){let c=o.d.city;try{if(fbLang())c=I18N.tr(c)}catch(e){} return c;}
+function fbPrice(o){return "€"+Math.round(o.h.price/(S.split?S.trip.adults:1));}
+function fbLabels(){const it=fbLang(), d=S.trip&&S.trip.from?new Date(S.trip.from+"T12:00:00").toLocaleDateString(it?"it-IT":"en-GB",{weekday:"short",day:"numeric",month:"short"}).toUpperCase().replace(/\./g,""):"";
+  return {head:it?"PARTENZE":"DEPARTURES",date:d,you:it?"IL TUO PROSSIMO WEEKEND":"YOUR NEXT WEEKEND",more:it?"ALTRE PARTENZE":"MORE DEPARTURES",
+    t:it?"Dove ti porta <b>il tabellone</b>?":"Where will <b>the board</b> take you?",s:it?"Fermalo tu: volo + hotel già inclusi.":"You stop it: flight + hotel included.",
+    btn:it?"Ferma il tabellone ✋":"Stop the board ✋",go:it?"Si parte! ✈":"Let's go! ✈"};}
+function fbRow(n,cls){return `<div class="fbRow ${cls}" style="--n:${n}">${'<i class="fbT"> </i>'.repeat(n)}</div>`;}
 function fsStart(){
   if(S.cover!=="on"||RM()||FS.el) return;
-  const el=document.createElement("div"); el.className="cover cvFS notr"; el.style.cssText="top:0;left:0;width:100vw;height:100vh;height:100dvh";
-  el.innerHTML=fsText(""); document.body.appendChild(el); FS.el=el;
-  el.addEventListener("pointerdown",e=>{e.preventDefault();fsShrink(true)});
-  setTimeout(()=>{if(FS.el&&!FS.done) fsEnd()},9000); // cards never came: just get out of the way
+  const L=fbLabels(), el=document.createElement("div"); el.className="cover cvFS fb notr"; el.style.cssText="top:0;left:0;width:100vw;height:100vh;height:100dvh";
+  el.innerHTML=`<div class="cvBg"><div class="cvDots"></div></div><div class="cvIn">
+    <div class="fbBoard"><div class="fbHead"><span>✈ <b data-l="head">${L.head}</b></span><span class="fbDate" data-l="date">${L.date}</span></div>
+      <div class="fbLbl" data-l="you">${L.you}</div>
+      <div class="fbMain">${fbRow(11,"big")}${fbRow(5,"big pr")}</div>
+      <div class="fbLbl" data-l="more">${L.more}</div>
+      <div class="fbSide">${[0,1,2,3].map(()=>`<div class="fbLine">${fbRow(11,"sm")}${fbRow(5,"sm pr")}</div>`).join("")}</div></div>
+    <div class="cvT" data-l="t">${L.t}</div><div class="cvS" data-l="s">${L.s}</div>
+    <button class="cvTap fbBtn" data-l="btn">${L.btn}</button></div>`;
+  document.body.appendChild(el); FS.el=el;
+  const rows=[...el.querySelectorAll(".fbRow")].map((r,i)=>({tiles:[...r.children],main:i<2,target:null,done:false}));
+  FS.rows=rows; FS.state="spin";
+  rows.forEach(r=>r.tiles.forEach(t=>{t.dataset.k=0;t.textContent=FB_CH[Math.random()*FB_CH.length|0]}));
+  const flip=(t,ch)=>{t.textContent=ch; t.dataset.k=t.dataset.k==="0"?"1":"0"; t.style.animationName=t.dataset.k==="1"?"fbA":"fbB";};
+  FS.flip=flip;
+  FS.tick=setInterval(()=>{const now=Date.now();
+    rows.forEach(r=>r.tiles.forEach((t,i)=>{
+      if(t.dataset.fin==="1") return;
+      if(r.at&&now>=r.at+i*75){const ch=r.target[i]||" "; flip(t,ch===" "?" ":ch); t.dataset.fin="1"; t.classList.add("fin"); return;}
+      if(r.main||Math.random()<.45) flip(t,FB_CH[Math.random()*FB_CH.length|0]);
+    }));
+    if(FS.state==="stopping"&&rows.every(r=>r.tiles.every(t=>t.dataset.fin==="1"))) fbLanded();
+  },85);
+  el.querySelector(".fbBtn").addEventListener("click",e=>{e.preventDefault();fbStop(false)});
+  FS.auto=setTimeout(()=>fbStop(true),6500);
+  setTimeout(()=>{if(FS.el&&FS.state==="spin"&&!FS.ready) fsEnd()},12000); // cards never came: get out of the way
 }
-function fsEnd(){if(FS.el){const el=FS.el;FS.el=null;FS.done=true;el.animate([{opacity:1},{opacity:0}],{duration:250}).onfinish=()=>el.remove()}}
-function fsReady(p){ if(!FS.el||FS.done) return; FS.p=p; FS.el.innerHTML=fsText(p); const wait=Math.max(250,1300-(Date.now()-FS.t0)); setTimeout(()=>fsShrink(false),wait); }
-function fsShrink(tap){
+function fsEnd(){clearInterval(FS.tick);clearTimeout(FS.auto);if(FS.el){const el=FS.el;FS.el=null;FS.done=true;el.animate([{opacity:1},{opacity:0}],{duration:250}).onfinish=()=>{el.remove();armCover()}}}
+function fsReady(){ if(!FS.el||FS.done||FS.state!=="spin") return;
+  const d=typeof deck!=="undefined"?deck:[]; if(!d||!d[0]) return; FS.ready=true;
+  FS.rows[0].target=fbNorm(fbCity(d[0]),11); FS.rows[1].target=fbNorm(fbPrice(d[0]),5,1);
+  for(let k=0;k<4;k++){const o=d[k+1]; FS.rows[2+k*2].target=o?fbNorm(fbCity(o),11):" ".repeat(11); FS.rows[3+k*2].target=o?fbNorm(fbPrice(o),5,1):" ".repeat(5);}
+  if(FS.want) fbStop(FS.want==="auto");
+}
+function fbStop(auto){
+  if(!FS.el||FS.state!=="spin") return;
+  if(!FS.ready){FS.want=auto?"auto":"tap";const b=FS.el.querySelector(".fbBtn");if(b&&!auto)b.textContent="…";return}
+  clearTimeout(FS.auto); FS.state="stopping"; FS.auto2=auto;
+  const now=Date.now(); FS.rows.forEach((r,i)=>{r.at=now+(i<2?(i===0?0:600):900+(i-2)*90)});
+  const b=FS.el.querySelector(".fbBtn"); if(b){b.textContent=fbLabels().go;b.disabled=true;b.classList.add("go")}
+  if(!auto) try{navigator.vibrate&&navigator.vibrate(15)}catch(e){}
+}
+function fbLanded(){
+  FS.state="landed"; clearInterval(FS.tick);
+  try{navigator.vibrate&&navigator.vibrate([20,40,30])}catch(e){}
+  FS.el.querySelector(".fbMain").classList.add("won");
+  // the destination is now known: open the real card as soon as the board has shrunk into it
+  const cv=document.querySelector("#deck .cover"); S.cover="done"; clearTimeout(S.coverT); try{sessionStorage.setItem("fa_cover","1")}catch(e){}
+  try{trk("reveal",{auto:!!FS.auto2,board:1,ms:Math.round((Date.now()-FS.t0)/100)/10})}catch(e){}
+  if(cv) cv.remove();
+  setTimeout(()=>fsShrink(),1100);
+}
+function fsShrink(){
   if(!FS.el||FS.done) return; FS.done=true;
   const el=FS.el, card=document.querySelector("#deck .card");
   if(!card){FS.done=false;fsEnd();return}
@@ -1952,13 +2036,14 @@ function fsShrink(tap){
   requestAnimationFrame(()=>{
     const r=card.getBoundingClientRect(), W=innerWidth, H=innerHeight, inn=el.querySelector(".cvIn"), bg=el.querySelector(".cvBg");
     const sx=r.width/W, sy=r.height/H, D=700, E="cubic-bezier(.22,1,.36,1)";
-    bg.style.borderRadius=`${22/sx}px / ${22/sy}px`; // ends as the card's 22px corners once scaled
-    // everything below runs on the GPU (transform/opacity only), so it stays smooth while the page is busy
+    bg.style.borderRadius=`${22/sx}px / ${22/sy}px`;
+    // GPU only (transform/opacity): smooth even while the page is busy
     bg.animate([{transform:"translate(0,0) scale(1,1)"},{transform:`translate(${r.left}px,${r.top}px) scale(${sx},${sy})`}],{duration:D,easing:E,fill:"forwards"});
-    const cy=(r.top+r.height*.35)-H*.4;
-    inn.animate([{opacity:1,transform:"translateY(0) scale(1)"},{opacity:0,transform:`translateY(${cy}px) scale(.82)`}],{duration:D*.45,easing:"ease-in",fill:"forwards"});
-    const f=el.animate([{opacity:1},{opacity:1,offset:.6},{opacity:0}],{duration:D,easing:"linear",fill:"forwards"});
-    f.onfinish=()=>{FS.el=null; el.remove(); const cv=document.querySelector("#deck .cover"); if(tap&&cv&&S.cover==="on") revealCover(cv.parentElement,cv,false,Date.now()-FS.t0); else armCover();};
+    const cy=(r.top+r.height*.3)-H*.3;
+    inn.animate([{opacity:1,transform:"translateY(0) scale(1)"},{opacity:0,transform:`translateY(${cy}px) scale(.8)`}],{duration:D*.5,easing:"ease-in",fill:"forwards"});
+    const f=el.animate([{opacity:1},{opacity:1,offset:.55},{opacity:0}],{duration:D,easing:"linear",fill:"forwards"});
+    f.onfinish=()=>{FS.el=null; el.remove(); const c=document.querySelector("#deck .card"); if(c){c.classList.add("rv");setTimeout(()=>c.classList.remove("rv"),450)}
+      if(!S.demoDone){S.demoDone=true;setTimeout(()=>{const t=document.querySelector("#deck .card");if(t)demo(t)},900)}};
   });
 }
 function armCover(){ const t0=Date.now(); clearTimeout(S.coverT); S.coverT=setTimeout(()=>{const c=document.querySelector("#deck .cover"); if(c&&S.cover==="on") revealCover(c.parentElement,c,true,Date.now()-t0)},5000); }
@@ -1972,9 +2057,9 @@ function addCover(card,o){
   const t0=Date.now();
   const go=(auto)=>{ if(S.cover!=="on") return; revealCover(card,cv,auto,Date.now()-t0); };
   cv.addEventListener("pointerdown",e=>{e.stopPropagation();e.preventDefault();go(false)});
-  if(FS.el&&!FS.done) fsReady(p); else if(!FS.el) armCover();
+  if(FS.el&&!FS.done) fsReady(); else if(!FS.el) armCover();
 }
-window.addEventListener("fa-lang",()=>{try{if(FS.el&&!FS.done)FS.el.innerHTML=fsText(FS.p||"")}catch(e){} try{if(S.cover==="on"&&document.querySelector("#deck .cover"))renderDeck();else if(deck&&deck[0])setHook(deck[0])}catch(e){}});
+window.addEventListener("fa-lang",()=>{try{if(FS.el&&!FS.done){const L=fbLabels();FS.el.querySelectorAll("[data-l]").forEach(x=>{x.innerHTML=x.dataset.l==="btn"&&FS.state!=="spin"?L.go:L[x.dataset.l]});fsReady()}}catch(e){} try{if(S.cover==="on"&&document.querySelector("#deck .cover"))renderDeck();else if(deck&&deck[0])setHook(deck[0])}catch(e){}});
 function revealCover(card,cv,auto,ms){
   S.cover="done"; clearTimeout(S.coverT); try{sessionStorage.setItem("fa_cover","1")}catch(e){}
   try{trk("reveal",{auto,ms:Math.round(ms/100)/10})}catch(e){}
