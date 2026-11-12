@@ -80,6 +80,7 @@ module.exports = async (req, res) => {
     out.subscribers = Object.values(by).filter((r) => !r.test && !(r.uid && EXCL.has(r.uid))).length;
   } catch (e) { out.subscribers = 0; }
   { const r = (out._ready || []).sort((x, y) => x - y); out.ready = { n: r.length, median: r.length ? r[Math.floor(r.length / 2)] : 0, instant: out._readySnap || 0 }; delete out._ready; delete out._readySnap; }
+  try { out.accounts = Number(await cmd(["SCARD", "accts"])) || 0; } catch (e) { out.accounts = 0; }
   out.updated = Date.now(); out.files = nfiles;
   return res.status(200).json(out);
 };
