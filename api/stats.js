@@ -1,31 +1,21 @@
 // GET /api/stats?key=...   Aggregated, anonymous usage of Fridayaway (only for the owner: needs STATS_KEY).
-const { list, put } = require("@vercel/blob");
+const { cmd, pipe } = require("./_kv");
 module.exports = async (req, res) => {
   res.setHeader("cache-control", "no-store");
   const key = String((req.query && req.query.key) || "");
   if (!process.env.STATS_KEY || key !== process.env.STATS_KEY) return res.status(401).json({ error: "wrong key" });
   // Read events fast: past days are merged once into one summary file each (agg/DAY.json), only today is read file by file
+  const subsAll = async () => { try { const h = (await cmd(["HVALS", "subs"])) || []; return h.map((x) => { try { return JSON.parse(x); } catch (e) { return null; } }).filter(Boolean); } catch (e) { return []; } };
   if (req.query && req.query.subs) { // Thursday alert sign-ups (latest record per email)
-    const sb = []; let c; do { const r = await list({ prefix: "subs/", limit: 1000, cursor: c }); sb.push(...r.blobs); c = r.hasMore ? r.cursor : undefined; } while (c);
-    const recs = (await Promise.all(sb.map((b) => fetch(b.url).then((r) => (r.ok ? r.json() : null)).catch(() => null)))).filter(Boolean);
-    const by = {}; recs.forEach((r) => { if (!by[r.email] || r.at > by[r.email].at) by[r.email] = r; });
+    const recs = await subsAll(); const by = {}; recs.forEach((r) => { if (!by[r.email] || r.at > by[r.email].at) by[r.email] = r; });
     return res.status(200).json({ count: Object.keys(by).length, subscribers: Object.values(by).sort((a, b) => b.at - a.at) });
   }
-  const blobs = []; let cursor;
-  do { const r = await list({ prefix: "ev/", limit: 1000, cursor }); blobs.push(...r.blobs); cursor = r.hasMore ? r.cursor : undefined; } while (cursor);
-  const aggs = {}; cursor = undefined;
-  do { const r = await list({ prefix: "agg/", limit: 1000, cursor }); r.blobs.forEach((b) => { const m = /^agg\/(\d{4}-\d{2}-\d{2})/.exec(b.pathname); if (m && (!aggs[m[1]] || b.uploadedAt > aggs[m[1]].uploadedAt)) aggs[m[1]] = b; }); cursor = r.hasMore ? r.cursor : undefined; } while (cursor);
-  const byDay = {};
-  blobs.forEach((b) => { const m = /^ev\/(\d{4}-\d{2}-\d{2})\//.exec(b.pathname); const d = m ? m[1] : "other"; (byDay[d] = byDay[d] || []).push(b); });
-  const getJSON = (u) => fetch(u).then((r) => (r.ok ? r.json() : null)).catch(() => null);
-  const readAll = async (list) => { const out = []; for (let i = 0; i < list.length; i += 100) { const part = await Promise.all(list.slice(i, i + 100).map((b) => getJSON(b.url))); out.push(...part.filter(Boolean)); } return out; };
-  const today = new Date().toISOString().slice(0, 10);
-  const recs = [];
-  await Promise.all(Object.entries(byDay).map(async ([day, list]) => {
-    if (day < today && aggs[day]) { const a = await getJSON(aggs[day].url); if (a && a.count === list.length && Array.isArray(a.recs)) { recs.push(...a.recs); return; } }
-    const r = await readAll(list); recs.push(...r);
-    if (day < today && day !== "other") { try { await put(`agg/${day}.json`, JSON.stringify({ count: list.length, recs: r }), { access: "public", addRandomSuffix: true, contentType: "application/json" }); } catch (e) {} }
-  }));
+  const days = ((await cmd(["SMEMBERS", "ev:days"])) || []).sort();
+  const recs = []; let nfiles = 0;
+  for (let i = 0; i < days.length; i += 6) { // a few days per request keeps every reply small
+    const part = await pipe(days.slice(i, i + 6).map((d) => ["LRANGE", "ev:" + d, 0, -1]));
+    part.forEach((lst) => (lst || []).forEach((x) => { try { recs.push(JSON.parse(x)); nfiles++; } catch (e) {} }));
+  }
   const S = {};
   const EXCL = new Set(String(process.env.STATS_EXCLUDE || "").split(",").map((x) => x.trim()).filter(Boolean));
   recs.filter((r) => !String(r.sid).startsWith("selftest") && !EXCL.has(r.sid) && !(r.uid && EXCL.has(r.uid))).forEach((r) => { const s = S[r.sid] || (S[r.sid] = { sid: r.sid, uid: r.uid || "", dev: r.dev, os: r.os, country: r.country, first: r.at, ev: [] }); s.first = Math.min(s.first, r.at); if (r.uid) s.uid = r.uid; s.ev.push(...r.ev); });
@@ -86,12 +76,10 @@ module.exports = async (req, res) => {
   });
   out.returning = { users: tracked, returned: back, returnedOtherDay: backDay, rate: tracked ? Math.round((back / tracked) * 100) : 0, rateOtherDay: tracked ? Math.round((backDay / tracked) * 100) : 0, visitsPerUser: tracked ? Math.round((visits / tracked) * 10) / 10 : 0 };
   try { // Thursday alert sign-ups: latest record per email, without the owner's and test devices
-    const sb = []; let c; do { const r = await list({ prefix: "subs/", limit: 1000, cursor: c }); sb.push(...r.blobs); c = r.hasMore ? r.cursor : undefined; } while (c);
-    const sr = (await Promise.all(sb.map((b) => fetch(b.url).then((r) => (r.ok ? r.json() : null)).catch(() => null)))).filter(Boolean);
-    const by = {}; sr.forEach((r) => { if (!by[r.email] || r.at > by[r.email].at) by[r.email] = r; });
+    const sr = await subsAll(); const by = {}; sr.forEach((r) => { if (!by[r.email] || r.at > by[r.email].at) by[r.email] = r; });
     out.subscribers = Object.values(by).filter((r) => !r.test && !(r.uid && EXCL.has(r.uid))).length;
   } catch (e) { out.subscribers = 0; }
   { const r = (out._ready || []).sort((x, y) => x - y); out.ready = { n: r.length, median: r.length ? r[Math.floor(r.length / 2)] : 0, instant: out._readySnap || 0 }; delete out._ready; delete out._readySnap; }
-  out.updated = Date.now(); out.files = blobs.length;
+  out.updated = Date.now(); out.files = nfiles;
   return res.status(200).json(out);
 };

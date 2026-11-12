@@ -1,7 +1,7 @@
 // POST /api/track  {sid, ev:[{t, ts, d}]}
 // Anonymous product analytics: what people do inside Fridayaway (no names, emails or IP addresses are stored).
 // Each flush from a browser becomes one small JSON file in the project's Vercel Blob store.
-const { put } = require("@vercel/blob");
+const { cmd, pipe } = require("./_kv");
 const TYPES = new Set(["open", "search", "swipe", "undo", "sheet", "book", "checkout", "hotel_switch", "fly_filter", "together_start", "together_end", "install", "sight_open", "install_popup", "install_click", "install_choice", "install_close", "lang", "time", "events_open", "book_step", "theme", "hotel_section", "ready", "alert_shown", "alert_signup", "alert_close", "vibe_chip", "reveal"]);
 const clean = (d) => {
   if (!d || typeof d !== "object") return undefined;
@@ -18,15 +18,14 @@ const clean = (d) => {
 module.exports = async (req, res) => {
   res.setHeader("cache-control", "no-store");
   if (req.method === "GET" && req.query && req.query.health) {
-    // Health check without any user data: how many event files were written per day in the last 7 days
-    const { list } = require("@vercel/blob");
+    // Health check without any user data: how many event batches were stored per day in the last 7 days
     const out = {}; const now = Date.now();
-    for (let i = 0; i < 7; i++) {
-      const day = new Date(now - i * 864e5).toISOString().slice(0, 10); let n = 0, cursor, last = 0;
-      do { const r = await list({ prefix: `ev/${day}/`, limit: 1000, cursor }); n += r.blobs.length; r.blobs.forEach((b) => { const t = +new Date(b.uploadedAt); if (t > last) last = t; }); cursor = r.hasMore ? r.cursor : undefined; } while (cursor);
-      out[day] = { files: n, lastWrite: last ? new Date(last).toISOString() : null };
-    }
-    return res.status(200).json(out);
+    try {
+      const days = Array.from({ length: 7 }, (_, i) => new Date(now - i * 864e5).toISOString().slice(0, 10));
+      const n = await pipe(days.map((d) => ["LLEN", "ev:" + d]));
+      days.forEach((d, i) => (out[d] = { files: n[i] }));
+      return res.status(200).json(out);
+    } catch (e) { return res.status(500).json({ error: String(e.message || e).slice(0, 200) }); }
   }
   if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
   let b = req.body;
@@ -42,7 +41,8 @@ module.exports = async (req, res) => {
   const uid = String(b.uid || "").replace(/[^a-z0-9]/gi, "").slice(0, 32);
   const rec = { sid, uid, at: Date.now(), dev: /Mobi|Android|iPhone|iPad/i.test(ua) ? "mobile" : "desktop", os: /iPhone|iPad|Mac OS/i.test(ua) ? "Apple" : /Android/i.test(ua) ? "Android" : /Windows/i.test(ua) ? "Windows" : "other", country: String(req.headers["x-vercel-ip-country"] || ""), ev };
   try {
-    await put(`ev/${new Date().toISOString().slice(0, 10)}/${sid}.json`, JSON.stringify(rec), { access: "public", addRandomSuffix: true, contentType: "application/json" });
+    const day = new Date().toISOString().slice(0, 10);
+    await pipe([["RPUSH", "ev:" + day, JSON.stringify(rec)], ["SADD", "ev:days", day]]);
     return res.status(204).end();
   } catch (e) {
     return res.status(500).json({ error: String(e.message || e).slice(0, 200) });
