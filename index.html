@@ -990,6 +990,7 @@ html.neg :is(.bt,.msRow button,.meImg) img{filter:none}
 @media (max-height:700px){.fb.cvFS{padding-top:28px}.fbSide .fbLine:nth-child(n+3){display:none}}
 .cvFS{position:fixed;z-index:200;border-radius:0;padding-top:max(18vh,48px);background:none!important;will-change:opacity}
 .cvFS.fb{padding-top:max(6vh,22px)}
+.fbPick{position:absolute;left:12px;right:64px;top:max(12px,env(safe-area-inset-top,0px));z-index:3;font-size:12px;font-weight:700;color:#fff;background:rgba(255,79,163,.85);border-radius:999px;padding:10px 12px;cursor:pointer;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fbMute{position:absolute;top:max(12px,env(safe-area-inset-top,0px));right:12px;z-index:3;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(3,10,40,.55);font-size:18px;cursor:pointer;display:grid;place-items:center;padding:0}
 .fsHalf{will-change:transform;box-shadow:0 0 40px rgba(0,0,0,.45)}
 .fsHalf .fbT,.fsHalf .cvTap{animation:none!important}
@@ -1991,6 +1992,9 @@ function sndMuted(){try{return localStorage.getItem("fa_mute")==="1"}catch(e){re
 function sndInit(){ if(SND.ctx||!sndWanted()) return; try{const C=window.AudioContext||window.webkitAudioContext; if(!C) return; SND.ctx=new C(); SND.ctx.resume&&SND.ctx.resume();
   const n=SND.ctx.createBuffer(1,SND.ctx.sampleRate*.5,SND.ctx.sampleRate), d=n.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1; SND.noise=n; SND.on=true;}catch(e){} }
 const sndOK=()=>SND.on&&SND.ctx&&!sndMuted();
+const MYTRACK=(()=>{try{return new URLSearchParams(location.search).get("mytrack")==="1"}catch(e){return false}})();
+function myTrackPlay(){ if(!SND.track||sndMuted()) return; try{const a=SND.track; a.currentTime=0; a.volume=1; a.play().catch(()=>{});}catch(e){} }
+function myTrackFade(){ const a=SND.track; if(!a||a.paused) return; const t0=Date.now(); const iv=setInterval(()=>{const k=1-(Date.now()-t0)/1500; if(k<=0){a.pause();clearInterval(iv)} else a.volume=Math.max(0,k)},60); }
 function sndClack(vol){ if(!sndOK()) return; const c=SND.ctx, t=c.currentTime; if(t-SND.last<.022) return; SND.last=t;
   const src=c.createBufferSource(); src.buffer=SND.noise; const bp=c.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=1800+Math.random()*1800; bp.Q.value=3;
   const g=c.createGain(); g.gain.setValueAtTime((vol||.35),t); g.gain.exponentialRampToValueAtTime(.001,t+.035);
@@ -2014,7 +2018,7 @@ function fsStart(){
       <div class="fbLbl" data-l="more">${L.more}</div>
       <div class="fbSide">${[0,1,2,3].map(()=>`<div class="fbLine">${fbRow(11,"sm")}${fbRow(5,"sm pr")}</div>`).join("")}</div></div>
     <div class="cvT" data-l="t">${L.t}</div><div class="cvS" data-l="s">${L.s}</div>
-    <button class="cvTap fbBtn" data-l="btn">${L.btn}</button></div>${sndWanted()?`<button class="fbMute" aria-label="Sound">${sndMuted()?"🔇":"🔊"}</button>`:""}`;
+    <button class="cvTap fbBtn" data-l="btn">${L.btn}</button></div>${sndWanted()?`<button class="fbMute" aria-label="Sound">${sndMuted()?"🔇":"🔊"}</button>`:""}${MYTRACK?`<label class="fbPick">🎵 Brano di prova (solo su questo telefono)<input type="file" accept="audio/*" hidden></label>`:""}`;
   document.body.appendChild(el); FS.el=el;
   const rows=[...el.querySelectorAll(".fbRow")].map((r,i)=>({tiles:[...r.children],main:i<2,target:null,done:false}));
   FS.rows=rows; FS.state="spin";
@@ -2030,6 +2034,7 @@ function fsStart(){
     if(FS.state==="stopping"&&rows.every(r=>r.tiles.every(t=>t.dataset.fin==="1"))) fbLanded();
   },85);
   el.querySelector(".fbBtn").addEventListener("click",e=>{e.preventDefault();fbStop(false)});
+  const pk=el.querySelector(".fbPick input"); if(pk) pk.addEventListener("change",()=>{const f=pk.files&&pk.files[0]; if(!f) return; SND.track=new Audio(URL.createObjectURL(f)); SND.track.preload="auto"; pk.parentElement.firstChild.textContent="✅ "+f.name.slice(0,28)+" ";});
   const mb=el.querySelector(".fbMute"); if(mb) mb.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();const m=!sndMuted();try{localStorage.setItem("fa_mute",m?"1":"0")}catch(x){} mb.textContent=m?"🔇":"🔊"; if(!m){sndInit();sndClack(.4)} try{trk("theme",{mute:m})}catch(x){}});
   FS.auto=setTimeout(()=>fbStop(true),6500);
   setTimeout(()=>{if(FS.el&&FS.state==="spin"&&!FS.ready) fsEnd()},12000); // cards never came: get out of the way
@@ -2047,7 +2052,7 @@ function fbStop(auto){
   clearTimeout(FS.auto); FS.state="stopping"; FS.auto2=auto;
   const now=Date.now(); FS.rows.forEach((r,i)=>{r.at=now+(i<2?(i===0?0:600):900+(i-2)*90)});
   const b=FS.el.querySelector(".fbBtn"); if(b){b.textContent=fbLabels().go;b.disabled=true;b.classList.add("go")}
-  if(!auto){ try{navigator.vibrate&&navigator.vibrate(15)}catch(e){} sndInit(); }
+  if(!auto){ try{navigator.vibrate&&navigator.vibrate(15)}catch(e){} sndInit(); myTrackPlay(); }
 }
 function fbLanded(){
   FS.state="landed"; clearInterval(FS.tick);
@@ -2078,7 +2083,7 @@ function fsSplit(){
     el.animate([{transform:"translateY(0)"},{transform:`translateY(${-y-40}px)`}],o);
     const f=bot.animate([{transform:"translateY(0)"},{transform:`translateY(${H-y+40}px)`}],o);
     card.animate([{transform:"scale(.9)",opacity:.4},{transform:"scale(1)",opacity:1}],{duration:D,delay:300,easing:"cubic-bezier(.2,.9,.3,1.15)",fill:"backwards"});
-    f.onfinish=()=>{FS.el=null; el.remove(); bot.remove(); line.remove();
+    f.onfinish=()=>{FS.el=null; el.remove(); bot.remove(); line.remove(); setTimeout(myTrackFade,2500);
       if(!S.demoDone){S.demoDone=true;setTimeout(()=>{const t=document.querySelector("#deck .card");if(t)demo(t)},700)}};
   });
 }
