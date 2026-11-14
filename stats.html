@@ -21,12 +21,25 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 .bar{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:13.5px}.bar i{height:12px;border-radius:6px;background:var(--primary);display:block;min-width:2px}.bar .l{width:150px;flex:none}.bar .v{font-variant-numeric:tabular-nums;color:var(--muted)}
 .err{background:#FFE4EA;color:#A43A55;padding:12px;border-radius:12px}
 .empty{color:var(--muted)}
+.filt{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 16px}
+.filt button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 14px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+.filt button[aria-pressed="true"]{background:var(--primary);border-color:var(--primary);color:#fff}
+.filt input{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font:inherit;font-size:13.5px;background:var(--card);color:var(--ink)}
+.d{display:inline-block;margin-left:6px;font-size:12px;font-weight:700;padding:1px 7px;border-radius:999px;vertical-align:middle}
+.d.up{background:#E3F6EC;color:var(--good)}.d.dn{background:#FDE8EC;color:var(--bad)}.d.eq{background:var(--line);color:var(--muted)}
+.cmp{font-size:12.5px;color:var(--muted);margin:-8px 0 14px}
+.bar.click{cursor:pointer}.bar.click:hover .l{color:var(--primary);text-decoration:underline}
 </style>
 </head>
 <body>
 <main>
   <h1>Fridayaway · usage</h1>
   <div class="sub" id="sub">Loading…</div>
+  <div class="filt" id="filt">
+    <button data-p="all">All time</button><button data-p="today">Today</button><button data-p="yesterday">Yesterday</button><button data-p="7">Last 7 days</button><button data-p="30">Last 30 days</button>
+    <input type="date" id="day" aria-label="Pick a day">
+  </div>
+  <div class="cmp" id="cmp"></div>
   <div id="root"></div>
 </main>
 <script>
@@ -35,22 +48,49 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const dur=s=>s<60?s+" s":Math.floor(s/60)+" min "+String(s%60).padStart(2,"0")+" s";
 const pct=(a,b)=>b?Math.round(a/b*100)+"%":"–";
-function bars(obj){const e=Object.entries(obj||{}).sort((a,b)=>b[1]-a[1]);if(!e.length)return '<p class="empty">No data yet</p>';const m=e[0][1];return e.map(([k,v])=>`<div class="bar"><span class="l">${esc(k)}</span><i style="width:${Math.max(2,v/m*100)}%;max-width:60%"></i><span class="v">${v}</span></div>`).join("")}
-fetch("/api/stats?key="+encodeURIComponent(key)+"&t="+Date.now(),{cache:"no-store"}).then(r=>r.json().catch(()=>({error:"The stats took too long to load (HTTP "+r.status+"). Reload the page"})).then(j=>({ok:r.ok&&!j.error,j}))).then(({ok,j})=>{
+function bars(obj,byDate,clickable){const e=Object.entries(obj||{}).sort(byDate?(a,b)=>b[0].localeCompare(a[0]):(a,b)=>b[1]-a[1]);if(!e.length)return '<p class="empty">No data yet</p>';const m=Math.max(...e.map(x=>x[1]));return e.map(([k,v])=>`<div class="bar${clickable?" click":""}" ${clickable?`data-day="${esc(k)}"`:""}><span class="l">${esc(k)}</span><i style="width:${Math.max(2,v/m*100)}%;max-width:60%"></i><span class="v">${v}</span></div>`).join("")}
+/* ---- period filter (days in Italian time) + comparison with the previous period of the same length ---- */
+const romeDay=(d=new Date())=>d.toLocaleDateString("sv-SE",{timeZone:"Europe/Rome"});
+const addDays=(d,n)=>new Date(Date.parse(d+"T12:00:00Z")+n*864e5).toISOString().slice(0,10);
+const nDays=(f,t)=>Math.round((Date.parse(t)-Date.parse(f))/864e5)+1;
+function periodOf(p){const td=romeDay();if(p==="today")return{from:td,to:td};if(p==="yesterday"){const y=addDays(td,-1);return{from:y,to:y}}if(p==="7")return{from:addDays(td,-6),to:td};if(p==="30")return{from:addDays(td,-29),to:td};if(/^\d{4}-\d{2}-\d{2}$/.test(p))return{from:p,to:p};return null}
+const getStats=(per)=>fetch("/api/stats?key="+encodeURIComponent(key)+(per?`&from=${per.from}&to=${per.to}`:"")+"&t="+Date.now(),{cache:"no-store"}).then(r=>r.json().catch(()=>({error:"The stats took too long to load (HTTP "+r.status+"). Reload the page"})).then(j=>({ok:r.ok&&!j.error,j})));
+const fmtD=d=>new Date(d+"T12:00:00").toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"});
+let P=new URLSearchParams(location.search).get("p")||"all";
+function delta(cur,prev,kind){ if(prev==null||!isFinite(prev)) return ""; if(kind==="pp"){const d=Math.round(cur-prev);return `<span class="d ${d>0?"up":d<0?"dn":"eq"}">${d>0?"+":""}${d} pt</span>`}
+  if(!prev) return cur?'<span class="d up">new</span>':""; const d=Math.round((cur-prev)/prev*100); return `<span class="d ${d>0?"up":d<0?"dn":"eq"}">${d>0?"+":""}${d}%</span>`; }
+function load(){
+  document.querySelectorAll("#filt button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.p===P)));
+  $("day").value=/^\d{4}/.test(P)?P:"";
+  const u=new URL(location.href); if(P==="all")u.searchParams.delete("p"); else u.searchParams.set("p",P); history.replaceState(null,"",u);
+  const per=periodOf(P), prev=per?{from:addDays(per.from,-nDays(per.from,per.to)),to:addDays(per.from,-1)}:null;
+  $("sub").textContent="Loading…"; $("cmp").textContent="";
+  Promise.all([getStats(per),prev?getStats(prev):Promise.resolve(null)]).then(([cur,pv])=>render(cur,pv&&pv.ok?pv.j:null,per,prev)).catch(()=>{$("sub").textContent="";$("root").innerHTML=`<div class="err">Could not load stats.</div>`});
+}
+document.getElementById("filt").addEventListener("click",e=>{const b=e.target.closest("button");if(b){P=b.dataset.p;load()}});
+$("day").addEventListener("change",e=>{if(e.target.value){P=e.target.value;load()}});
+document.addEventListener("click",e=>{const b=e.target.closest(".bar.click");if(b&&b.dataset.day){P=b.dataset.day;load();scrollTo({top:0,behavior:"smooth"})}});
+function render({ok,j},pj,per,prev){
   if(!ok){$("sub").textContent="";$("root").innerHTML=`<div class="err">${esc(j.error||"Error")}. Open this page with the link that includes your key.</div>`;return}
-  $("sub").textContent=`Anonymous data since tracking started · updated ${new Date(j.updated).toLocaleString()}`;
+  $("sub").textContent=(per?(per.from===per.to?fmtD(per.from):fmtD(per.from)+" – "+fmtD(per.to)):"All time, since tracking started")+` · updated ${new Date(j.updated).toLocaleString()}`;
+  $("cmp").innerHTML=pj?`Badges compare with ${prev.from===prev.to?fmtD(prev.from):fmtD(prev.from)+" – "+fmtD(prev.to)} (${pj.sessions} sessions)`:"";
+  const D=(cur,get,kind)=>pj?delta(cur,get(pj),kind):"";
+  const swR=x=>x.funnel.opened?x.funnel.swiped/x.funnel.opened*100:0;
   const f=j.funnel, cities=Object.entries(j.cities).map(([c,v])=>({c,...v,score:v.saved+v.details+v.book*2+v.checkout*3})).sort((a,b)=>b.score-a.score);
   $("root").innerHTML=`
   <div class="grid">
-    <div class="kpi"><b>${j.sessions}</b><span>sessions · ${j.time.users} users</span></div>
-    <div class="kpi"><b>${dur(j.time.avgPerUser)}</b><span>average time per user</span></div>
+    <div class="kpi"><b>${j.sessions}${D(j.sessions,x=>x.sessions)}</b><span>sessions · ${j.time.users} users</span></div>
+    <div class="kpi"><b>${dur(j.time.avgPerUser)}${D(j.time.avgPerUser,x=>x.time.avgPerUser)}</b><span>average time per user</span></div>
     <div class="kpi"><b>${j.returning?j.returning.rate+"%":"–"}</b><span>came back (30+ min later) · ${j.returning?j.returning.returned:0} of ${j.returning?j.returning.users:0}</span></div>
     <div class="kpi"><b>${j.returning?j.returning.rateOtherDay+"%":"–"}</b><span>came back on another day · ${j.returning?j.returning.visitsPerUser:0} visits per person</span></div>
-    <div class="kpi"><b>${dur(j.time.avgPerSession)}</b><span>average per session · median ${dur(j.time.medianPerSession)}</span></div>
-    <div class="kpi"><b>${j.byType.swipe||0}</b><span>swipes · ${j.swipesPerSession} per session</span></div>
+    <div class="kpi"><b>${pct(f.swiped,f.opened)}${D(swR(j),swR,"pp")}</b><span>of sessions swiped at least once</span></div>
+    <div class="kpi"><b>${dur(j.time.avgPerSession)}${D(j.time.avgPerSession,x=>x.time.avgPerSession)}</b><span>average per session · median ${dur(j.time.medianPerSession)}</span></div>
+    <div class="kpi"><b>${j.byType.swipe||0}${D(j.byType.swipe||0,x=>x.byType.swipe||0)}</b><span>swipes · ${j.swipesPerSession} per session</span></div>
     <div class="kpi"><b>${f.openedCheckout}</b><span>sessions that opened lastminute checkout</span></div>
     <div class="kpi"><b>${j.together.games}</b><span>Together games · ${j.together.matches} matches</span></div>
     <div class="kpi"><b>${j.installs}</b><span>app installs</span></div>
+    <div class="kpi"><b>${j.accounts||0}</b><span>profiles created (all time)</span></div>
+    <div class="kpi"><b>${j.byType.reveal||0}</b><span>intro revealed · ${(j.byType.reveal||0)&&j.sessions?Math.round((j.byType.reveal||0)/j.sessions*100):0}% of sessions</span></div>
     <div class="kpi"><b>${j.subscribers||0}</b><span>signed up for the Thursday deals · ${f.swiped?Math.round((j.subscribers||0)/f.swiped*100):0}% of swipers</span></div>
     <div class="kpi"><b>${j.ready&&j.ready.n?(j.ready.median/1000).toFixed(1)+" s":"–"}</b><span>time to first cards (median) · ${j.ready?j.ready.instant:0} of ${j.ready?j.ready.n:0} instant</span></div>
   </div>
@@ -65,7 +105,7 @@ fetch("/api/stats?key="+encodeURIComponent(key)+"&t="+Date.now(),{cache:"no-stor
     ${cities.slice(0,40).map(x=>`<tr><td>${esc(x.c)}</td><td class="n">${x.saved}</td><td class="n">${x.skipped}</td><td class="n">${pct(x.saved,x.saved+x.skipped)}</td><td class="n">${x.details}</td><td class="n">${x.book}</td><td class="n">${x.checkout}</td></tr>`).join("")}</table>`:'<p class="empty">No swipes yet</p>'}</div>
   <div class="two">
     <div class="card"><h2>Time spent per session</h2>${bars(j.time.buckets)}<p class="empty" style="font-size:12px;margin:8px 0 0">Active time on screen, measured precisely in ${j.time.measured} of ${j.sessions} sessions. Older sessions are estimated from first to last action. Each session counts at most 30 min; your own devices and test browsers are excluded.</p></div>
-    <div class="card"><h2>Sessions per day</h2>${bars(j.byDay)}</div>
+    <div class="card"><h2>Sessions per day <small style="text-transform:none;letter-spacing:0;font-weight:500">· tap a day to filter</small></h2>${bars(j.byDay,true,true)}</div>
     <div class="card"><h2>Devices</h2>${bars(j.devices)}<h2 style="margin-top:12px">Systems</h2>${bars(j.os)}</div>
     <div class="card"><h2>Departure airports</h2>${bars(j.origins)}</div>
     <div class="card"><h2>Budgets searched</h2>${bars(j.budgets)}</div>
@@ -73,7 +113,8 @@ fetch("/api/stats?key="+encodeURIComponent(key)+"&t="+Date.now(),{cache:"no-stor
     <div class="card"><h2>Countries</h2>${bars(j.countries)}</div>
   </div>
   <div class="card"><h2>All events</h2>${bars(j.byType)}</div>`;
-}).catch(e=>{$("sub").textContent="";$("root").innerHTML=`<div class="err">Could not load stats.</div>`});
+}
+load();
 </script>
 </body>
 </html>

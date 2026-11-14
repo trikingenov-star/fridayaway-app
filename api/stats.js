@@ -10,7 +10,14 @@ module.exports = async (req, res) => {
     const recs = await subsAll(); const by = {}; recs.forEach((r) => { if (!by[r.email] || r.at > by[r.email].at) by[r.email] = r; });
     return res.status(200).json({ count: Object.keys(by).length, subscribers: Object.values(by).sort((a, b) => b.at - a.at) });
   }
-  const days = ((await cmd(["SMEMBERS", "ev:days"])) || []).sort();
+  // optional period: ?from=YYYY-MM-DD&to=YYYY-MM-DD (days in Italian time); without it, everything
+  const isDay = (d) => /^\d{4}-\d{2}-\d{2}$/.test(d || "");
+  const qf = req.query && isDay(req.query.from) ? req.query.from : "", qt = req.query && isDay(req.query.to) ? req.query.to : qf;
+  const shift = (d, n) => new Date(Date.parse(d + "T12:00:00Z") + n * 864e5).toISOString().slice(0, 10);
+  const local = (ts) => new Date(ts).toLocaleDateString("sv-SE", { timeZone: "Europe/Rome" });
+  let days = ((await cmd(["SMEMBERS", "ev:days"])) || []).sort();
+  const allDays = days.slice();
+  if (qf) days = days.filter((d) => d >= shift(qf, -1) && d <= shift(qt, 1)); // stored days are UTC: read one extra on each side
   const recs = []; let nfiles = 0;
   for (let i = 0; i < days.length; i += 6) { // a few days per request keeps every reply small
     const part = await pipe(days.slice(i, i + 6).map((d) => ["LRANGE", "ev:" + d, 0, -1]));
@@ -19,14 +26,14 @@ module.exports = async (req, res) => {
   const S = {};
   const EXCL = new Set(String(process.env.STATS_EXCLUDE || "").split(",").map((x) => x.trim()).filter(Boolean));
   recs.filter((r) => !String(r.sid).startsWith("selftest") && !EXCL.has(r.sid) && !(r.uid && EXCL.has(r.uid))).forEach((r) => { const s = S[r.sid] || (S[r.sid] = { sid: r.sid, uid: r.uid || "", dev: r.dev, os: r.os, country: r.country, first: r.at, ev: [] }); s.first = Math.min(s.first, r.at); if (r.uid) s.uid = r.uid; s.ev.push(...r.ev); });
-  const sessions = Object.values(S);
+  const sessions = Object.values(S).filter((s) => !qf || (local(s.first) >= qf && local(s.first) <= qt));
   const inc = (o, k, n = 1) => { if (k === undefined || k === null || k === "") k = "?"; o[k] = (o[k] || 0) + n; };
   const out = { sessions: sessions.length, events: 0, sources: {}, sourceFunnel: {}, byType: {}, byDay: {}, devices: {}, os: {}, countries: {}, origins: {}, budgets: {}, flyFilter: {},
     funnel: { opened: 0, searched: 0, swiped: 0, openedDetails: 0, pressedBook: 0, openedCheckout: 0 },
     cities: {}, checkouts: [], together: { games: 0, finished: 0, matches: 0 }, swipesPerSession: 0, installs: 0 };
   let swipeTotal = 0;
   sessions.forEach((s) => {
-    inc(out.devices, s.dev); inc(out.os, s.os); inc(out.countries, s.country); inc(out.byDay, new Date(s.first).toISOString().slice(0, 10));
+    inc(out.devices, s.dev); inc(out.os, s.os); inc(out.countries, s.country); inc(out.byDay, local(s.first));
     const has = (t) => s.ev.some((e) => e.t === t);
     const op = s.ev.find((e) => e.t === "open"), d0 = (op && op.d) || {};
     const src = d0.g ? d0.g : d0.ref ? (/facebook|fb\.|m\.facebook/.test(d0.ref) ? "facebook (no tag)" : /instagram/.test(d0.ref) ? "instagram (no tag)" : /linkedin|lnkd/.test(d0.ref) ? "linkedin (no tag)" : d0.ref) : "direct / WhatsApp / unknown";
@@ -81,6 +88,7 @@ module.exports = async (req, res) => {
   } catch (e) { out.subscribers = 0; }
   { const r = (out._ready || []).sort((x, y) => x - y); out.ready = { n: r.length, median: r.length ? r[Math.floor(r.length / 2)] : 0, instant: out._readySnap || 0 }; delete out._ready; delete out._readySnap; }
   try { out.accounts = Number(await cmd(["SCARD", "accts"])) || 0; } catch (e) { out.accounts = 0; }
+  out.period = qf ? { from: qf, to: qt } : null; out.firstDay = allDays.length ? allDays[0] : null;
   out.updated = Date.now(); out.files = nfiles;
   return res.status(200).json(out);
 };
