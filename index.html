@@ -821,6 +821,14 @@ header.top .brand,#setupBrand{cursor:pointer}
 .meImg i{position:absolute;left:6px;bottom:6px;font-style:normal;font-size:13px;background:rgba(255,255,255,.9);border-radius:999px;padding:1px 6px}
 .meCard b{font-size:12.5px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .meCard small{font-size:11px;color:var(--muted)}
+/* ===== car hire link in the booking summary ===== */
+.carBox{display:flex;align-items:center;gap:12px;margin-top:12px;padding:12px 14px;border-radius:14px;text-decoration:none;color:var(--ink);background:var(--surface);border:1.5px dashed color-mix(in srgb,var(--primary) 45%,var(--line))}
+.carBox:active{transform:scale(.99)}
+.carIco{font-size:26px;line-height:1;flex:none}
+.carT{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.carT b{font-size:14.5px}
+.carT small{font-size:12px;color:var(--muted);line-height:1.3}
+.carGo{flex:none;font-size:22px;color:var(--primary);font-weight:700}
 /* ===== saved: events in the saved cities ===== */
 .svEv{margin-top:18px;display:flex;flex-direction:column;gap:10px}
 .svEv[hidden]{display:none}
@@ -1271,7 +1279,7 @@ const I18N=(()=>{
   "From":"Da","Depart":"Andata","Return":"Ritorno","Leave after":"Parti dopo le","Fly home after":"Rientra dopo le","Adults":"Adulti","Update":"Aggiorna","Budget":"Budget","No budget":"Nessun budget","Set":"Imposta","No limit":"Nessun limite",
   "Pass the phone":"Passa il telefono","Skip":"Scarta","Back":"Indietro","Save":"Salva","SAVE":"SALVA","SKIP":"SCARTA","Bring back the last card":"Riporta l'ultima carta",
   
-  "Saved weekends":"Weekend salvati","What's on in your saved cities":"Eventi nelle tue città salvate","During your weekend · tap an event for tickets":"Durante il tuo weekend · tocca un evento per i biglietti","All cities":"Tutte le città","Looking for events in your saved cities…":"Cerco eventi nelle tue città salvate…","Events from Ticketmaster":"Eventi da Ticketmaster","Events in your saved cities":"Eventi nelle tue città salvate","Show price per person":"Mostra il prezzo a persona","Decide together":"Decidete insieme",
+  "Saved weekends":"Weekend salvati","Rent a car at the airport":"Noleggia un'auto in aeroporto","What's on in your saved cities":"Eventi nelle tue città salvate","During your weekend · tap an event for tickets":"Durante il tuo weekend · tocca un evento per i biglietti","All cities":"Tutte le città","Looking for events in your saved cities…":"Cerco eventi nelle tue città salvate…","Events from Ticketmaster":"Eventi da Ticketmaster","Events in your saved cities":"Eventi nelle tue città salvate","Show price per person":"Mostra il prezzo a persona","Decide together":"Decidete insieme",
   "Everyone swipes the same deck. Only weekends you all like show up.":"Tutti scorrono le stesse carte. Compaiono solo i weekend che piacciono a tutti.",
   "Game lobby":"Sala giocatori","↻ Start over":"↻ Ricomincia","Start over":"Ricomincia","Your matches":"I vostri match","Send me the Top 3 every Tuesday":"Mandami la Top 3 ogni martedì",
   "Discover":"Scopri","Saved":"Salvati","Together":"Insieme","App":"App","Plan your weekend":"Pianifica il tuo weekend",
@@ -1383,7 +1391,7 @@ const I18N=(()=>{
     [", flights and hotel. Final price is confirmed by lastminute.com at checkout.",", voli e hotel. Il prezzo finale è confermato da lastminute.com al checkout."],
     [", hold your thumb here to unlock your turn",", tieni il pollice qui per sbloccare il tuo turno"],[": your turn. Same deck, fresh start.",": tocca a te. Stesse carte, si riparte da zero."]];
   const RX=[
-    [/^Locking (.+?)'s choices…$/,"Blocco le scelte di $1…"],[/^(.+?)'s picks$/,"Le scelte di $1"],[/^(Player \d+) name$/,"Nome $1"],[/^Saved (.+)$/,"Salvato: $1"],[/^Open (?!lastminute|in browser|this page)(.+)$/,"Apri $1"],[/^(.+) options$/,"Opzioni $1"],
+    [/^Locking (.+?)'s choices…$/,"Blocco le scelte di $1…"],[/^(.+?)'s picks$/,"Le scelte di $1"],[/^(Player \d+) name$/,"Nome $1"],[/^Saved (.+)$/,"Salvato: $1"],[/^(.+?) is best explored by car · compare prices from all rental companies$/,"$1 si gira meglio in auto · confronta i prezzi di tutti i noleggiatori"],[/^Open (?!lastminute|in browser|this page)(.+)$/,"Apri $1"],[/^(.+) options$/,"Opzioni $1"],
     [/Lands in (.+?), about (\d+) km from (.+)/,"Atterra a $1, a circa $2 km da $3"],[/(\d+) of (\d+) like it/,"piace a $1 su $2"],[/Free cancellation until (.+)/,"Cancellazione gratuita fino a $1"],[/^(€[\d,.]+) with flights$/,"$1 con i voli"],[/price of the hotel for (\d+) nights/,"prezzo dell'hotel per $1 notti"],[/price of the room for (\d+) nights/,"prezzo della camera per $1 notti"],[/^Under (€[\d,.]+)(?: for (\d))?, from (.+?)\. One email a week, free, unsubscribe any time\.$/,"Sotto $1, da $3. Una email a settimana, gratis, ti cancelli quando vuoi."],[/^From (.+?)\. One email a week, free, unsubscribe any time\.$/,"Da $1. Una email a settimana, gratis, ti cancelli quando vuoi."],[/\b1 adults\b/,"1 adulto"],[/\b1 nights\b/,"1 notte"]
   ];
   const RX2=[
@@ -2466,7 +2474,7 @@ async function wzReview(){
     if(pr>0&&!w.logged){w.logged=1; try{trk("price_diff",{c:d.city,card:Math.round(was||0),final:Math.round(pr),fl:w.flSel==="pkg"?0:1})}catch(e){}}
     $("wzTotal").innerHTML=`<div class="totalbox"><span>Total price · all included</span><b>${eur(pr,true)}</b><small>Return flights + hotel · ${wzPeople()}${L.sum&&L.sum.cancellation_policy?` · ${esc_(L.sum.cancellation_policy)}`:""}</small></div>${chg?`<div class="pchg">The card showed ${eur(was)}. ${w.flSel==="pkg"?"Flight + hotel prices change during the day: this total is today's live price.":"The difference comes from the flights you picked."}</div>`:""}${S.budgetOn?marginHTML(pr):""}${splitHTML(d.code,pr,true)}`;
     $("wzFoot").innerHTML=`<a class="checkout wzGo" href="${esc_(L.url)}" target="_blank" rel="noopener">Book on lastminute.com ↗</a>`;
-    $("wzBody").insertAdjacentHTML("beforeend",`<p class="note">Opens this exact flight + hotel + room. lastminute.com confirms the final price before you pay.</p>`);
+    $("wzBody").insertAdjacentHTML("beforeend",`<p class="note">Opens this exact flight + hotel + room. lastminute.com confirms the final price before you pay.</p>${carHTML(d)}`);
     loadSplit(d.code);
   };
   if(w.cur&&w.cur.sel===w.flSel){done(w.cur.L);return}
@@ -2916,6 +2924,17 @@ setTimeout(trkFlush,2000);
 
 /* ===== saved ===== */
 function updateCount(){const c=$("savedCount");c.hidden=!S.saved.length;c.textContent=S.saved.length}
+/* car hire at the airport (DiscoverCars), only where a car really helps: islands and coast.
+   Each path was checked on discovercars.com. CAR_AID = the affiliate id (a_aid) from the DiscoverCars affiliate account. */
+const CAR_AID="";
+const CAR={CAG:"italy-sardinia/cagliari/cag",OLB:"italy-sardinia/olbia/olb",AHO:"italy-sardinia/alghero/aho",PMO:"italy-sicily/palermo/pmo",CTA:"italy-sicily/catania/cta",
+  TFS:"spain-canary-islands/tenerife/tfs",LPA:"spain-canary-islands/gran-canaria/lpa",ACE:"spain-canary-islands/lanzarote/ace",FUE:"spain-canary-islands/fuerteventura/fue",
+  PMI:"spain-balearic-islands/mallorca/pmi",IBZ:"spain-balearic-islands/ibiza/ibz",FNC:"portugal/madeira/fnc",FAO:"portugal/faro/fao",
+  HER:"greece-crete/heraklion/her",RHO:"greece/rhodes/rho",CFU:"greece/corfu/cfu",MLA:"malta/luqa/mla"};
+function carURL(code){const p=CAR[code]; if(!p) return ""; return `https://www.discovercars.com/${uiLang()==="it"?"it/":""}${p}${CAR_AID?`?a_aid=${encodeURIComponent(CAR_AID)}`:""}`}
+function carHTML(d){const u=carURL(d.code); if(!u) return "";
+  return `<a class="carBox" href="${esc_(u)}" target="_blank" rel="noopener sponsored" data-car="${esc_(d.city)}"><span class="carIco" aria-hidden="true">🚗</span><span class="carT"><b>Rent a car at the airport</b><small>${esc_(d.city)} is best explored by car · compare prices from all rental companies</small></span><span class="carGo" aria-hidden="true">›</span></a>`}
+document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest(".carBox"); if(a){try{trk("car_click",{c:a.dataset.car})}catch(x){}}});
 /* events in the saved cities: one carousel, with a filter by city */
 let SVF="all";
 function renderSavedEvents(){
