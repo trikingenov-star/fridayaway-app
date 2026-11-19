@@ -167,6 +167,8 @@ textarea{flex:1;min-width:0;resize:none;height:62px;font:inherit;font-size:15px;
 .card .leg .fn{display:none}
 .price{font-family:var(--display);font-weight:700;font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
 .pp{font-size:12.5px;color:var(--muted)}
+.pver{font-size:11.5px;color:var(--muted);margin-top:2px}.pver b{color:#13a37a;font-weight:700}
+.pchg{font-size:13px;line-height:1.4;padding:9px 12px;border-radius:12px;background:rgba(255,184,0,.12);border:1px solid rgba(255,184,0,.35);margin:8px 0}
 .left{font-size:12.5px;font-weight:600;text-align:right}
 .left.ok{color:var(--good)} .left.over{color:var(--warn)}
 .upg{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px dashed var(--line);border-radius:12px;padding:8px 10px;font-size:13px}
@@ -1333,6 +1335,7 @@ const I18N=(()=>{
   "Prices checked at":"Prezzi verificati alle","final price confirmed by lastminute.com at checkout":"prezzo finale confermato da lastminute.com al checkout",
   "lastminute.com answered with an error:":"lastminute.com ha risposto con un errore:","No booking link returned":"nessun link di prenotazione ricevuto","just sold out for these dates. We refreshed the live hotels: pick one below.":"è appena esaurito per queste date. Abbiamo aggiornato gli hotel dal vivo: scegline uno qui sotto.","is no longer available for these dates.":"non è più disponibile per queste date.",
   "choose a room":"scegli una camera","prices are flight + hotel total":"i prezzi sono il totale volo + hotel","flight + hotel total":"totale volo + hotel","total with hotel":"totale con hotel",
+  "Price checked live at":"Prezzo verificato live alle","Price updated just now:":"Prezzo aggiornato adesso:","instead of":"invece di","Flight + hotel prices change during the day; this is today's price.":"I prezzi di volo + hotel cambiano durante il giorno: questo è il prezzo di oggi.","The card showed":"Sulla carta era","Flight + hotel prices change during the day: this total is today's live price.":"I prezzi di volo + hotel cambiano durante il giorno: questo totale è il prezzo live di oggi.","The difference comes from the flights you picked.":"La differenza dipende dai voli che hai scelto.",
   "Flight + hotel":"Volo + hotel","flight + hotel":"volo + hotel","Left in budget":"Resta nel budget","/day to spend":"/giorno da spendere","per person":"a persona","from centre":"dal centro","photos and rooms":"foto e camere","trip details":"· dettagli",
   "Top sights in":"Da vedere a","tap to enlarge":"tocca per ingrandire","Tap a card to flip it":"Tocca una carta per girarla","Flip card":"Gira la carta","Photo":"Foto",
   "Pass the phone to":"Passa il telefono a","Pass to":"Passa a","swipes first. Then pass the phone.":"scorre per primo. Poi passa il telefono.","is swiping":"sta scegliendo",
@@ -1908,7 +1911,7 @@ function cardHTML(o,pos){
       ${fcLegs(d.code)?"":S.trip.live||!FL[d.code]?`<div class="leg exactNote" style="grid-template-columns:1fr"><span>Exact flights are shown when you open this weekend</span></div>`:timeIssue(d.code)?`<div class="leg" style="grid-template-columns:1fr"><span>Flights to match your times (${timeTxt()}) are picked when you book</span></div>`:FL[d.code]&&FL[d.code].note?`<div class="warnline">${FL[d.code].note}</div>`:earlyReturn(d.code)?`<div class="warnline">Early flight home on Sunday (${FL[d.code].i[2]})</div>`:""}
       ${pos<2?`<div class="cardFacts" data-cf="${d.code}">${cardFactsInner(d,h)}</div>`:""}
       ${up?`<div class="upg"><span><b>+${eur(up.price-h.price)}</b> for ${starStr(up.stars)} ${up.name.length>26?up.name.slice(0,25)+"…":up.name}${up.rating?` · ${(up.rating/10).toFixed(1)}`:""}</span><button data-up="${d.code}|${up.j}">Step up</button></div>`:""}
-      <div class="priceRow"><div><div class="pfrom">Flight + hotel from</div><div class="price">${eur(h.price)}</div>${pp}</div><div class="prR">${marginPill(h.price)}${pos<2?`<button class="goTrip" data-go="${d.code}" aria-label="Book ${d.city}">Book ›</button>`:""}</div></div>
+      <div class="priceRow"><div><div class="pfrom">Flight + hotel from</div><div class="price">${eur(h.price)}</div>${pp}<div class="pver" data-pv="${d.code}">${pverInner(h)}</div></div><div class="prR">${marginPill(h.price)}${pos<2?`<button class="goTrip" data-go="${d.code}" aria-label="Book ${d.city}">Book ›</button>`:""}</div></div>
     </div></article>`;
 }
 /* Budget margin: what is left of the budget once flight + hotel are paid, and what that is per day there. */
@@ -2358,6 +2361,9 @@ async function wzRoom(){
   }
   const x=$("wzBody").querySelector(".wzWait"); if(x) x.remove();
   const rooms=(w.p.room_options||[]).slice().sort((a,b)=>a.price-b.price).slice(0,8);
+  if(w.card==null) w.card=h.price;
+  { const lp=livePick(rooms); if(lp){ const was=w.card; setLivePrice(d,h,lp.price,Date.now(),"book");
+      if(Math.abs(lp.price-was)>=1&&!$("wzBody").querySelector(".pchg")) $("wzRooms").insertAdjacentHTML("beforebegin",`<div class="pchg">Price updated just now: <b>${eur(lp.price)}</b> instead of ${eur(was)}. Flight + hotel prices change during the day; this is today's price.</div>`); } }
   if(!rooms.length){$("wzRooms").innerHTML=`<div class="errbox">No rooms left for these dates. Go back and pick another hotel.</div>`;return}
   let sel=rooms.findIndex(r=>r.rate_id===w.rate); if(sel<0){sel=0; if(S.flex){const k=rooms.findIndex(r=>/Free/i.test(r.cancellation)); if(k>=0) sel=k;}}
   $("wzRooms").innerHTML=rooms.map((r,i)=>`<label class="room"><input type="radio" name="rm" value="${esc_(r.rate_id)}" ${i===sel?"checked":""}><span><span class="rn">${esc_(String(r.room_name||"").trim())}</span><br><span class="rd">${MEAL[r.meal_plan]||esc_(r.meal_plan||"")} · ${esc_(wzCanc(r.cancellation))}</span></span>${wzPrice(r.price).replace('class="pr wzp"','class="rp wzp"')}</label>`).join("");
@@ -2429,7 +2435,9 @@ async function wzReview(){
   $("wzFoot").innerHTML=`<div class="step" id="wzPrep"><span class="spin"></span>Preparing your checkout…</div>`;
   const done=L=>{ if(!wzLive(w)||w.step!==3) return;
     const pr=L.price||(alt?alt.price.total:0);
-    $("wzTotal").innerHTML=`<div class="totalbox"><span>Total price · all included</span><b>${eur(pr,true)}</b><small>Return flights + hotel · ${wzPeople()}${L.sum&&L.sum.cancellation_policy?` · ${esc_(L.sum.cancellation_policy)}`:""}</small></div>${S.budgetOn?marginHTML(pr):""}${splitHTML(d.code,pr,true)}`;
+    const was=w.card!=null?w.card:null, chg=was!=null&&pr>0&&Math.abs(pr-was)>=1;
+    if(pr>0&&!w.logged){w.logged=1; try{trk("price_diff",{c:d.city,card:Math.round(was||0),final:Math.round(pr),fl:w.flSel==="pkg"?0:1})}catch(e){}}
+    $("wzTotal").innerHTML=`<div class="totalbox"><span>Total price · all included</span><b>${eur(pr,true)}</b><small>Return flights + hotel · ${wzPeople()}${L.sum&&L.sum.cancellation_policy?` · ${esc_(L.sum.cancellation_policy)}`:""}</small></div>${chg?`<div class="pchg">The card showed ${eur(was)}. ${w.flSel==="pkg"?"Flight + hotel prices change during the day: this total is today's live price.":"The difference comes from the flights you picked."}</div>`:""}${S.budgetOn?marginHTML(pr):""}${splitHTML(d.code,pr,true)}`;
     $("wzFoot").innerHTML=`<a class="checkout wzGo" href="${esc_(L.url)}" target="_blank" rel="noopener">Book on lastminute.com ↗</a>`;
     $("wzBody").insertAdjacentHTML("beforeend",`<p class="note">Opens this exact flight + hotel + room. lastminute.com confirms the final price before you pay.</p>`);
     loadSplit(d.code);
@@ -2653,6 +2661,27 @@ function cardFactsInner(d,h){
   const chips=`<div class="cdChips">${hrs>0?`<span>🕑 ${hrs} h there</span>`:""}<span>🌡️ ${d.temp}°C typical high</span></div>`;
   return `<div class="cfM">${fl}${hotelLine(h)}</div><div class="cfD">${tiles}${hotelLine(h)}${dfl}</div>`;
 }
+const hhmm=t=>new Date(t).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+function pverInner(h){return h&&h.live?`<b>✓</b> Price checked live at ${hhmm(h.live)}`:""}
+/* The card price comes from a search made earlier (overnight or a few minutes ago) and lastminute.com calls it "indicative".
+   When the live rooms of the hotel arrive, the card shows the cheapest bookable room: the same price the booking steps use. */
+function livePick(rooms){const rs=(rooms||[]).filter(r=>r&&r.price>0).slice().sort((a,b)=>a.price-b.price); if(!rs.length) return null;
+  if(S.flex){const f=rs.find(r=>/Free/i.test(r.cancellation||"")); if(f) return f;} return rs[0];}
+function setLivePrice(d,h,v,at,src){
+  if(!(v>0)||!h) return;
+  const extra=h.base!=null?h.price-h.base:0, old=h.base!=null?h.base:h.price;
+  if(h.base!=null) h.base=v; h.price=Math.round((v+extra)*100)/100; h.live=at||Date.now();
+  if(Math.abs(old-v)>=1){ try{trk("price_fix",{c:d.city,src,from:Math.round(old),to:Math.round(v)})}catch(e){} }
+  refreshCardPrice(d.code);
+}
+function refreshCardPrice(code){const d=DATA.find(x=>x.code===code); if(!d) return; const h=hotelFor(d); if(!h) return;
+  document.querySelectorAll(`.card[data-code="${code}"]`).forEach(c=>{
+    const pr=c.querySelector(".price"); if(pr) pr.textContent=eur(h.price);
+    const pp=c.querySelector(".pp"); if(pp) pp.textContent=S.split?`${eur(h.price/S.trip.adults)} per person`:(S.trip.adults>1?`for ${S.trip.adults} · ${eur(h.price/S.trip.adults)} each`:"per person");
+    const pv=c.querySelector(".pver"); if(pv) pv.innerHTML=pverInner(h);
+    const mp=c.querySelector(".prR .mpill"); if(mp) mp.outerHTML=marginPill(h.price);
+    c.setAttribute("aria-label",`${d.city}, ${eur(h.price)}`);
+  });}
 function refreshCardFacts(code){const d=DATA.find(x=>x.code===code); if(!d) return; const h=hotelFor(d); if(!h) return;
   document.querySelectorAll(`[data-cf="${code}"]`).forEach(el=>{el.innerHTML=cardFactsInner(d,h)});}
 /* ===== sights photos (desktop left panel) ===== */
@@ -2688,6 +2717,7 @@ async function loadDetail(d,h){
          rooms:(p2.room_options||[]).map(x=>({name:String(x.room_name||"").trim(),meal:x.meal_plan,price:x.price,cancellation:x.cancellation})).sort((a,b)=>a.price-b.price).slice(0,6)};
     }
     DET[k]=r&&r.hotel?r:null;
+    const lp=DET[k]&&livePick(DET[k].rooms); if(lp&&hotelFor(d)===h) setLivePrice(d,h,lp.price,DET[k].at,"card");
   }catch(e){DET[k]=null}
   refreshCardFacts(d.code);
   if(PANEL.code===d.code) renderPanels();
