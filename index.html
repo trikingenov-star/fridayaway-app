@@ -959,6 +959,15 @@ html.neg .alBtn{filter:invert(1) hue-rotate(180deg)}
 .wzRow{display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start}
 .wzRow b{display:block}
 .wzRow small{font-size:12.5px;color:var(--muted)}
+.wzRow.wzRc{grid-template-columns:24px 1fr auto}
+.wzEvS{display:flex;flex-direction:column;gap:5px;width:100%;margin:0 0 12px;text-align:left;border:0;cursor:pointer;font:inherit;color:#fff;border-radius:14px;padding:11px 13px;background:linear-gradient(100deg,#FF5A7A,#FF9F45);box-shadow:0 6px 16px rgba(255,90,122,.25)}
+.wzEvH{display:flex;align-items:center;gap:6px;font-size:14px}
+.wzEvH b{flex:1;font-weight:800}
+.wzEvH i{font-style:normal;font-size:12px;font-weight:800;background:rgba(255,255,255,.22);border-radius:999px;padding:2px 9px}
+.wzEvL{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.97}
+.wzEvL em{font-style:normal;font-weight:800;background:rgba(255,255,255,.2);border-radius:6px;padding:0 6px;margin-right:4px}
+.wzChg{align-self:center;border:1px solid var(--line);background:var(--surface);color:var(--primary);font:inherit;font-size:12.5px;font-weight:700;border-radius:999px;padding:5px 11px;cursor:pointer}
+.wzRow .warn{display:block;color:#b45309;margin-top:4px}
 .wzp{text-align:right;line-height:1.15}
 .wzp small{display:block;font-family:var(--body);font-weight:500;font-size:11px;color:var(--muted);white-space:nowrap}
 /* discreet Book button on the card */
@@ -1279,7 +1288,7 @@ const I18N=(()=>{
   "From":"Da","Depart":"Andata","Return":"Ritorno","Leave after":"Parti dopo le","Fly home after":"Rientra dopo le","Adults":"Adulti","Update":"Aggiorna","Budget":"Budget","No budget":"Nessun budget","Set":"Imposta","No limit":"Nessun limite",
   "Pass the phone":"Passa il telefono","Skip":"Scarta","Back":"Indietro","Save":"Salva","SAVE":"SALVA","SKIP":"SCARTA","Bring back the last card":"Riporta l'ultima carta",
   
-  "Saved weekends":"Weekend salvati","Rent a car at the airport":"Noleggia un'auto in aeroporto","What's on in your saved cities":"Eventi nelle tue città salvate","During your weekend · tap an event for tickets":"Durante il tuo weekend · tocca un evento per i biglietti","All cities":"Tutte le città","Looking for events in your saved cities…":"Cerco eventi nelle tue città salvate…","Events from Ticketmaster":"Eventi da Ticketmaster","Events in your saved cities":"Eventi nelle tue città salvate","Show price per person":"Mostra il prezzo a persona","Decide together":"Decidete insieme",
+  "Saved weekends":"Weekend salvati","See all ›":"Vedi tutti ›","See total price ›":"Vedi il prezzo totale ›","Use this room":"Usa questa camera","Use these flights":"Usa questi voli","Finding the best room and flights…":"Cerco la camera e i voli migliori…","Change":"Cambia","Choose another hotel":"Scegli un altro hotel","No rooms left for these dates. Pick another hotel.":"Nessuna camera disponibile per queste date. Scegli un altro hotel.","Rent a car at the airport":"Noleggia un'auto in aeroporto","What's on in your saved cities":"Eventi nelle tue città salvate","During your weekend · tap an event for tickets":"Durante il tuo weekend · tocca un evento per i biglietti","All cities":"Tutte le città","Looking for events in your saved cities…":"Cerco eventi nelle tue città salvate…","Events from Ticketmaster":"Eventi da Ticketmaster","Events in your saved cities":"Eventi nelle tue città salvate","Show price per person":"Mostra il prezzo a persona","Decide together":"Decidete insieme",
   "Everyone swipes the same deck. Only weekends you all like show up.":"Tutti scorrono le stesse carte. Compaiono solo i weekend che piacciono a tutti.",
   "Game lobby":"Sala giocatori","↻ Start over":"↻ Ricomincia","Start over":"Ricomincia","Your matches":"I vostri match","Send me the Top 3 every Tuesday":"Mandami la Top 3 ogni martedì",
   "Discover":"Scopri","Saved":"Salvati","Together":"Insieme","App":"App","Plan your weekend":"Pianifica il tuo weekend",
@@ -1391,7 +1400,7 @@ const I18N=(()=>{
     [", flights and hotel. Final price is confirmed by lastminute.com at checkout.",", voli e hotel. Il prezzo finale è confermato da lastminute.com al checkout."],
     [", hold your thumb here to unlock your turn",", tieni il pollice qui per sbloccare il tuo turno"],[": your turn. Same deck, fresh start.",": tocca a te. Stesse carte, si riparte da zero."]];
   const RX=[
-    [/^Locking (.+?)'s choices…$/,"Blocco le scelte di $1…"],[/^(.+?)'s picks$/,"Le scelte di $1"],[/^(Player \d+) name$/,"Nome $1"],[/^Saved (.+)$/,"Salvato: $1"],[/^(.+?) is best explored by car · compare prices from all rental companies$/,"$1 si gira meglio in auto · confronta i prezzi di tutti i noleggiatori"],[/^Open (?!lastminute|in browser|this page)(.+)$/,"Apri $1"],[/^(.+) options$/,"Opzioni $1"],
+    [/^Locking (.+?)'s choices…$/,"Blocco le scelte di $1…"],[/^(.+?)'s picks$/,"Le scelte di $1"],[/^(Player \d+) name$/,"Nome $1"],[/^Saved (.+)$/,"Salvato: $1"],[/^Return flights \+ hotel/,"Voli A/R + hotel"],[/^(\d+) events during your weekend$/,"$1 eventi nel tuo weekend"],[/^1 event during your weekend$/,"1 evento nel tuo weekend"],[/^Doesn't match your times \((.+?)\): tap Change for other flights$/,"Non rispetta i tuoi orari ($1): tocca Cambia per altri voli"],[/^(.+?) is best explored by car · compare prices from all rental companies$/,"$1 si gira meglio in auto · confronta i prezzi di tutti i noleggiatori"],[/^Open (?!lastminute|in browser|this page)(.+)$/,"Apri $1"],[/^(.+) options$/,"Opzioni $1"],
     [/Lands in (.+?), about (\d+) km from (.+)/,"Atterra a $1, a circa $2 km da $3"],[/(\d+) of (\d+) like it/,"piace a $1 su $2"],[/Free cancellation until (.+)/,"Cancellazione gratuita fino a $1"],[/^(€[\d,.]+) with flights$/,"$1 con i voli"],[/price of the hotel for (\d+) nights/,"prezzo dell'hotel per $1 notti"],[/price of the room for (\d+) nights/,"prezzo della camera per $1 notti"],[/^Under (€[\d,.]+)(?: for (\d))?, from (.+?)\. One email a week, free, unsubscribe any time\.$/,"Sotto $1, da $3. Una email a settimana, gratis, ti cancelli quando vuoi."],[/^From (.+?)\. One email a week, free, unsubscribe any time\.$/,"Da $1. Una email a settimana, gratis, ti cancelli quando vuoi."],[/\b1 adults\b/,"1 adulto"],[/\b1 nights\b/,"1 notte"]
   ];
   const RX2=[
@@ -2278,7 +2287,7 @@ function goHotel(){
 /* ===== detail sheet ===== */
 function legHTML(day,l){return `<div class="leg"><span>${day}</span><b>${l[0]} ${l[2]} → ${l[1]} ${l[3]}</b><span class="fn">${l[4]}</span></div>`}
 /* ===== guided booking: 1 hotel → 2 room → 3 flights → 4 review & book (one screen at a time) ===== */
-const WZ_STEPS=["Hotel","Room","Flights","Book"];
+const WZ_STEPS=["Hotel","Book"];
 let WZ=null;
 const uiLang=()=>document.documentElement.lang==="it"?"it":"en";
 const wzCanc=c=>{const m=/^(.*?)(?:until|fino al?|entro il)\s*(\d{4}-\d{2}-\d{2})\s*$/i.exec(String(c||"").trim()); return m?`${/gratu|free/i.test(m[1])?"Free cancellation":m[1].trim()} until ${dfmt(m[2])}`:String(c||"");};
@@ -2302,12 +2311,13 @@ function openSheet(code){
     <div class="wzFoot" id="wzFoot"></div></div>`;
   const close=()=>{bookCtl.n++;WZ=null;$("layer").innerHTML=""};
   $("scrim").onclick=close; $("sheetClose").onclick=close;
-  $("wzBack").onclick=()=>{ if(WZ&&WZ.step>0) wzGo(WZ.step-1); else close(); };
+  $("wzBack").onclick=()=>{ if(!WZ) return close(); const s=WZ.step; if(s===1||s===2) wzGo(3); else if(s===3) wzGo(0); else close(); };
   wzGo(0);
 }
 function wzGo(n){
   if(!WZ) return; WZ.step=n;
-  $("wzSteps").innerHTML=WZ_STEPS.map((s,i)=>`<span class="${i<n?"done":i===n?"on":""}"><i>${i<n?"✓":i+1}</i><em>${s}</em></span>`).join("");
+  const vn=n===0?0:1;
+  $("wzSteps").innerHTML=WZ_STEPS.map((s,i)=>`<span class="${i<vn?"done":i===vn?"on":""}"><i>${i<vn?"✓":i+1}</i><em>${s}</em></span>`).join("");
   $("wzBack").style.visibility=n>0?"visible":"hidden";
   const sh=document.querySelector(".sheet.wz"); if(sh) sh.scrollTop=0;
   if(n>0) try{trk("book_step",{c:WZ.d.city,s:n+1})}catch(e){}
@@ -2317,6 +2327,14 @@ const wzLive=w=>w&&WZ===w&&w.run===bookCtl.n;
 function wzBusy(t){$("wzBody").insertAdjacentHTML("beforeend",`<div class="step wzWait"><span class="spin"></span>${t}</div>`)}
 function wzNoMcp(){ $("wzBody").innerHTML+=`<div class="errbox">${mcpMsg({code:"no_mcp"})}</div><a class="checkout" href="https://www.lastminute.com" target="_blank" rel="noopener">Open lastminute.com ↗</a>`; }
 
+/* events of the weekend, right under the hotel: names first, tap for the full list */
+function wzEvents(){
+  const box=$("wzEv"); if(!box||!WZ) return; const d=WZ.d, ev=EVT[evKey(d)];
+  if(ev===undefined){ if(mcp&&mcp.events) loadEvents(d); box.innerHTML=""; return; }
+  if(!Array.isArray(ev)||!ev.length){ box.innerHTML=""; return; }
+  box.innerHTML=`<button class="wzEvS" data-ev="${d.code}" aria-label="Events in ${esc_(d.city)}"><span class="wzEvH"><span aria-hidden="true">🎫</span> <b>${ev.length} event${ev.length>1?"s":""} during your weekend</b><i>See all ›</i></span>${ev.slice(0,2).map(e=>`<span class="wzEvL"><em>${esc_(evDay(e))}</em> <span translate="no">${esc_(e.name)}</span></span>`).join("")}</button>`;
+  if(!box.dataset.seen){box.dataset.seen=1; try{trk("events_open",{c:d.city,n:ev.length,src:"sheet_strip"})}catch(e){}}
+}
 /* step 1: hotel, with its photos one at a time at the top */
 function wzPhotos(d,h){
   const det=DET[detKey(d,h)], ok=det&&det!=="busy"&&det.hotel;
@@ -2347,14 +2365,15 @@ function wzHotelHead(){
 function wzHotel(){
   const w=WZ, d=w.d, code=w.code, cur=hotelFor(d);
   const rows=d.hotels.slice().sort((a,b)=>a.price-b.price).map(h=>`<div class="hrow" role="button" tabindex="0" data-j="${h.j}" aria-pressed="${h===cur}"><div><div class="n">${esc_(h.name)}</div><div class="d">${starStr(h.stars)} · ${h.rating?(h.rating/10).toFixed(1)+" "+ratingWord(h.rating):"New"} · ${h.km} km</div></div>${wzPrice(h.price)}</div>`).join("");
-  $("wzBody").innerHTML=`<div class="wzGal" id="wzGal"></div>
+  $("wzBody").innerHTML=`<div id="wzEv"></div><div class="wzGal" id="wzGal"></div>
     <div class="wzHd" id="wzHd"></div>
     <p class="muted wzMeta">${dfmt(S.trip.from)} → ${dfmt(S.trip.to)} · ${wzPeople()}${hrsOf(d)>0?` · <span class="hours">${hrsOf(d)} hours there</span>`:""}</p>
+
     ${w.err?`<div class="errbox">${w.err}</div>`:""}
     <span class="eyebrow">Choose your hotel · price of the hotel for ${nightsOf()} night${nightsOf()>1?"s":""}</span>${rows}
     <div id="sheetSplit">${splitHTML(code,cur.price,true)}</div>${S.budgetOn?`<div id="sheetMargin">${marginHTML(cur.price)}</div>`:""}`;
   w.err="";
-  wzGalWire(); wzGal(); wzHotelHead();
+  wzGalWire(); wzGal(); wzHotelHead(); wzEvents();
   const photos=h=>{const p=loadDetail(d,h); if(p&&p.then) p.then(()=>{if(wzLive(w)&&w.step===0&&hotelFor(d)===h) wzGal()});};
   photos(cur);
   $("wzBody").querySelectorAll(".hrow").forEach(r=>{const pick=()=>{
@@ -2365,40 +2384,55 @@ function wzHotel(){
     const g=$("wzGal"); if(g) g.scrollIntoView({block:"nearest",behavior:"smooth"});
     renderDeck(); renderSaved();};
     r.onclick=pick; r.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();pick()}}});
-  $("wzFoot").innerHTML=`<button class="btn ghost wzSave" id="sheetSave">Save</button><button class="btn" id="wzNext">Continue · choose room</button>`;
+  $("wzFoot").innerHTML=`<button class="btn ghost wzSave" id="sheetSave">Save</button><button class="btn" id="wzNext">See total price ›</button>`;
   $("sheetSave").onclick=()=>{const j=hotelFor(d).j;const ex=S.saved.find(s=>s.code===code);if(ex)ex.j=j;else S.saved.push({code,j});S.seen.add(code);updateCount();bookCtl.n++;WZ=null;$("layer").innerHTML="";renderDeck();toast(`Saved ${d.city}`)};
-  $("wzNext").onclick=()=>{trk("book",{c:d.city,p:Math.round(hotelFor(d).price)}); wzGo(1);};
+  $("wzNext").onclick=()=>{trk("book",{c:d.city,p:Math.round(hotelFor(d).price)}); wzGo(3);};
   loadSplit(code);
 }
 
-/* step 2: room (live price check, then the hotel's rooms) */
+/* live rooms for the chosen hotel (shared by the summary and the "change room" screen) */
+async function wzLoadRooms(w,stepNo){
+  const d=w.d, h=hotelFor(d);
+  if(w.p&&w.p.hid===h.hid&&w.p.lang===uiLang()) return true;
+  try{
+    const r1=await mcp.callTool(LM,"search_flight_and_hotel_package",{origin:ORI(),destination:d.code,...DATES_(),adults:String(S.trip.adults),max_results:20,lang:uiLang(),sort:"recommended"});
+    if(!wzLive(w)||w.step!==stepNo) return false;
+    const p1=r1.payload||{}, hit=(p1.products_summary||[]).find(x=>x.internal_id_hotel===h.hid);
+    if(!hit){
+      const lst=p1.products_summary||[];
+      if(lst.length){ setHotels(d,lst); delete S.choice[d.code]; renderDeck(); }
+      w.err=`${esc_(h.name)} just sold out for these dates. We refreshed the live hotels: pick one below.`; wzGo(0); return false;}
+    const r=await mcp.callTool(LM,"select_hotel_options",{search_id:p1.search_id,hotel_internal_id:h.hid,...DATES_()});
+    if(!wzLive(w)||w.step!==stepNo) return false;
+    const p=r.payload||{};
+    if(!p.success){w.err=esc_(p.message||"This hotel is no longer available. Pick another one."); wzGo(0); return false;}
+    w.p={...p,hid:h.hid,lang:uiLang()}; w.sid=p1.search_id; w.cur=null; w.pkgPrice=null; w.alts=null; w.flSel="pkg"; w.rate=null;
+    return true;
+  }catch(e){ if(wzLive(w)&&w.step===stepNo){ const x=$("wzBody").querySelector(".wzWait"); if(x) x.remove(); $("wzBody").insertAdjacentHTML("beforeend",`<div class="errbox">${mcpMsg(e)}</div>`); $("wzFoot").innerHTML=`<button class="btn" id="wzRetry">Try again</button>`; $("wzRetry").onclick=()=>wzGo(stepNo);} return false; }
+}
+const wzRooms=w=>(w.p.room_options||[]).slice().sort((a,b)=>a.price-b.price).slice(0,8);
+/* the card price becomes the live price of the cheapest bookable room */
+function wzCheckPrice(w,rooms){const d=w.d,h=hotelFor(d); if(w.card==null) w.card=h.price; const lp=livePick(rooms); if(!lp) return null; const was=w.card; setLivePrice(d,h,lp.price,Date.now(),"book"); return {lp,was};}
+async function wzLock(w,rate,rooms){
+  const g=await mcp.callTool(LM,"generate_booking_link",{pricing_id:w.p.pricing_id,rate_id:rate});
+  const q=g.payload||{};
+  if(!q.booking_url) throw {code:"tool_error",message:q.message||"No booking link returned"};
+  const L={url:q.booking_url,sum:q.booking_summary||{},price:wzNum(q.booking_summary&&q.booking_summary.price)||(rooms.find(r=>r.rate_id===rate)||{}).price||0};
+  if(w.rate!==rate) w.alts=null;
+  w.rate=rate; w.flSel="pkg"; w.cur={sel:"pkg",L}; w.pkgPrice=L.price;
+  return L;
+}
+
+/* change room: the hotel's live rooms, back to the summary */
 async function wzRoom(){
   const w=WZ, d=w.d, h=hotelFor(d);
   $("wzBody").innerHTML=`<div class="wzMini"><b>${esc_(h.name)}</b><span>${starStr(h.stars)} · ${dfmt(S.trip.from)} → ${dfmt(S.trip.to)} · ${wzPeople()}</span></div><span class="eyebrow">Choose your room · price of the room for ${nightsOf()} night${nightsOf()>1?"s":""}</span><div id="wzRooms"></div>`;
-  $("wzFoot").innerHTML=`<button class="btn" id="wzNext" disabled>Continue · choose flights</button>`;
+  $("wzFoot").innerHTML=`<button class="btn" id="wzNext" disabled>Use this room</button>`;
   if(!mcp){wzNoMcp();return}
-  if(!(w.p&&w.p.hid===h.hid&&w.p.lang===uiLang())){
-    wzBusy("Checking today's price and rooms…");
-    try{
-      const r1=await mcp.callTool(LM,"search_flight_and_hotel_package",{origin:ORI(),destination:d.code,...DATES_(),adults:String(S.trip.adults),max_results:20,lang:uiLang(),sort:"recommended"});
-      if(!wzLive(w)||w.step!==1) return;
-      const p1=r1.payload||{}, hit=(p1.products_summary||[]).find(x=>x.internal_id_hotel===h.hid);
-      if(!hit){
-        const lst=p1.products_summary||[];
-        if(lst.length){ setHotels(d,lst); delete S.choice[d.code]; renderDeck(); }
-        w.err=`${esc_(h.name)} just sold out for these dates. We refreshed the live hotels: pick one below.`; wzGo(0); return;}
-      const r=await mcp.callTool(LM,"select_hotel_options",{search_id:p1.search_id,hotel_internal_id:h.hid,...DATES_()});
-      if(!wzLive(w)||w.step!==1) return;
-      const p=r.payload||{};
-      if(!p.success){w.err=esc_(p.message||"This hotel is no longer available. Pick another one."); wzGo(0); return;}
-      w.p={...p,hid:h.hid,lang:uiLang()}; w.sid=p1.search_id; w.cur=null; w.pkgPrice=null; w.alts=null; w.flSel="pkg";
-    }catch(e){ if(wzLive(w)){ const x=$("wzBody").querySelector(".wzWait"); if(x) x.remove(); $("wzBody").insertAdjacentHTML("beforeend",`<div class="errbox">${mcpMsg(e)}</div>`);} return; }
-  }
+  if(!(w.p&&w.p.hid===h.hid&&w.p.lang===uiLang())){ wzBusy("Checking today's price and rooms…"); if(!await wzLoadRooms(w,1)) return; }
   const x=$("wzBody").querySelector(".wzWait"); if(x) x.remove();
-  const rooms=(w.p.room_options||[]).slice().sort((a,b)=>a.price-b.price).slice(0,8);
-  if(w.card==null) w.card=h.price;
-  { const lp=livePick(rooms); if(lp){ const was=w.card; setLivePrice(d,h,lp.price,Date.now(),"book");
-      if(Math.abs(lp.price-was)>=1&&!$("wzBody").querySelector(".pchg")) $("wzRooms").insertAdjacentHTML("beforebegin",`<div class="pchg">Price updated just now: <b>${eur(lp.price)}</b> instead of ${eur(was)}. Flight + hotel prices change during the day; this is today's price.</div>`); } }
+  const rooms=wzRooms(w);
+  { const c=wzCheckPrice(w,rooms); if(c&&Math.abs(c.lp.price-c.was)>=1&&!$("wzBody").querySelector(".pchg")) $("wzRooms").insertAdjacentHTML("beforebegin",`<div class="pchg">Price updated just now: <b>${eur(c.lp.price)}</b> instead of ${eur(c.was)}. Flight + hotel prices change during the day; this is today's price.</div>`); }
   if(!rooms.length){$("wzRooms").innerHTML=`<div class="errbox">No rooms left for these dates. Go back and pick another hotel.</div>`;return}
   let sel=rooms.findIndex(r=>r.rate_id===w.rate); if(sel<0){sel=0; if(S.flex){const k=rooms.findIndex(r=>/Free/i.test(r.cancellation)); if(k>=0) sel=k;}}
   $("wzRooms").innerHTML=rooms.map((r,i)=>`<label class="room"><input type="radio" name="rm" value="${esc_(r.rate_id)}" ${i===sel?"checked":""}><span><span class="rn">${esc_(String(r.room_name||"").trim())}</span><br><span class="rd">${MEAL[r.meal_plan]||esc_(r.meal_plan||"")} · ${esc_(wzCanc(r.cancellation))}</span></span>${wzPrice(r.price).replace('class="pr wzp"','class="rp wzp"')}</label>`).join("");
@@ -2406,17 +2440,10 @@ async function wzRoom(){
   const nb=$("wzNext"); nb.disabled=false;
   nb.onclick=async()=>{
     const rate=($("wzRooms").querySelector('input[name="rm"]:checked')||{}).value; if(!rate) return;
-    if(w.rate!==rate){w.rate=rate; w.cur=null; w.pkgPrice=null; w.alts=null; w.flSel="pkg";}
-    if(w.pkgPrice!=null){wzGo(2);return}
+    if(w.rate===rate&&w.pkgPrice!=null){wzGo(3);return}
     nb.disabled=true; nb.textContent="Locking your room…";
-    try{
-      const g=await mcp.callTool(LM,"generate_booking_link",{pricing_id:w.p.pricing_id,rate_id:rate});
-      if(!wzLive(w)) return; const q=g.payload||{};
-      if(!q.booking_url) throw {code:"tool_error",message:q.message||"No booking link returned"};
-      const L={url:q.booking_url,sum:q.booking_summary||{},price:wzNum(q.booking_summary&&q.booking_summary.price)||(rooms.find(r=>r.rate_id===rate)||{}).price||0};
-      w.cur={sel:"pkg",L}; w.pkgPrice=L.price;
-      wzGo(2);
-    }catch(e){ if(!wzLive(w)) return; nb.disabled=false; nb.textContent="Continue · choose flights"; $("wzBody").insertAdjacentHTML("beforeend",`<div class="errbox">${mcpMsg(e)}</div>`); }
+    try{ await wzLock(w,rate,rooms); if(!wzLive(w)) return; try{trk("book_step",{c:d.city,s:"room_change"})}catch(e){} wzGo(3); }
+    catch(e){ if(!wzLive(w)) return; nb.disabled=false; nb.textContent="Use this room"; $("wzBody").insertAdjacentHTML("beforeend",`<div class="errbox">${mcpMsg(e)}</div>`); }
   };
 }
 
@@ -2430,15 +2457,15 @@ function wzPkgLegs(p){
 const wzAltLegs=x=>wzLeg(dayFrom(),x.outbound.departure.airport,x.outbound.arrival.airport,x.outbound.departure.time,x.outbound.arrival.time,x.outbound.carrier.code)+wzLeg(dayTo(),x.inbound.departure.airport,x.inbound.arrival.airport,x.inbound.departure.time,x.inbound.arrival.time,x.inbound.carrier.code);
 const wzAltFits=x=>timeOK(x.outbound.departure.time,S.trip.tOut)&&timeOK(x.inbound.departure.time,S.trip.tIn);
 async function wzFlights(){
-  const w=WZ; if(!w.p||w.pkgPrice==null){wzGo(1);return}
+  const w=WZ; if(!w.p||w.pkgPrice==null){wzGo(3);return}
   const pk=wzPkgLegs(w.p), base=w.pkgPrice;
   $("wzBody").innerHTML=`<span class="eyebrow">Choose your flights · total with hotel and room</span>
     <label class="fopt"><input type="radio" name="fl" value="pkg" ${w.flSel==="pkg"?"checked":""}><span class="fo-h"><b>Included in your package</b>${!pk.fits&&hasTimes()?`<small class="warn">Doesn't match your times (${timeTxt()})</small>`:""}</span><span class="fo-p">${eur(base)}</span><div class="legs">${pk.html}</div></label>
     <div id="wzAlts"></div>`;
-  $("wzFoot").innerHTML=`<button class="btn" id="wzNext">Continue · review</button>`;
+  $("wzFoot").innerHTML=`<button class="btn" id="wzNext">Use these flights</button>`;
   const wire=()=>{ $("wzBody").querySelectorAll('input[name="fl"]').forEach(i=>i.onchange=()=>{w.flSel=i.value}); };
   wire();
-  $("wzNext").onclick=()=>{const c=$("wzBody").querySelector('input[name="fl"]:checked'); w.flSel=c?c.value:"pkg"; wzGo(3);};
+  $("wzNext").onclick=()=>{const c=$("wzBody").querySelector('input[name="fl"]:checked'); w.flSel=c?c.value:"pkg"; try{if(w.flSel!=="pkg")trk("book_step",{c:w.d.city,s:"flight_change"})}catch(e){} wzGo(3);};
   const box=$("wzAlts");
   if(!w.alts){
     box.innerHTML=`<div class="step"><span class="spin"></span>Looking for other flight times…</div>`;
@@ -2458,15 +2485,28 @@ async function wzFlights(){
 
 /* step 4: review and open the exact checkout */
 async function wzReview(){
-  const w=WZ, d=w.d, h=hotelFor(d); if(!w.p||w.pkgPrice==null){wzGo(1);return}
+  const w=WZ, d=w.d, h=hotelFor(d);
+  if(!mcp){$("wzBody").innerHTML="";$("wzFoot").innerHTML="";wzNoMcp();return}
+  if(!w.p||w.pkgPrice==null||w.p.hid!==h.hid){
+    $("wzBody").innerHTML=`<div class="wzMini"><b>${esc_(h.name)}</b><span>${starStr(h.stars)} · ${dfmt(S.trip.from)} → ${dfmt(S.trip.to)} · ${wzPeople()}</span></div>${[0,1,2].map(()=>`<div class="pskel" style="height:46px;margin-top:10px;border-radius:12px"></div>`).join("")}`;
+    $("wzFoot").innerHTML=`<div class="step"><span class="spin"></span>Finding the best room and flights…</div>`;
+    if(!await wzLoadRooms(w,3)) return;
+    const rooms=wzRooms(w);
+    if(!rooms.length){$("wzBody").insertAdjacentHTML("beforeend",`<div class="errbox">No rooms left for these dates. Pick another hotel.</div>`);$("wzFoot").innerHTML=`<button class="btn" id="wzRetry">Choose another hotel</button>`;$("wzRetry").onclick=()=>wzGo(0);return}
+    const c=wzCheckPrice(w,rooms), pick=(rooms.find(r=>r.rate_id===w.rate))||(c&&c.lp)||rooms[0];
+    try{ await wzLock(w,pick.rate_id,rooms); }
+    catch(e){ if(!wzLive(w)||w.step!==3) return; $("wzFoot").innerHTML=`<button class="btn" id="wzRetry">Try again</button>`; $("wzRetry").onclick=()=>wzGo(3); $("wzBody").insertAdjacentHTML("beforeend",`<div class="errbox">${mcpMsg(e)}</div>`); return; }
+    if(!wzLive(w)||w.step!==3) return;
+  }
   const room=(w.p.room_options||[]).find(r=>r.rate_id===w.rate)||{};
   const alt=w.flSel!=="pkg"&&(w.alts||[]).find(x=>String(x.transport_id)===w.flSel);
   const legs=alt?wzAltLegs(alt):wzPkgLegs(w.p).html;
   $("wzBody").innerHTML=`<div class="wzSum">
       <div class="wzRow"><span>🏨</span><div><b>${esc_(w.p.hotel&&w.p.hotel.name||h.name)}</b><small>${starStr(h.stars)} · ${nightsOf()} night${nightsOf()>1?"s":""} · ${dfmt(S.trip.from)} → ${dfmt(S.trip.to)}</small></div></div>
-      <div class="wzRow"><span>🛏️</span><div><b>${esc_(String(room.room_name||"").trim())}</b><small>${MEAL[room.meal_plan]||esc_(room.meal_plan||"")} · ${esc_(wzCanc(room.cancellation))}</small></div></div>
-      <div class="wzRow"><span>✈️</span><div class="legs">${legs}</div></div>
+      <div class="wzRow wzRc"><span>🛏️</span><div><b>${esc_(String(room.room_name||"").trim())}</b><small>${MEAL[room.meal_plan]||esc_(room.meal_plan||"")} · ${esc_(wzCanc(room.cancellation))}</small></div><button class="wzChg" data-chg="1">Change</button></div>
+      <div class="wzRow wzRc"><span>✈️</span><div class="legs">${legs}${!alt&&hasTimes()&&!wzPkgLegs(w.p).fits?`<small class="warn">Doesn't match your times (${timeTxt()}): tap Change for other flights</small>`:""}</div><button class="wzChg" data-chg="2">Change</button></div>
     </div><div id="wzTotal"></div>`;
+  $("wzBody").querySelectorAll("[data-chg]").forEach(b=>b.onclick=()=>wzGo(+b.dataset.chg));
   $("wzFoot").innerHTML=`<div class="step" id="wzPrep"><span class="spin"></span>Preparing your checkout…</div>`;
   const done=L=>{ if(!wzLive(w)||w.step!==3) return;
     const pr=L.price||(alt?alt.price.total:0);
@@ -2659,6 +2699,7 @@ async function loadEvents(d){
   catch(e){EVT[k]=[]}
   document.querySelectorAll(`[data-ev="${d.code}"]`).forEach(el=>{el.innerHTML=evPillInner(d)});
   try{if(S.saved.some(s=>s.code===d.code)) renderSavedEvents()}catch(e){}
+  try{if(WZ&&WZ.code===d.code&&WZ.step===0) wzEvents()}catch(e){}
   if(PANEL.code===d.code) renderPanels();
 }
 function evPillInner(d){
@@ -2676,7 +2717,7 @@ function openEvents(code){
   o.innerHTML=`<div class="evCard"><button class="evX" aria-label="Close">✕</button><h3>🎫 What's on in ${esc_(d.city)}</h3><p>During your trip · tap an event for tickets and details</p>${evRows(ev,8)}<p>Events from Ticketmaster</p></div>`;
   o.querySelector(".evX").onclick=()=>{o.hidden=true}; o.hidden=false;
 }
-document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest(".evPill"); if(b){e.stopPropagation();openEvents(b.dataset.ev);}});
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest(".evPill,.wzEvS"); if(b){e.stopPropagation();openEvents(b.dataset.ev);}});
 
 const hotelLine=h=>`<button class="hotelL hotelGo" data-hgo="1" aria-label="See ${esc_(h.name)}: photos, rooms and details"><span aria-hidden="true">🏨</span><b>${esc_(h.name)}</b><span class="stars">${starStr(h.stars)}</span><i class="hgo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></i></button>`;
 function cardFactsInner(d,h){
