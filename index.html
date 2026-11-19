@@ -821,6 +821,32 @@ header.top .brand,#setupBrand{cursor:pointer}
 .meImg i{position:absolute;left:6px;bottom:6px;font-style:normal;font-size:13px;background:rgba(255,255,255,.9);border-radius:999px;padding:1px 6px}
 .meCard b{font-size:12.5px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .meCard small{font-size:11px;color:var(--muted)}
+/* ===== saved: events in the saved cities ===== */
+.svEv{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+.svEv[hidden]{display:none}
+.svEvH h3{margin:0;font-size:17px}
+.svEvH p{margin:2px 0 0;font-size:12.5px;color:var(--muted)}
+.svChips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:1px}
+.svChips::-webkit-scrollbar{display:none}
+.svChips button{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.svChips button[aria-pressed="true"]{background:linear-gradient(90deg,#FF5A7A,#FF9F45);color:#fff;border-color:transparent}
+.svChips button i{font-style:normal;opacity:.75;margin-left:5px;font-size:11.5px}
+.svWrap{position:relative}
+.svRow{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:2px 2px 8px;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
+.svRow::-webkit-scrollbar{display:none}
+.svCard{flex:none;width:212px;scroll-snap-align:start;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 2px 10px rgba(38,35,58,.08);transition:transform .15s}
+.svCard:active{transform:scale(.98)}
+.svImg{position:relative;height:120px;background:linear-gradient(135deg,#FF5A7A,#FF9F45);display:grid;place-items:center;font-size:36px}
+.svImg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.svCity{position:absolute;left:8px;top:8px;background:rgba(17,17,32,.78);color:#fff;font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 9px;max-width:calc(100% - 16px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.svDate{position:absolute;right:8px;bottom:8px;background:#fff;color:#111;font-size:11.5px;font-weight:800;border-radius:8px;padding:3px 7px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.svBody{padding:9px 11px 11px;display:flex;flex-direction:column;gap:3px}
+.svBody b{font-size:13.5px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.5em}
+.svBody small{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.svSk{flex:none;width:212px;height:184px;border-radius:16px}
+.svNav{display:none}
+@media (min-width:960px){.svNav{display:grid;place-items:center;position:absolute;top:44px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);box-shadow:var(--shadow);cursor:pointer;font-size:18px;line-height:1;z-index:2}.svNav.l{left:-14px}.svNav.r{right:-14px}}
+.svFoot{margin:0;font-size:11px;color:var(--muted)}
 .alCard h3{margin:0;font-size:19px}
 .alIco{font-size:34px;line-height:1}
 .alSub{margin:0;color:var(--muted);font-size:14px}
@@ -1093,6 +1119,7 @@ html.neg :is(.bt,.msRow button,.meImg) img{filter:none}
       <div id="alertBtnWrap"></div>
       
       <div id="savedList" class="sec" style="margin-top:0"></div>
+      <section id="savedEv" class="svEv" hidden aria-label="Events in your saved cities"></section>
       <div class="cmp" id="cmpWrap" hidden><table id="cmp"></table></div>
       <div class="toggle box"><label for="split">Show price per person</label><input id="split" type="checkbox"></div>
     </div>
@@ -1244,7 +1271,7 @@ const I18N=(()=>{
   "From":"Da","Depart":"Andata","Return":"Ritorno","Leave after":"Parti dopo le","Fly home after":"Rientra dopo le","Adults":"Adulti","Update":"Aggiorna","Budget":"Budget","No budget":"Nessun budget","Set":"Imposta","No limit":"Nessun limite",
   "Pass the phone":"Passa il telefono","Skip":"Scarta","Back":"Indietro","Save":"Salva","SAVE":"SALVA","SKIP":"SCARTA","Bring back the last card":"Riporta l'ultima carta",
   
-  "Saved weekends":"Weekend salvati","Show price per person":"Mostra il prezzo a persona","Decide together":"Decidete insieme",
+  "Saved weekends":"Weekend salvati","What's on in your saved cities":"Eventi nelle tue città salvate","During your weekend · tap an event for tickets":"Durante il tuo weekend · tocca un evento per i biglietti","All cities":"Tutte le città","Looking for events in your saved cities…":"Cerco eventi nelle tue città salvate…","Events from Ticketmaster":"Eventi da Ticketmaster","Events in your saved cities":"Eventi nelle tue città salvate","Show price per person":"Mostra il prezzo a persona","Decide together":"Decidete insieme",
   "Everyone swipes the same deck. Only weekends you all like show up.":"Tutti scorrono le stesse carte. Compaiono solo i weekend che piacciono a tutti.",
   "Game lobby":"Sala giocatori","↻ Start over":"↻ Ricomincia","Start over":"Ricomincia","Your matches":"I vostri match","Send me the Top 3 every Tuesday":"Mandami la Top 3 ogni martedì",
   "Discover":"Scopri","Saved":"Salvati","Together":"Insieme","App":"App","Plan your weekend":"Pianifica il tuo weekend",
@@ -2623,6 +2650,7 @@ async function loadEvents(d){
   try{const g=(typeof GEO!=="undefined"&&GEO[d.code])||null; const r=await mcp.events({lat:g?g[0]:"",lon:g?g[1]:"",city:d.city,from:S.trip.from,to:S.trip.to}); EVT[k]=((r&&r.events)||[]).filter(e=>e&&e.name);}
   catch(e){EVT[k]=[]}
   document.querySelectorAll(`[data-ev="${d.code}"]`).forEach(el=>{el.innerHTML=evPillInner(d)});
+  try{if(S.saved.some(s=>s.code===d.code)) renderSavedEvents()}catch(e){}
   if(PANEL.code===d.code) renderPanels();
 }
 function evPillInner(d){
@@ -2888,8 +2916,35 @@ setTimeout(trkFlush,2000);
 
 /* ===== saved ===== */
 function updateCount(){const c=$("savedCount");c.hidden=!S.saved.length;c.textContent=S.saved.length}
+/* events in the saved cities: one carousel, with a filter by city */
+let SVF="all";
+function renderSavedEvents(){
+  const W=$("savedEv"); if(!W) return;
+  const ds=S.saved.map(s=>DATA.find(x=>x.code===s.code)).filter(Boolean);
+  if(!ds.length||!mcp||!mcp.events){W.hidden=true;W.innerHTML="";return}
+  ds.forEach(d=>{if(EVT[evKey(d)]===undefined) loadEvents(d)});
+  const busy=ds.some(d=>EVT[evKey(d)]==="busy");
+  const withEv=ds.filter(d=>Array.isArray(EVT[evKey(d)])&&EVT[evKey(d)].length);
+  const head=`<div class="svEvH"><h3><span aria-hidden="true">🎫</span> What's on in your saved cities</h3><p>During your weekend · tap an event for tickets</p></div>`;
+  if(!withEv.length){
+    if(busy){W.hidden=false;W.innerHTML=head+`<div class="svRow">${'<div class="pskel svSk"></div>'.repeat(3)}</div>`}else{W.hidden=true;W.innerHTML=""}
+    return;
+  }
+  if(SVF!=="all"&&!withEv.some(d=>d.code===SVF)) SVF="all";
+  const all=[]; withEv.forEach(d=>EVT[evKey(d)].forEach((e,i)=>all.push({d,e,i})));
+  const list=(SVF==="all"?all:all.filter(x=>x.d.code===SVF)).sort((a,b)=>(a.e.date||"").localeCompare(b.e.date||"")||(a.e.time||"").localeCompare(b.e.time||"")||a.i-b.i);
+  const chips=withEv.length>1?`<div class="svChips" role="group" aria-label="Filter by city"><button data-svf="all" aria-pressed="${SVF==="all"}">All cities<i>${all.length}</i></button>${withEv.map(d=>`<button data-svf="${d.code}" aria-pressed="${SVF===d.code}"><span>${esc_(d.city)}</span><i>${EVT[evKey(d)].length}</i></button>`).join("")}</div>`:"";
+  const cards=list.map(({d,e})=>`<a class="svCard" href="${esc_(e.url)}" target="_blank" rel="noopener" data-svc="${esc_(d.city)}"><span class="svImg">${EV_ICON[e.seg]||"🎫"}${e.img?`<img src="${esc_(e.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}<span class="svCity"><span aria-hidden="true">📍</span> ${esc_(d.city)}</span>${e.date?`<span class="svDate">${esc_(evDay(e))}${e.time?" · "+esc_(e.time):""}</span>`:""}</span><span class="svBody"><b translate="no">${esc_(e.name)}</b><small translate="no">${esc_(e.venue||e.genre||"")}</small></span></a>`).join("");
+  W.hidden=false;
+  W.innerHTML=head+chips+`<div class="svWrap"><button class="svNav l" data-svm="-1" aria-label="Previous">‹</button><div class="svRow">${cards}</div><button class="svNav r" data-svm="1" aria-label="Next">›</button></div><p class="svFoot">Events from Ticketmaster</p>`;
+  W.querySelectorAll("[data-svf]").forEach(b=>b.onclick=()=>{SVF=b.dataset.svf; try{trk("events_open",{c:SVF==="all"?"all":(DATA.find(x=>x.code===SVF)||{}).city,src:"saved_filter"})}catch(e){} renderSavedEvents()});
+  const row=W.querySelector(".svRow");
+  W.querySelectorAll("[data-svm]").forEach(b=>b.onclick=()=>row.scrollBy({left:+b.dataset.svm*(row.clientWidth*.8),behavior:"smooth"}));
+  W.querySelectorAll(".svCard").forEach(a=>a.addEventListener("click",()=>{try{trk("events_open",{c:a.dataset.svc,src:"saved_card"})}catch(e){}}));
+}
 function renderSaved(){
   try{renderAlertBtn()}catch(e){}
+  try{renderSavedEvents()}catch(e){}
   const L=$("savedList");
   if(!S.saved.length){L.innerHTML=`<div class="box"><p>Nothing saved yet. Swipe right on a weekend you like.</p></div>`;$("cmpWrap").hidden=true;return}
   const items=S.saved.map(s=>{const d=DATA.find(x=>x.code===s.code);const h=d.hotels[s.j];return {d,h}});
