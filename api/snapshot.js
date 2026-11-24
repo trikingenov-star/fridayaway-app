@@ -31,6 +31,7 @@ const promosHandler = async (req, res) => {
     });
     if (!r.ok) throw new Error("Awin HTTP " + r.status);
     const j = await r.json();
+    if (q.all) return res.status(200).json({ total: (j.data || []).length, all: (j.data || []).slice(0, 30).map((p) => ({ title: clip(p.title, 90), desc: clip(p.description, 120), code: clip(p.voucher && p.voucher.code, 30), end: p.endDate || "" })) });
     const now = Date.now(), seen = new Set(), promos = [];
     for (const p of j.data || []) {
       const end = p.endDate ? Date.parse(p.endDate) : 0;
