@@ -37,6 +37,9 @@ const promosHandler = async (req, res) => {
       if (end && end < now) continue;
       const code = clip(p.voucher && p.voucher.code, 40);
       const title = clip(p.title, 90); if (!title) continue;
+      // weekend trips cost 200-600 EUR: skip offers that need a big minimum spend (e.g. "300 EUR off from 3,500 EUR")
+      const all = `${p.title} ${p.description} ${p.terms}`, mins = [...all.matchAll(/(?:da|from|over|oltre|min(?:imo)?\.?)\s*(?:€|eur)?\s*(\d{1,3}(?:[.,]\d{3})+|\d{4,})\s*(?:€|eur)?/gi)].map((m) => +m[1].replace(/[.,]/g, ""));
+      if (mins.some((v) => v >= 1000)) continue;
       const key = (code || title).toLowerCase(); if (seen.has(key)) continue; seen.add(key);
       promos.push({ id: String(p.promotionId || key).slice(0, 24), title, desc: clip(p.description, 160), terms: clip(p.terms, 200), code, end: end ? new Date(end).toISOString().slice(0, 10) : "" });
     }
