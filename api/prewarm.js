@@ -21,6 +21,17 @@ module.exports = async (req, res) => {
     rows.forEach((x) => { if (x && x[1]) results[x[0]] = x[1]; });
     const n = Object.keys(results).length;
     if (n >= 20) await cmd(["SET", `snap:${o}-${f}-${t}-${a}`, JSON.stringify({ at: Date.now(), o, f, t, a, results }), "EX", 129600]);
+    if (n >= 20) { // price history for "lower than usual" badges: cheapest flight + hotel per city, one point per night, last 28 nights
+      try {
+        const hk = `ph:${o}-${a}`, day = new Date().toISOString().slice(0, 10);
+        let hist = {}; try { hist = JSON.parse((await cmd(["GET", hk])) || "{}") || {}; } catch (e) { hist = {}; }
+        for (const [c, list] of Object.entries(results)) {
+          const m = Math.min(...list.map((x) => +x.price_total).filter((v) => v > 0)); if (!isFinite(m)) continue;
+          const h = (hist[c] || []).filter((x) => x[0] !== day); h.push([day, Math.round(m)]); hist[c] = h.slice(-28);
+        }
+        await cmd(["SET", hk, JSON.stringify(hist)]);
+      } catch (e) {}
+    }
     done[a] = n;
   }
   return res.status(200).json({ ok: true, from: f, to: t, cities: done, ms: Date.now() - t0 });
