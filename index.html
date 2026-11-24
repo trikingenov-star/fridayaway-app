@@ -2999,7 +2999,7 @@ function dealPct(d){
 }
 function dealHTML(d){const p=dealPct(d); return p?`<div class="dealTag">📉 ${p}% below usual</div>`:""}
 async function loadDeals(k){ if(DEALS.busy===k) return; DEALS.busy=k;
-  try{ const [o,a]=k.split("-"); const r=await fetch(`/api/deals?o=${o}&a=${a}`); const j=r.ok?await r.json():{}; DEALS.map=j.deals||{}; DEALS.key=k; }catch(e){DEALS.map={};DEALS.key=k}
+  try{ const [o,a]=k.split("-"); const r=await fetch(`/api/snapshot?kind=deals&o=${o}&a=${a}`); const j=r.ok?await r.json():{}; DEALS.map=j.deals||{}; DEALS.key=k; }catch(e){DEALS.map={};DEALS.key=k}
   DEALS.busy=false; let n=0;
   document.querySelectorAll(".card[data-code]").forEach(c=>{const d=DATA.find(x=>x.code===c.dataset.code); const pp=c.querySelector(".priceRow .pp"); if(!d||!pp||c.querySelector(".dealTag")) return; const h=dealHTML(d); if(h){pp.insertAdjacentHTML("afterend",h);n++}});
   if(n){try{trk("deal_shown",{n})}catch(e){}}
@@ -3014,7 +3014,7 @@ document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest
 let PROMOS=[];
 function promoHTML(){ if(!PROMOS.length) return ""; const p=PROMOS[0];
   return `<div class="promoBox" data-promo="${esc_(p.id)}"><b>🎟️ ${esc_(p.title)}</b>${p.desc?`<small>${esc_(p.desc)}</small>`:""}${p.code?`<div class="promoCode"><code>${esc_(p.code)}</code><button type="button" data-copy="${esc_(p.code)}">Copy</button></div><small>Paste the code at lastminute.com checkout${p.end?` · valid until ${esc_(p.end)}`:""}</small>`:`<small>Active on lastminute.com${p.end?` until ${esc_(p.end)}`:""}: check it at checkout</small>`}</div>`}
-async function loadPromos(){ try{ const r=await fetch("/api/promos"); if(!r.ok) return; const j=await r.json(); PROMOS=Array.isArray(j.promos)?j.promos:[]; if(PROMOS.length){ try{trk("promo_shown",{n:PROMOS.length,code:PROMOS.some(p=>p.code)})}catch(e){} document.querySelectorAll(".card .art").forEach(a=>{ if(!a.querySelector(".offerTag")) a.insertAdjacentHTML("beforeend",`<span class="offerTag">🎟️ Offer</span>`)}) } }catch(e){} }
+async function loadPromos(){ try{ const r=await fetch("/api/snapshot?kind=promos"); if(!r.ok) return; const j=await r.json(); PROMOS=Array.isArray(j.promos)?j.promos:[]; if(PROMOS.length){ try{trk("promo_shown",{n:PROMOS.length,code:PROMOS.some(p=>p.code)})}catch(e){} document.querySelectorAll(".card .art").forEach(a=>{ if(!a.querySelector(".offerTag")) a.insertAdjacentHTML("beforeend",`<span class="offerTag">🎟️ Offer</span>`)}) } }catch(e){} }
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-copy]"); if(!b) return; const c=b.dataset.copy; try{navigator.clipboard.writeText(c)}catch(x){} b.textContent="Copied ✓"; try{trk("promo_copy",{})}catch(x){}});
 loadPromos();
 /* events in the saved cities: one carousel, with a filter by city */
