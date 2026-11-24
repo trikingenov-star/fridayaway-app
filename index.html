@@ -1410,6 +1410,7 @@ const I18N=(()=>{
     [/Lands in (.+?), about (\d+) km from (.+)/,"Atterra a $1, a circa $2 km da $3"],[/(\d+) of (\d+) like it/,"piace a $1 su $2"],[/Free cancellation until (.+)/,"Cancellazione gratuita fino a $1"],[/^(€[\d,.]+) with flights$/,"$1 con i voli"],[/price of the hotel for (\d+) nights/,"prezzo dell'hotel per $1 notti"],[/price of the room for (\d+) nights/,"prezzo della camera per $1 notti"],[/^Under (€[\d,.]+)(?: for (\d))?, from (.+?)\. One email a week, free, unsubscribe any time\.$/,"Sotto $1, da $3. Una email a settimana, gratis, ti cancelli quando vuoi."],[/^From (.+?)\. One email a week, free, unsubscribe any time\.$/,"Da $1. Una email a settimana, gratis, ti cancelli quando vuoi."],[/\b1 adults\b/,"1 adulto"],[/\b1 nights\b/,"1 notte"]
   ];
   const RX2=[
+    [/Internet in (.+) without roaming/g,(a,c)=>"Internet in "+({"United Kingdom":"Regno Unito","Türkiye":"Turchia","Morocco":"Marocco","Albania":"Albania","Serbia":"Serbia"}[c]||c)+" senza roaming"],[/(.+) is outside EU roaming: your Italian plan may charge extra\. Get a travel eSIM and activate it before you leave/g,(a,c)=>({"United Kingdom":"Il Regno Unito","Türkiye":"La Turchia","Morocco":"Il Marocco","Albania":"L\u2019Albania","Serbia":"La Serbia"}[c]||c)+" è fuori dal roaming UE: la tua offerta italiana può costare di più. Prendi una eSIM da viaggio e attivala prima di partire"],
     [/📉 (\d+)% below usual/g,"📉 $1% sotto il solito"],[/Paste the code at lastminute\.com checkout/g,"Incolla il codice al checkout di lastminute.com"],[/valid until/g,"valido fino al"],[/Active on lastminute\.com/g,"Attiva su lastminute.com"],[/: check it at checkout/g,": la vedi al checkout"],
     [/\bfor (\d)/g,"per $1"],[/\b(\d+) of (\d+)\b/g,"$1 di $2"],
     [/\b(\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/g,(a,d,m)=>d+" "+({Jan:"gen",Feb:"feb",Mar:"mar",Apr:"apr",May:"mag",Jun:"giu",Jul:"lug",Aug:"ago",Sep:"set",Oct:"ott",Nov:"nov",Dec:"dic"})[m]],
@@ -2521,7 +2522,7 @@ async function wzReview(){
     if(pr>0&&!w.logged){w.logged=1; try{trk("price_diff",{c:d.city,card:Math.round(was||0),final:Math.round(pr),fl:w.flSel==="pkg"?0:1})}catch(e){}}
     $("wzTotal").innerHTML=`<div class="totalbox"><span>Total price · all included</span><b>${eur(pr,true)}</b><small>Return flights + hotel · ${wzPeople()}${L.sum&&L.sum.cancellation_policy?` · ${esc_(L.sum.cancellation_policy)}`:""}</small></div>${chg?`<div class="pchg">The card showed ${eur(was)}. ${w.flSel==="pkg"?"Flight + hotel prices change during the day: this total is today's live price.":"The difference comes from the flights you picked."}</div>`:""}${S.budgetOn?marginHTML(pr):""}${splitHTML(d.code,pr,true)}`;
     $("wzFoot").innerHTML=`<a class="checkout wzGo" href="${esc_(awin(L.url,"fa_"+w.code))}" target="_blank" rel="noopener sponsored">Book on lastminute.com ↗</a>`;
-    $("wzBody").insertAdjacentHTML("beforeend",`<p class="note">Opens this exact flight + hotel + room. lastminute.com confirms the final price before you pay.</p>${promoHTML()}${carHTML(d)}`);
+    $("wzBody").insertAdjacentHTML("beforeend",`<p class="note">Opens this exact flight + hotel + room. lastminute.com confirms the final price before you pay.</p>${promoHTML()}${esimHTML(d)}${carHTML(d)}`);
     loadSplit(d.code);
   };
   if(w.cur&&w.cur.sel===w.flSel){done(w.cur.L);return}
@@ -3003,6 +3004,12 @@ async function loadDeals(k){ if(DEALS.busy===k) return; DEALS.busy=k;
   document.querySelectorAll(".card[data-code]").forEach(c=>{const d=DATA.find(x=>x.code===c.dataset.code); const pp=c.querySelector(".priceRow .pp"); if(!d||!pp||c.querySelector(".dealTag")) return; const h=dealHTML(d); if(h){pp.insertAdjacentHTML("afterend",h);n++}});
   if(n){try{trk("deal_shown",{n})}catch(e){}}
 }
+/* travel eSIM (Simbye via Awin) for destinations outside EU roaming */
+const ESIM={LON:"united-kingdom",EDI:"united-kingdom",IST:"turkey",RAK:"morocco",TIA:"albania",BEG:"serbia"};
+function esimHTML(d){const c=ESIM[d.code]; if(!c) return "";
+  const u=`https://www.awin1.com/cread.php?awinmid=107814&awinaffid=${AWIN.aff}&clickref=${encodeURIComponent("fa_esim_"+d.code)}&ued=${encodeURIComponent("https://simbye.com/products/esim-"+c)}`;
+  return `<a class="carBox esimBox" href="${esc_(u)}" target="_blank" rel="noopener sponsored" data-esim="${esc_(d.city)}"><span class="carIco" aria-hidden="true">📶</span><span class="carT"><b>Internet in ${esc_(d.country)} without roaming</b><small>${esc_(d.country)} is outside EU roaming: your Italian plan may charge extra. Get a travel eSIM and activate it before you leave</small></span><span class="carGo" aria-hidden="true">›</span></a>`}
+document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest(".esimBox"); if(a){try{trk("esim_click",{c:a.dataset.esim})}catch(x){}}});
 /* lastminute.com offers from the Awin Promotions API (/api/promos); nothing is shown when there are none */
 let PROMOS=[];
 function promoHTML(){ if(!PROMOS.length) return ""; const p=PROMOS[0];
