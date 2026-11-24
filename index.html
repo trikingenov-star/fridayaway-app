@@ -823,6 +823,7 @@ header.top .brand,#setupBrand{cursor:pointer}
 .meCard small{font-size:11px;color:var(--muted)}
 /* ===== car hire link in the booking summary ===== */
 .dealTag{display:inline-block;margin-top:4px;background:color-mix(in srgb,#3BE38A 22%,var(--surface));color:#0d6b3a;font-weight:800;font-size:12px;padding:3px 9px;border-radius:999px;border:1px solid color-mix(in srgb,#3BE38A 60%,var(--line))}
+.tgPromo{margin:12px 0}.tgPromo .promoBox{margin:0}.tgPromo .pr{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:6px;font-size:13px}.tgPromo .pr code{font-weight:800;letter-spacing:.05em}.tgPromo .pr button{border:0;background:var(--primary);color:#fff;font-weight:700;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12px}
 .offerTag{position:absolute;left:12px;top:12px;z-index:3;background:#FFD23F;color:#3b2a00;font-weight:800;font-size:12px;padding:5px 10px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
 .promoBox{margin-top:12px;padding:12px 14px;border-radius:14px;background:color-mix(in srgb,#FFD23F 22%,var(--surface));border:1.5px solid color-mix(in srgb,#FFD23F 70%,var(--line))}
 .promoBox b{display:block;font-size:14px}.promoBox small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
@@ -1412,6 +1413,7 @@ const I18N=(()=>{
   const RX2=[
     [/Internet in (.+) without roaming/g,(a,c)=>"Internet in "+({"United Kingdom":"Regno Unito","Türkiye":"Turchia","Morocco":"Marocco","Albania":"Albania","Serbia":"Serbia"}[c]||c)+" senza roaming"],[/Outside EU roaming: get a travel eSIM before you leave/g,"Fuori dal roaming UE: prendi una eSIM prima di partire"],
     [/−€(\d+) on this trip/g,"−€$1 su questo viaggio"],[/until (\d\d\/\d\d)/g,"fino al $1"],
+    [/🎟️ Groups save more/g,"🎟️ In gruppo si risparmia"],[/−€(\d+) off from €([\d,]+)/g,(a,o,m)=>"−€"+o+" con spesa da €"+m.replace(",",".")],[/Add the code at lastminute\.com checkout\. The total of your trip must reach the minimum\./g,"Inserisci il codice al checkout di lastminute.com. Il totale del viaggio deve raggiungere il minimo."],
     [/📉 (\d+)% below usual/g,"📉 $1% sotto il solito"],[/Paste the code at lastminute\.com checkout/g,"Incolla il codice al checkout di lastminute.com"],[/valid until/g,"valido fino al"],[/Active on lastminute\.com/g,"Attiva su lastminute.com"],[/: check it at checkout/g,": la vedi al checkout"],
     [/\bfor (\d)/g,"per $1"],[/\b(\d+) of (\d+)\b/g,"$1 di $2"],
     [/\b(\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/g,(a,d,m)=>d+" "+({Jan:"gen",Feb:"feb",Mar:"mar",Apr:"apr",May:"mag",Jun:"giu",Jul:"lug",Aug:"ago",Sep:"set",Oct:"ott",Nov:"nov",Dec:"dic"})[m]],
@@ -3017,7 +3019,10 @@ function promoFor(total){ /* best offer whose minimum spend the trip total reach
   return PROMOS.filter(p=>p.code&&(p.min||0)<=total).sort((x,y)=>(y.off||0)-(x.off||0))[0]||null }
 function promoHTML(total){ const p=promoFor(total); if(!p) return "";
   return `<div class="promoBox" data-promo="${esc_(p.id)}"><b>🎟️ ${p.off?`−€${p.off} on this trip`:esc_(p.title)}</b><div class="promoCode"><code>${esc_(p.code)}</code><button type="button" data-copy="${esc_(p.code)}">Copy</button></div><small>Paste the code at lastminute.com checkout${p.end?` · until ${esc_(p.end.slice(8,10)+"/"+p.end.slice(5,7))}`:""}</small></div>`}
-async function loadPromos(){ try{ const r=await fetch("/api/snapshot?kind=promos"); if(!r.ok) return; const j=await r.json(); PROMOS=Array.isArray(j.promos)?j.promos:[]; if(PROMOS.length){ try{trk("promo_shown",{n:PROMOS.length,code:PROMOS.some(p=>p.code)})}catch(e){} document.querySelectorAll(".card[data-code]").forEach(c=>{ const d=DATA.find(x=>x.code===c.dataset.code), a=c.querySelector(".art"); if(d&&a&&!a.querySelector(".offerTag")&&promoFor(hotelFor(d).price)) a.insertAdjacentHTML("beforeend",`<span class="offerTag">🎟️ Offer</span>`)}) } }catch(e){} }
+function tgPromoHTML(){ const l=PROMOS.filter(p=>p.code&&p.off&&p.min).sort((a,b)=>a.min-b.min).slice(0,3); if(!l.length) return "";
+  return `<div class="promoBox"><b>🎟️ Groups save more</b>${l.map(p=>`<div class="pr"><span>−€${p.off} off from €${p.min.toLocaleString("en")}${p.end?` · until ${esc_(p.end.slice(8,10)+"/"+p.end.slice(5,7))}`:""}</span><span><code>${esc_(p.code)}</code> <button type="button" data-copy="${esc_(p.code)}">Copy</button></span></div>`).join("")}<small>Add the code at lastminute.com checkout. The total of your trip must reach the minimum.</small></div>`}
+function renderTgPromo(){ const pl=$("players"); if(!pl) return; let el=$("tgPromo"); if(!el){el=document.createElement("div");el.id="tgPromo";el.className="tgPromo";pl.insertAdjacentElement("afterend",el)} el.innerHTML=tgPromoHTML(); el.hidden=!el.innerHTML }
+async function loadPromos(){ try{ const r=await fetch("/api/snapshot?kind=promos"); if(!r.ok) return; const j=await r.json(); PROMOS=Array.isArray(j.promos)?j.promos:[]; try{renderTgPromo()}catch(e){} if(PROMOS.length){ try{trk("promo_shown",{n:PROMOS.length,code:PROMOS.some(p=>p.code)})}catch(e){} document.querySelectorAll(".card[data-code]").forEach(c=>{ const d=DATA.find(x=>x.code===c.dataset.code), a=c.querySelector(".art"); if(d&&a&&!a.querySelector(".offerTag")&&promoFor(hotelFor(d).price)) a.insertAdjacentHTML("beforeend",`<span class="offerTag">🎟️ Offer</span>`)}) } }catch(e){} }
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-copy]"); if(!b) return; const c=b.dataset.copy; try{navigator.clipboard.writeText(c)}catch(x){} b.textContent="Copied ✓"; try{trk("promo_copy",{})}catch(x){}});
 loadPromos();
 /* events in the saved cities: one carousel, with a filter by city */
@@ -3167,7 +3172,7 @@ const AV=["😎","🕵️","🧑‍🚀","🏄","🧑‍🎤","🦸"];
 function tgStatus(i){ const T=S.together; if(!T.on) return T.likes[i]&&T.likes[i].size?"Done ✓":"Ready"; return i<T.who?"Done ✓":i===T.who?"Swiping now":"🔒 Waiting"; }
 /* ===== together ===== */
 function renderTogether(){
-  const T=S.together, N=T.names.length;
+  const T=S.together, N=T.names.length; try{renderTgPromo()}catch(e){}
   $("lobbyN").textContent=`${N} players · ${T.on?`${T.names[T.who]} is swiping`:"add friends, then start"}`;
   $("players").innerHTML=T.names.map((n,i)=>`<div class="pl${T.on&&i===T.who?" turn":""}"><div class="av">${AV[i%AV.length]}</div><input value="${n.replace(/"/g,"&quot;")}" data-i="${i}" maxlength="14" aria-label="Player ${i+1} name" ${T.on?"disabled":""}><span class="st">${tgStatus(i)}</span>${!T.on&&N>2?`<button class="rmP" data-rm="${i}" aria-label="Remove ${n}">✕</button>`:""}</div>`).join("")
     +(!T.on&&N<6?`<button class="pl add" id="addP"><span class="av">＋</span>Add player</button>`:"");
