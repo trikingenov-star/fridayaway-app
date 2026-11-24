@@ -2325,7 +2325,7 @@ function wzGo(n){
 }
 const wzLive=w=>w&&WZ===w&&w.run===bookCtl.n;
 function wzBusy(t){$("wzBody").insertAdjacentHTML("beforeend",`<div class="step wzWait"><span class="spin"></span>${t}</div>`)}
-function wzNoMcp(){ $("wzBody").innerHTML+=`<div class="errbox">${mcpMsg({code:"no_mcp"})}</div><a class="checkout" href="https://www.lastminute.com" target="_blank" rel="noopener">Open lastminute.com ↗</a>`; }
+function wzNoMcp(){ $("wzBody").innerHTML+=`<div class="errbox">${mcpMsg({code:"no_mcp"})}</div><a class="checkout" href="${awin("https://www.lastminute.com/","fa_nomcp")}" target="_blank" rel="noopener sponsored">Open lastminute.com ↗</a>`; }
 
 /* events of the weekend, right under the hotel: names first, tap for the full list */
 function wzEvents(){
@@ -2513,7 +2513,7 @@ async function wzReview(){
     const was=w.card!=null?w.card:null, chg=was!=null&&pr>0&&Math.abs(pr-was)>=1;
     if(pr>0&&!w.logged){w.logged=1; try{trk("price_diff",{c:d.city,card:Math.round(was||0),final:Math.round(pr),fl:w.flSel==="pkg"?0:1})}catch(e){}}
     $("wzTotal").innerHTML=`<div class="totalbox"><span>Total price · all included</span><b>${eur(pr,true)}</b><small>Return flights + hotel · ${wzPeople()}${L.sum&&L.sum.cancellation_policy?` · ${esc_(L.sum.cancellation_policy)}`:""}</small></div>${chg?`<div class="pchg">The card showed ${eur(was)}. ${w.flSel==="pkg"?"Flight + hotel prices change during the day: this total is today's live price.":"The difference comes from the flights you picked."}</div>`:""}${S.budgetOn?marginHTML(pr):""}${splitHTML(d.code,pr,true)}`;
-    $("wzFoot").innerHTML=`<a class="checkout wzGo" href="${esc_(L.url)}" target="_blank" rel="noopener">Book on lastminute.com ↗</a>`;
+    $("wzFoot").innerHTML=`<a class="checkout wzGo" href="${esc_(awin(L.url,"fa_"+w.code))}" target="_blank" rel="noopener sponsored">Book on lastminute.com ↗</a>`;
     $("wzBody").insertAdjacentHTML("beforeend",`<p class="note">Opens this exact flight + hotel + room. lastminute.com confirms the final price before you pay.</p>${carHTML(d)}`);
     loadSplit(d.code);
   };
@@ -2559,7 +2559,7 @@ function mcpMsg(e){
 }
 async function startBooking(d,h){
   const area=$("bookArea"), btn=$("sheetBook"); const run=++bookCtl.n;
-  if(!mcp){area.innerHTML=`<div class="errbox">${mcpMsg({code:"no_mcp"})}</div><a class="checkout" href="https://www.lastminute.com" target="_blank" rel="noopener">Open lastminute.com ↗</a>`;return}
+  if(!mcp){area.innerHTML=`<div class="errbox">${mcpMsg({code:"no_mcp"})}</div><a class="checkout" href="${awin("https://www.lastminute.com/","fa_nomcp")}" target="_blank" rel="noopener sponsored">Open lastminute.com ↗</a>`;return}
   btn.hidden=true;
   const step=t=>{if(run===bookCtl.n) area.innerHTML=`<div class="step"><span class="spin"></span>${t}</div>`};
   try{
@@ -2605,7 +2605,7 @@ async function pickRooms(d,h,searchId,run){
         b.remove();
         const okOut=timeOK(iso2(fo&&fo.departure_time),S.trip.tOut), okIn=timeOK(iso2(fi&&fi.departure_time),S.trip.tIn);
         const box=document.createElement("div"); box.style.cssText="display:flex;flex-direction:column;gap:10px"; area.appendChild(box);
-        const showLink=(url,sum)=>{setTimeout(()=>{const v=sum&&sum.price?parseFloat(String(sum.price).replace(/[^0-9.]/g,"")):0;const tb=box.querySelectorAll(".totalbox"),last=tb[tb.length-1];if(v&&last){const sp=$("sheetSplit");if(sp)sp.innerHTML="";last.insertAdjacentHTML("afterend",splitHTML(d.code,v,true));loadSplit(d.code)}},0);const pr=sum&&sum.price?eur(parseFloat(String(sum.price).replace(/[^0-9.]/g,"")),true):"";box.insertAdjacentHTML("beforeend",`${pr?`<div class="totalbox"><span>Total price · all included</span><b>${pr}</b><small>Return flights + hotel for ${nightsOf()} night${nightsOf()>1?"s":""} · ${S.trip.adults} adult${S.trip.adults>1?"s":""}${sum.cancellation_policy?` · ${sum.cancellation_policy}`:""}</small></div>`:""}<a class="checkout" href="${url}" target="_blank" rel="noopener">Open checkout on lastminute.com ↗</a><p class="note">Opens this exact flight + hotel + room. lastminute.com confirms the final price before you pay.</p>`)};
+        const showLink=(url,sum)=>{setTimeout(()=>{const v=sum&&sum.price?parseFloat(String(sum.price).replace(/[^0-9.]/g,"")):0;const tb=box.querySelectorAll(".totalbox"),last=tb[tb.length-1];if(v&&last){const sp=$("sheetSplit");if(sp)sp.innerHTML="";last.insertAdjacentHTML("afterend",splitHTML(d.code,v,true));loadSplit(d.code)}},0);const pr=sum&&sum.price?eur(parseFloat(String(sum.price).replace(/[^0-9.]/g,"")),true):"";box.insertAdjacentHTML("beforeend",`${pr?`<div class="totalbox"><span>Total price · all included</span><b>${pr}</b><small>Return flights + hotel for ${nightsOf()} night${nightsOf()>1?"s":""} · ${S.trip.adults} adult${S.trip.adults>1?"s":""}${sum.cancellation_policy?` · ${sum.cancellation_policy}`:""}</small></div>`:""}<a class="checkout" href="${esc_(awin(url,"fa_"+d.code))}" target="_blank" rel="noopener sponsored">Open checkout on lastminute.com ↗</a><p class="note">Opens this exact flight + hotel + room. lastminute.com confirms the final price before you pay.</p>`)};
         if(okOut&&okIn&&!(S.trip.tOut||S.trip.tIn)){showLink(q.booking_url,q.booking_summary);box.insertAdjacentHTML("beforeend",`<button class="btn ghost" id="moreFl">See other flight times</button>`);$("moreFl").onclick=()=>{$("moreFl").remove();altFlights(p,box,showLink,true)};return}
         if(okOut&&okIn){box.insertAdjacentHTML("beforeend",`<div class="leg" style="grid-template-columns:1fr"><span>These flights match your times.</span></div>`);showLink(q.booking_url,q.booking_summary);return}
         area.querySelector(".legs")&&(area.querySelector(".legs").style.display="none");
@@ -2965,6 +2965,11 @@ setTimeout(trkFlush,2000);
 
 /* ===== saved ===== */
 function updateCount(){const c=$("savedCount");c.hidden=!S.saved.length;c.textContent=S.saved.length}
+/* Awin affiliate tracking for lastminute.com IT (merchant 12374, publisher 3161068).
+   Every exit to lastminute.com goes through awin1.com, which sets the tracking cookie and redirects to the same URL. */
+const AWIN={mid:"12374",aff:"3161068"};
+function awin(u,ref){ if(!u||!/lastminute\./i.test(u)) return u;
+  return `https://www.awin1.com/cread.php?awinmid=${AWIN.mid}&awinaffid=${AWIN.aff}${ref?`&clickref=${encodeURIComponent(ref)}`:""}&ued=${encodeURIComponent(u)}`; }
 /* car hire at the airport (DiscoverCars), only where a car really helps: islands and coast.
    Each path was checked on discovercars.com. CAR_AID = the affiliate id (a_aid) from the DiscoverCars affiliate account. */
 const CAR_AID="";
