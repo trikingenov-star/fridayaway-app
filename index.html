@@ -1411,6 +1411,7 @@ const I18N=(()=>{
   ];
   const RX2=[
     [/Internet in (.+) without roaming/g,(a,c)=>"Internet in "+({"United Kingdom":"Regno Unito","Türkiye":"Turchia","Morocco":"Marocco","Albania":"Albania","Serbia":"Serbia"}[c]||c)+" senza roaming"],[/Outside EU roaming: get a travel eSIM before you leave/g,"Fuori dal roaming UE: prendi una eSIM prima di partire"],
+    [/−€(\d+) on this trip/g,"−€$1 su questo viaggio"],[/until (\d\d\/\d\d)/g,"fino al $1"],
     [/📉 (\d+)% below usual/g,"📉 $1% sotto il solito"],[/Paste the code at lastminute\.com checkout/g,"Incolla il codice al checkout di lastminute.com"],[/valid until/g,"valido fino al"],[/Active on lastminute\.com/g,"Attiva su lastminute.com"],[/: check it at checkout/g,": la vedi al checkout"],
     [/\bfor (\d)/g,"per $1"],[/\b(\d+) of (\d+)\b/g,"$1 di $2"],
     [/\b(\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/g,(a,d,m)=>d+" "+({Jan:"gen",Feb:"feb",Mar:"mar",Apr:"apr",May:"mag",Jun:"giu",Jul:"lug",Aug:"ago",Sep:"set",Oct:"ott",Nov:"nov",Dec:"dic"})[m]],
@@ -1954,7 +1955,7 @@ function cardHTML(o,pos){
   const why=m.length?`Fits your mood: <b>${m.map(v=>VLABEL[v]).join(" + ")}</b>`:Object.keys(S.taste.v).length?`Picked from what you saved so far`:`A strong all-round weekend`;
   return `<article class="card" data-code="${d.code}" style="z-index:${10-pos};transform:translateY(${pos*10}px) scale(${1-pos*0.04});${pos>2?"opacity:0;":""}" aria-label="${d.city}, ${eur(h.price)}">
     <div class="stamp like">SAVE</div><div class="stamp nope">SKIP</div>
-    <div class="art">${art(d)}<span class="temp">☀ ${d.temp}°C</span>${PROMOS.length?`<span class="offerTag">🎟️ Offer</span>`:""}${pos===0&&o.s>8?`<span class="match">Top match</span>`:""}<div class="city"><h2>${d.city}</h2><span>${d.country}</span></div></div>
+    <div class="art">${art(d)}<span class="temp">☀ ${d.temp}°C</span>${promoFor(h.price)?`<span class="offerTag">🎟️ Offer</span>`:""}${pos===0&&o.s>8?`<span class="match">Top match</span>`:""}<div class="city"><h2>${d.city}</h2><span>${d.country}</span></div></div>
     <div class="body">
 
       ${pos<2?`<button class="evPill" data-ev="${d.code}" aria-label="Events in ${d.city}">${evPillInner(d)}</button>`:""}
@@ -2522,7 +2523,7 @@ async function wzReview(){
     if(pr>0&&!w.logged){w.logged=1; try{trk("price_diff",{c:d.city,card:Math.round(was||0),final:Math.round(pr),fl:w.flSel==="pkg"?0:1})}catch(e){}}
     $("wzTotal").innerHTML=`<div class="totalbox"><span>Total price · all included</span><b>${eur(pr,true)}</b><small>Return flights + hotel · ${wzPeople()}${L.sum&&L.sum.cancellation_policy?` · ${esc_(L.sum.cancellation_policy)}`:""}</small></div>${chg?`<div class="pchg">The card showed ${eur(was)}. ${w.flSel==="pkg"?"Flight + hotel prices change during the day: this total is today's live price.":"The difference comes from the flights you picked."}</div>`:""}${S.budgetOn?marginHTML(pr):""}${splitHTML(d.code,pr,true)}`;
     $("wzFoot").innerHTML=`<a class="checkout wzGo" href="${esc_(awin(L.url,"fa_"+w.code))}" target="_blank" rel="noopener sponsored">Book on lastminute.com ↗</a>`;
-    $("wzBody").insertAdjacentHTML("beforeend",`${promoHTML()}${esimHTML(d)}${carHTML(d)}`);
+    $("wzBody").insertAdjacentHTML("beforeend",`${promoHTML(pr)}${esimHTML(d)}${carHTML(d)}`);
     loadSplit(d.code);
   };
   if(w.cur&&w.cur.sel===w.flSel){done(w.cur.L);return}
@@ -3012,9 +3013,11 @@ function esimHTML(d){const c=ESIM[d.code]; if(!c) return "";
 document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest(".esimBox"); if(a){try{trk("esim_click",{c:a.dataset.esim})}catch(x){}}});
 /* lastminute.com offers from the Awin Promotions API (/api/promos); nothing is shown when there are none */
 let PROMOS=[];
-function promoHTML(){ if(!PROMOS.length) return ""; const p=PROMOS[0];
-  return `<div class="promoBox" data-promo="${esc_(p.id)}"><b>🎟️ ${esc_(p.title)}</b>${p.desc?`<small>${esc_(p.desc)}</small>`:""}${p.code?`<div class="promoCode"><code>${esc_(p.code)}</code><button type="button" data-copy="${esc_(p.code)}">Copy</button></div><small>Paste the code at lastminute.com checkout${p.end?` · valid until ${esc_(p.end)}`:""}</small>`:`<small>Active on lastminute.com${p.end?` until ${esc_(p.end)}`:""}: check it at checkout</small>`}</div>`}
-async function loadPromos(){ try{ const r=await fetch("/api/snapshot?kind=promos"); if(!r.ok) return; const j=await r.json(); PROMOS=Array.isArray(j.promos)?j.promos:[]; if(PROMOS.length){ try{trk("promo_shown",{n:PROMOS.length,code:PROMOS.some(p=>p.code)})}catch(e){} document.querySelectorAll(".card .art").forEach(a=>{ if(!a.querySelector(".offerTag")) a.insertAdjacentHTML("beforeend",`<span class="offerTag">🎟️ Offer</span>`)}) } }catch(e){} }
+function promoFor(total){ /* best offer whose minimum spend the trip total reaches */
+  return PROMOS.filter(p=>p.code&&(p.min||0)<=total).sort((x,y)=>(y.off||0)-(x.off||0))[0]||null }
+function promoHTML(total){ const p=promoFor(total); if(!p) return "";
+  return `<div class="promoBox" data-promo="${esc_(p.id)}"><b>🎟️ ${p.off?`−€${p.off} on this trip`:esc_(p.title)}</b><div class="promoCode"><code>${esc_(p.code)}</code><button type="button" data-copy="${esc_(p.code)}">Copy</button></div><small>Paste the code at lastminute.com checkout${p.end?` · until ${esc_(p.end.slice(8,10)+"/"+p.end.slice(5,7))}`:""}</small></div>`}
+async function loadPromos(){ try{ const r=await fetch("/api/snapshot?kind=promos"); if(!r.ok) return; const j=await r.json(); PROMOS=Array.isArray(j.promos)?j.promos:[]; if(PROMOS.length){ try{trk("promo_shown",{n:PROMOS.length,code:PROMOS.some(p=>p.code)})}catch(e){} document.querySelectorAll(".card[data-code]").forEach(c=>{ const d=DATA.find(x=>x.code===c.dataset.code), a=c.querySelector(".art"); if(d&&a&&!a.querySelector(".offerTag")&&promoFor(hotelFor(d).price)) a.insertAdjacentHTML("beforeend",`<span class="offerTag">🎟️ Offer</span>`)}) } }catch(e){} }
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-copy]"); if(!b) return; const c=b.dataset.copy; try{navigator.clipboard.writeText(c)}catch(x){} b.textContent="Copied ✓"; try{trk("promo_copy",{})}catch(x){}});
 loadPromos();
 /* events in the saved cities: one carousel, with a filter by city */
