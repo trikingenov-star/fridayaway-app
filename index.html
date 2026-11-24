@@ -823,7 +823,10 @@ header.top .brand,#setupBrand{cursor:pointer}
 .meCard small{font-size:11px;color:var(--muted)}
 /* ===== car hire link in the booking summary ===== */
 .dealTag{display:inline-block;margin-top:4px;background:color-mix(in srgb,#3BE38A 22%,var(--surface));color:#0d6b3a;font-weight:800;font-size:12px;padding:3px 9px;border-radius:999px;border:1px solid color-mix(in srgb,#3BE38A 60%,var(--line))}
-.tgPromo{margin:12px 0}.tgPromo .promoBox{margin:0}.tgPromo .pr{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:6px;font-size:13px}.tgPromo .pr code{font-weight:800;letter-spacing:.05em}.tgPromo .pr button{border:0;background:var(--primary);color:#fff;font-weight:700;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12px}
+.tgOffer{display:flex;justify-content:flex-end;margin:10px 0 4px;position:relative}
+.tgOffer>button{border:0;background:#FFD23F;color:#3b2a00;font-weight:800;font-size:13px;padding:9px 14px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.2);cursor:pointer}
+.tgPop{position:absolute;right:0;bottom:calc(100% + 8px);width:min(320px,calc(100vw - 32px));z-index:20;box-shadow:0 12px 32px rgba(0,0,0,.28);border-radius:14px}
+.tgPop .promoBox{margin:0}.tgPop .pr{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:13px}.tgPop .pr code{font-weight:800;letter-spacing:.05em}.tgPop .pr button{border:0;background:var(--primary);color:#fff;font-weight:700;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12px}
 .offerTag{position:absolute;left:12px;top:12px;z-index:3;background:#FFD23F;color:#3b2a00;font-weight:800;font-size:12px;padding:5px 10px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
 .promoBox{margin-top:12px;padding:12px 14px;border-radius:14px;background:color-mix(in srgb,#FFD23F 22%,var(--surface));border:1.5px solid color-mix(in srgb,#FFD23F 70%,var(--line))}
 .promoBox b{display:block;font-size:14px}.promoBox small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
@@ -1287,7 +1290,7 @@ const I18N=(()=>{
   "Continue · choose room":"Continua · scegli la camera","Continue · choose flights":"Continua · scegli i voli","Continue · review":"Continua · riepilogo",
   "Choose your hotel · price includes flights":"Scegli l'hotel · il prezzo include i voli","Choose your room · price includes flights":"Scegli la camera · il prezzo include i voli",
   "Choose your flights · total with hotel and room":"Scegli i voli · totale con hotel e camera","Included in your package":"Inclusi nel pacchetto","Other flight times":"Altri orari di volo",
-  "Flights that match your times":"Voli che rispettano i tuoi orari","Same price":"Stesso prezzo","Book on lastminute.com ↗":"Prenota su lastminute.com ↗","Try again":"Riprova","🎟️ Offer":"🎟️ Offerta","Copy":"Copia","below usual":"sotto il solito","Copied ✓":"Copiato ✓",
+  "Flights that match your times":"Voli che rispettano i tuoi orari","Same price":"Stesso prezzo","Book on lastminute.com ↗":"Prenota su lastminute.com ↗","Try again":"Riprova","🎟️ Offer":"🎟️ Offerta","Copy":"Copia","🎟️ Offers":"🎟️ Offerte","below usual":"sotto il solito","Copied ✓":"Copiato ✓",
   "Checking today's price and rooms…":"Controllo prezzo di oggi e camere…","Locking your room…":"Blocco la camera…","Looking for other flight times…":"Cerco altri orari di volo…","Preparing your checkout…":"Preparo il checkout…",
   "Total price · all included":"Prezzo totale · tutto incluso","Open lastminute.com ↗":"Apri lastminute.com ↗",
   "Edit your search":"Modifica la ricerca","Edit ✎":"Modifica ✎","Top sights":"Da vedere","Describe your weekend":"Descrivi il tuo weekend","Describe your weekend…":"Descrivi il tuo weekend…","Go":"Vai","Moods":"Mood",
@@ -3021,7 +3024,12 @@ function promoHTML(total){ const p=promoFor(total); if(!p) return "";
   return `<div class="promoBox" data-promo="${esc_(p.id)}"><b>🎟️ ${p.off?`−€${p.off} on this trip`:esc_(p.title)}</b><div class="promoCode"><code>${esc_(p.code)}</code><button type="button" data-copy="${esc_(p.code)}">Copy</button></div><small>Paste the code at lastminute.com checkout${p.end?` · until ${esc_(p.end.slice(8,10)+"/"+p.end.slice(5,7))}`:""}</small></div>`}
 function tgPromoHTML(){ const l=PROMOS.filter(p=>p.code&&p.off&&p.min).sort((a,b)=>a.min-b.min).slice(0,3); if(!l.length) return "";
   return `<div class="promoBox"><b>🎟️ Groups save more</b>${l.map(p=>`<div class="pr"><span>−€${p.off} off from €${p.min.toLocaleString("en")}${p.end?` · until ${esc_(p.end.slice(8,10)+"/"+p.end.slice(5,7))}`:""}</span><span><code>${esc_(p.code)}</code> <button type="button" data-copy="${esc_(p.code)}">Copy</button></span></div>`).join("")}<small>Add the code at lastminute.com checkout. The total of your trip must reach the minimum.</small></div>`}
-function renderTgPromo(){ const pl=$("players"); if(!pl) return; let el=$("tgPromo"); if(!el){el=document.createElement("div");el.id="tgPromo";el.className="tgPromo";pl.insertAdjacentElement("afterend",el)} el.innerHTML=tgPromoHTML(); el.hidden=!el.innerHTML }
+function renderTgPromo(){ const ml=$("matchList"); if(!ml) return; let el=$("tgOffer"); const h=tgPromoHTML();
+  if(!h){ if(el) el.remove(); return }
+  if(!el){el=document.createElement("div");el.id="tgOffer";el.className="tgOffer";ml.insertAdjacentElement("afterend",el);
+    el.addEventListener("click",e=>{ if(e.target.closest("[data-copy]")) return; const b=e.target.closest("#tgOfferBtn"); const pop=el.querySelector(".tgPop"); if(b&&pop){pop.hidden=!pop.hidden; if(!pop.hidden){try{trk("promo_open",{})}catch(x){}}} });
+    document.addEventListener("click",e=>{ const pop=el.querySelector(".tgPop"); if(pop&&!pop.hidden&&!e.target.closest("#tgOffer")) pop.hidden=true }) }
+  if(!el.dataset.h||el.dataset.h!==h){ const open=el.querySelector(".tgPop")&&!el.querySelector(".tgPop").hidden; el.dataset.h=h; el.innerHTML=`<div class="tgPop"${open?"":" hidden"}>${h}</div><button type="button" id="tgOfferBtn">🎟️ Offers</button>` } }
 async function loadPromos(){ try{ const r=await fetch("/api/snapshot?kind=promos"); if(!r.ok) return; const j=await r.json(); PROMOS=Array.isArray(j.promos)?j.promos:[]; try{renderTgPromo()}catch(e){} if(PROMOS.length){ try{trk("promo_shown",{n:PROMOS.length,code:PROMOS.some(p=>p.code)})}catch(e){} document.querySelectorAll(".card[data-code]").forEach(c=>{ const d=DATA.find(x=>x.code===c.dataset.code), a=c.querySelector(".art"); if(d&&a&&!a.querySelector(".offerTag")&&promoFor(hotelFor(d).price)) a.insertAdjacentHTML("beforeend",`<span class="offerTag">🎟️ Offer</span>`)}) } }catch(e){} }
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-copy]"); if(!b) return; const c=b.dataset.copy; try{navigator.clipboard.writeText(c)}catch(x){} b.textContent="Copied ✓"; try{trk("promo_copy",{})}catch(x){}});
 loadPromos();
