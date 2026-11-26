@@ -881,6 +881,30 @@ header.top .brand,#setupBrand{cursor:pointer}
 .planTot{border-top:1px dashed var(--line);padding-top:8px;font-size:13px;display:flex;justify-content:space-between}
 .planTot small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
 .planEmpty{margin-top:12px;width:100%;border:1.5px dashed #E8417A;background:transparent;color:#C2185B;border-radius:14px;padding:12px;font:inherit;font-size:13.5px;font-weight:800;cursor:pointer}
+.xcOv{position:fixed;inset:0;z-index:75;background:rgba(10,16,32,.38);-webkit-backdrop-filter:blur(14px) saturate(1.15);backdrop-filter:blur(14px) saturate(1.15);animation:fadeIn .2s ease;overflow:auto}
+.xcOv[hidden]{display:none}
+.xcIn{min-height:100%;display:flex;flex-direction:column;justify-content:center;gap:12px;padding:calc(16px + env(safe-area-inset-top,0px)) 0 calc(16px + env(safe-area-inset-bottom,0px));max-width:560px;margin:0 auto;box-sizing:border-box}
+.xcTop{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 16px}
+.xcTop h3{margin:0;color:#fff;font-size:21px;font-weight:800;text-shadow:0 2px 12px rgba(0,0,0,.35)}
+.xcX{flex:none;width:36px;height:36px;border-radius:50%;border:0;background:rgba(255,255,255,.9);color:#111;font-size:14px;cursor:pointer}
+.xcTabs{padding:0 16px}
+.xcTabs button{background:rgba(255,255,255,.9);color:#111;border-color:transparent}
+.xcTabs button[aria-pressed="true"]{background:linear-gradient(90deg,#E8417A,#FF5A7A);color:#fff}
+.xcTabs i{font-style:normal;opacity:.75;margin-left:4px;font-size:11.5px}
+.xcRow{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:6px 16px 10px;-webkit-overflow-scrolling:touch}
+.xcRow::-webkit-scrollbar{display:none}
+.xcC{flex:0 0 78%;max-width:300px;scroll-snap-align:center;display:flex;flex-direction:column;background:var(--surface);color:var(--ink);text-decoration:none;border-radius:20px;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.3);animation:xcIn .35s cubic-bezier(.2,.8,.2,1) both}
+.xcC:nth-child(2){animation-delay:.05s}.xcC:nth-child(3){animation-delay:.1s}
+@keyframes xcIn{from{opacity:0;transform:translateY(24px) scale(.96)}to{opacity:1;transform:none}}
+.xcImg{position:relative;height:190px;background:linear-gradient(135deg,#E8417A,#FF9F45);display:grid;place-items:center;font-size:40px}
+.xcImg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.xcB{padding:12px 14px 14px;display:flex;flex-direction:column;gap:4px}
+.xcB b{font-size:15px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.6em}
+.xcB small{font-size:12.5px;color:var(--muted)}
+.xcNone{color:#fff;padding:0 16px}
+.xcGo{align-self:center;border:0;border-radius:999px;padding:12px 20px;font:inherit;font-size:14px;font-weight:800;background:#fff;color:#C2185B;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.xcFoot{margin:0;text-align:center;color:rgba(255,255,255,.85);font-size:11px}
+.planNote{margin:0;font-size:12px;color:var(--muted)}
 .svPl{display:inline-block;margin-top:3px;font-size:11.5px;font-weight:800;color:#C2185B}
 /* ===== saved: events in the saved cities ===== */
 .svEv{margin-top:18px;display:flex;flex-direction:column;gap:10px}
@@ -2390,11 +2414,14 @@ function wzNoMcp(){ $("wzBody").innerHTML+=`<div class="errbox">${mcpMsg({code:"
 
 /* events of the weekend, right under the hotel: names first, tap for the full list */
 function wzEvents(){
-  const box=$("wzEv"); if(!box||!WZ) return; const d=WZ.d, ev=EVT[evKey(d)];
-  if(ev===undefined){ if(mcp&&mcp.events) loadEvents(d); box.innerHTML=""; return; }
-  if(!Array.isArray(ev)||!ev.length){ box.innerHTML=""; return; }
-  box.innerHTML=`<button class="wzEvS" data-ev="${d.code}" aria-label="Events in ${esc_(d.city)}"><span class="wzEvH"><span aria-hidden="true">🎫</span> <b>${ev.length} event${ev.length>1?"s":""} during your weekend</b><i>See all ›</i></span>${ev.slice(0,2).map(e=>`<span class="wzEvL"><em>${esc_(evDay(e))}</em> <span translate="no">${esc_(e.name)}</span></span>`).join("")}</button>`;
-  if(!box.dataset.seen){box.dataset.seen=1; try{trk("events_open",{c:d.city,n:ev.length,src:"sheet_strip"})}catch(e){}}
+  const box=$("wzEv"); if(!box||!WZ) return; const d=WZ.d;
+  if(EVT[evKey(d)]===undefined&&mcp&&mcp.events) loadEvents(d);
+  if(!vxNow(d)){vxGet(d).then(()=>{try{if(WZ&&WZ.code===d.code&&WZ.step===0) wzEvents()}catch(e){}}); }
+  const c=xpCounts(d), it=xpIt(), n=planOf(d.code).length, v=planSum(d.code);
+  if(!c.act&&!c.ev){box.innerHTML="";return}
+  const parts=[c.act?`${c.act} ${it?"attività":"activities"}`:"", c.ev?`${c.ev} ${it?(c.ev>1?"eventi":"evento"):(c.ev>1?"events":"event")}`:""].filter(Boolean).join(" · ");
+  box.innerHTML=`<button class="wzEvS" data-ac="${d.code}" aria-label="${it?"Aggiungi attività ed eventi":"Add activities and events"}"><span class="wzEvH"><span aria-hidden="true">🎟️</span> <b>${n?`${n} ${it?"nel tuo piano":"in your plan"}${v?` · ${eur(v)}`:""}`:(it?"Aggiungi attività ed eventi":"Add activities and events")}</b><i>${n?(it?"Cambia ›":"Change ›"):(it?"Scegli ›":"Choose ›")}</i></span><span class="wzEvL">${parts}</span></button>`;
+  if(!box.dataset.seen){box.dataset.seen=1; try{trk("events_open",{c:d.city,n:c.ev,src:"sheet_strip"})}catch(e){}}
 }
 /* step 1: hotel, with its photos one at a time at the top */
 function wzPhotos(d,h){
@@ -2760,6 +2787,7 @@ async function loadEvents(d){
   catch(e){EVT[k]=[]}
   document.querySelectorAll(`[data-ev="${d.code}"]`).forEach(el=>{el.innerHTML=evPillInner(d)});
   try{xpRefresh(d.code)}catch(e){}
+  try{const o=$("xcOv"); if(o&&!o.hidden) renderXC(d); const p=$("xpOv"); if(p&&!p.hidden) renderXP(d)}catch(e){}
   try{if(S.saved.some(s=>s.code===d.code)) renderSavedEvents()}catch(e){}
   try{if(WZ&&WZ.code===d.code&&WZ.step===0) wzEvents()}catch(e){}
   if(PANEL.code===d.code) renderPanels();
@@ -3111,12 +3139,13 @@ const xpIt=()=>vxL()==="it";
 function planToggle(code,item){const L=PLAN[code]=planOf(code).slice(), i=L.findIndex(x=>x.id===item.id);
   if(i>=0){L.splice(i,1); try{trk("plan_remove",{c:code,k:item.k})}catch(e){}} else {L.push(item); try{trk("plan_add",{c:code,k:item.k,p:item.p||0})}catch(e){}}
   if(!L.length) delete PLAN[code]; planSave(); xpRefresh(code);}
+function xpCounts(d){const ev=EVT[evKey(d)], j=vxNow(d);
+  return {ev:Array.isArray(ev)?ev.length:0, act:vxOk(j)?j.items.length:0, from:vxOk(j)?Math.min(...j.items.map(x=>x.p||1e9)):0};}
 function xpRowInner(d){
-  const ev=EVT[evKey(d)], hasEv=Array.isArray(ev)&&ev.length, it=xpIt(), n=planOf(d.code).length;
   if(!vxNow(d)) vxGet(d).then(()=>xpRefresh(d.code));
-  const acts=vxOk(vxNow(d)), j=vxNow(d), from=acts?Math.min(...j.items.map(x=>x.p||1e9)):0;
-  const ac=acts||n?`<button class="acPill${n?" on":""}" data-ac="${d.code}" aria-label="${it?"Attività a":"Things to do in"} ${esc_(d.city)}">${n?`✓ ${n} ${it?"nel piano":"in plan"}`:`🎟️ ${it?"+ Attività":"+ Activities"}${hasEv?"":from&&from<1e9?` · ${it?"da":"from"} ${eur(from)}`:""}`}</button>`:"";
-  return `${hasEv?`<button class="evPill" data-ev="${d.code}" aria-label="Events in ${esc_(d.city)}">${evPillInner(d)}</button>`:""}${ac}`;
+  const c=xpCounts(d), it=xpIt(), n=planOf(d.code).length; if(!c.act&&!c.ev) return "";
+  const parts=[c.act?`${c.act} ${it?"attività":"activities"}`:"", c.ev?`${c.ev} ${it?(c.ev>1?"eventi":"evento"):(c.ev>1?"events":"event")}`:""].filter(Boolean).join(" · ");
+  return `<button class="evPill xpBtn" data-xc="${d.code}" aria-label="${it?"Attività ed eventi a":"Activities and events in"} ${esc_(d.city)}"><span aria-hidden="true">🎟️</span><span class="evT"><b>${it?"Cosa fare":"What to do"}</b> · ${parts}</span><small>${n?`✓ ${n} ${it?"nel piano":"planned"}`:c.from&&c.from<1e9?`${it?"da":"from"} ${eur(c.from)}`:"›"}</small></button>`;
 }
 function xpSumInner(d,h){const v=planSum(d.code), n=planOf(d.code).length; if(!n) return ""; const it=xpIt();
   return v>0?`+ ${eur(v)} ${it?"attività":"activities"} · ${it?"totale":"total"} ${eur(h.price+v)}`:`+ ${n} ${it?"nel piano":"in your plan"}`}
@@ -3124,9 +3153,35 @@ function planBadge(d){const n=planOf(d.code).length; return n?`<span class="svPl
 function xpRefresh(code){const d=DATA.find(x=>x.code===code); if(!d) return; const h=hotelFor(d);
   document.querySelectorAll(`[data-xp="${code}"]`).forEach(el=>{el.innerHTML=xpRowInner(d)});
   if(h) document.querySelectorAll(`[data-xs="${code}"]`).forEach(el=>{el.innerHTML=xpSumInner(d,h)});
+  try{if(WZ&&WZ.code===code&&WZ.step===0) wzEvents()}catch(e){}
   const P=document.getElementById("wzPlan"); if(P&&P.dataset.code===code) P.outerHTML=planHTML(d,+P.dataset.pr||0);
   try{if(S.saved.some(s=>s.code===code)) renderSaved()}catch(e){}}
-/* sheet to explore and add */
+/* card popup: carousel of activities and events over the blurred app, browse only (adding happens inside the weekend sheet) */
+let XCT="act";
+async function openXC(code){
+  const d=DATA.find(x=>x.code===code); if(!d) return; XCT="act";
+  let o=$("xcOv"); if(!o){o=document.createElement("div");o.id="xcOv";o.className="xcOv";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.addEventListener("click",e=>{if(e.target===o||e.target.classList.contains("xcIn"))o.hidden=true});document.body.appendChild(o);}
+  o.hidden=false; o.innerHTML=`<div class="xcIn"><div class="xcRow">${'<div class="xcC pskel" style="height:300px"></div>'.repeat(2)}</div></div>`;
+  try{trk("plan_open",{c:d.city,k:"carousel"})}catch(e){}
+  await vxGet(d); if(mcp&&mcp.events&&EVT[evKey(d)]===undefined) loadEvents(d);
+  renderXC(d);
+}
+function renderXC(d){
+  const o=$("xcOv"); if(!o||o.hidden) return; const it=xpIt();
+  const acts=vxOk(vxNow(d))?vxNow(d).items:[], ev=Array.isArray(EVT[evKey(d)])?EVT[evKey(d)]:[];
+  if(XCT==="ev"&&!ev.length) XCT="act"; if(XCT==="act"&&!acts.length&&ev.length) XCT="ev";
+  const tabs=`<div class="xpTabs xcTabs">${acts.length?`<button data-xct="act" aria-pressed="${XCT==="act"}">🎟️ ${it?"Attività":"Activities"} <i>${acts.length}</i></button>`:""}${ev.length?`<button data-xct="ev" aria-pressed="${XCT==="ev"}">🎫 ${it?"Eventi":"Events"} <i>${ev.length}</i></button>`:""}</div>`;
+  const cards=XCT==="act"
+    ?acts.map(x=>`<a class="xcC" href="${esc_(x.u)}" target="_blank" rel="noopener sponsored" data-xck="act"><span class="xcImg">🎟️<img src="${esc_(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">${x.r?`<span class="svDate">★ ${x.r.toFixed(1)}</span>`:""}</span><span class="xcB"><b translate="no">${esc_(x.t)}</b><small>${x.p?`${it?"da":"from"} ${eur(x.p)} ${it?"a persona":"per person"}`:""}${x.n?` · ${x.n.toLocaleString(it?"it-IT":"en-GB")} ${it?"recensioni":"reviews"}`:""}</small></span></a>`).join("")
+    :ev.map(e=>`<a class="xcC" href="${esc_(e.url)}" target="_blank" rel="noopener" data-xck="ev"><span class="xcImg">${EV_ICON[e.seg]||"🎫"}${e.img?`<img src="${esc_(e.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}<span class="svDate">${esc_(evDay(e))}${e.time?" · "+esc_(e.time):""}</span></span><span class="xcB"><b translate="no">${esc_(e.name)}</b><small translate="no">${esc_(e.venue||e.genre||"")}</small></span></a>`).join("");
+  o.innerHTML=`<div class="xcIn"><div class="xcTop"><h3>${it?"Cosa fare a":"What to do in"} ${esc_(d.city)}</h3><button class="xcX" aria-label="Close">✕</button></div>${tabs}<div class="xcRow">${cards||`<p class="xcNone">${it?"Niente da mostrare per ora.":"Nothing to show right now."}</p>`}</div><button class="xcGo" data-xcgo="${d.code}">${it?"Apri il weekend per aggiungerle":"Open the weekend to add them"} ›</button><p class="xcFoot">${XCT==="act"?"Experiences from Viator":"Events from Ticketmaster"}</p></div>`;
+  o.querySelector(".xcX").onclick=()=>{o.hidden=true};
+  o.querySelectorAll("[data-xct]").forEach(b=>b.onclick=()=>{XCT=b.dataset.xct;renderXC(d)});
+  o.querySelector("[data-xcgo]").onclick=()=>{o.hidden=true; try{openSheet(d.code)}catch(e){}};
+  o.querySelectorAll(".xcC").forEach(a=>a.addEventListener("click",()=>{try{trk(a.dataset.xck==="act"?"vx_click":"events_open",{c:d.city,src:"card_carousel"})}catch(e){}}));
+}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-xc]"); if(b){e.stopPropagation();e.preventDefault();openXC(b.dataset.xc);}},true);
+/* sheet to explore and add (inside the weekend) */
 let XPT="act";
 async function openXP(code,tab){
   const d=DATA.find(x=>x.code===code); if(!d) return; XPT=tab||"act";
@@ -3144,11 +3199,11 @@ function renderXP(d){
   const tabs=acts.length&&ev.length?`<div class="xpTabs"><button data-xpt="act" aria-pressed="${XPT==="act"}">🎟️ ${it?"Attività":"Activities"}</button><button data-xpt="ev" aria-pressed="${XPT==="ev"}">🎫 ${it?"Eventi":"Events"}</button></div>`:"";
   const btn=on=>`<button class="xpAdd">${on?(it?"✓ Aggiunta":"✓ Added"):(it?"+ Aggiungi":"+ Add")}</button>`;
   const rows=XPT==="act"
-    ?acts.map((x,i)=>{const id="a:"+(x.id||x.u),on=inPlan(id);return `<div class="xpIt${on?" on":""}" data-xi="${i}"><span class="evImg"><img src="${esc_(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span><a href="${esc_(x.u)}" target="_blank" rel="noopener sponsored"><b translate="no">${esc_(x.t)}</b><small>${x.r?`★ ${x.r.toFixed(1)} (${x.n.toLocaleString(it?"it-IT":"en-GB")}) · `:""}${x.p?`${it?"da":"from"} ${eur(x.p)} ${it?"a persona":"pp"}`:""}</small></a>${btn(on)}</div>`}).join("")
+    ?acts.map((x,i)=>{const id="a:"+(x.id||x.u),on=inPlan(id);return `<div class="xpIt${on?" on":""}" data-xi="${i}"><span class="evImg"><img src="${esc_(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span><a href="${esc_(x.u)}" target="_blank" rel="noopener sponsored"><b translate="no">${esc_(x.t)}</b><small>${x.r?`★ ${x.r.toFixed(1)} (${x.n.toLocaleString(it?"it-IT":"en-GB")}) · `:""}${x.p?`${it?"da":"from"} ${eur(x.p)} ${it?"a persona":"pp"}${planAdults()>1?` · ${eur(x.p*planAdults())} ${it?"per":"for"} ${planAdults()}`:""}`:""}</small></a>${btn(on)}</div>`}).join("")
     :ev.map((e,i)=>{const id="e:"+(e.url||e.name),on=inPlan(id);return `<div class="xpIt${on?" on":""}" data-xi="${i}"><span class="evImg">${e.img?`<img src="${esc_(e.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:(EV_ICON[e.seg]||"🎫")}</span><a href="${esc_(e.url)}" target="_blank" rel="noopener"><b translate="no">${esc_(e.name)}</b><small>${esc_(evDay(e))}${e.time?" · "+esc_(e.time):""}${e.venue?" · "+esc_(e.venue):""}</small></a>${btn(on)}</div>`}).join("");
   const n=planOf(d.code).length, v=planSum(d.code);
   const empty=!acts.length&&!ev.length?`<p>${it?"Nessuna attività disponibile per ora.":"Nothing available right now."}</p>`:"";
-  o.innerHTML=`<div class="evCard"><button class="evX" aria-label="Close">✕</button><h3>${it?"Cosa fare a":"Things to do in"} ${esc_(d.city)}</h3><p>${it?"Aggiungi al tuo weekend: le prenoti dopo il volo, una per una.":"Add them to your weekend: you book each one after the trip."}</p>${tabs}${rows}${empty}<p>${XPT==="act"?"Experiences from Viator":"Events from Ticketmaster"}</p><div class="xpFoot"><span>${n?`${it?"Nel piano":"In your plan"}: <b>${n}</b>${v?` · <b>${eur(v)}</b>${planAdults()>1?` (${planAdults()} ${it?"pers.":"people"})`:""}`:""}`:(it?"Niente aggiunto per ora":"Nothing added yet")}</span><button class="xpDone">${it?"Fatto":"Done"}</button></div></div>`;
+  o.innerHTML=`<div class="evCard"><button class="evX" aria-label="Close">✕</button><h3>${it?"Cosa fare a":"Things to do in"} ${esc_(d.city)}</h3><p>${it?"Aggiungi al tuo weekend: le prenoti dopo il volo, una per una":"Add them to your weekend: you book each one after the trip"}${planAdults()>1?(it?` · prezzi per ${planAdults()} persone`:` · prices for ${planAdults()} people`):""}.</p>${tabs}${rows}${empty}<p>${XPT==="act"?"Experiences from Viator":"Events from Ticketmaster"}</p><div class="xpFoot"><span>${n?`${it?"Nel piano":"In your plan"}: <b>${n}</b>${v?` · <b>${eur(v)}</b>${planAdults()>1?` (${planAdults()} ${it?"pers.":"people"})`:""}`:""}`:(it?"Niente aggiunto per ora":"Nothing added yet")}</span><button class="xpDone">${it?"Fatto":"Done"}</button></div></div>`;
   o.querySelector(".evX").onclick=o.querySelector(".xpDone").onclick=()=>{o.hidden=true};
   o.querySelectorAll("[data-xpt]").forEach(b=>b.onclick=()=>{XPT=b.dataset.xpt;renderXP(d)});
   o.querySelectorAll(".xpAdd").forEach(b=>b.onclick=()=>{const i=+b.closest(".xpIt").dataset.xi;
@@ -3162,7 +3217,7 @@ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest
 function planHTML(d,pr){const L=planOf(d.code), it=xpIt();
   if(!L.length) return `<button class="planEmpty" id="wzPlan" data-code="${d.code}" data-pr="${pr||0}" data-ac="${d.code}">🎟️ ${it?"+ Aggiungi attività ed eventi al weekend":"+ Add activities and events to your weekend"}</button>`;
   const v=planSum(d.code), ad=planAdults();
-  return `<div class="plan" id="wzPlan" data-code="${d.code}" data-pr="${pr||0}"><h4><span>🎟️ ${it?"Il tuo piano":"Your plan"}</span><button data-ac="${d.code}">${it?"Cambia":"Change"}</button></h4>${L.map(x=>`<div class="planRow"><div><b translate="no">${esc_(x.t)}</b><small>${x.k==="act"?(x.p?`${eur(x.p*ad)}${ad>1?` (${ad} × ${eur(x.p)})`:""}`:(it?"prezzo sul sito":"price on site")):esc_(x.when||"")+" · "+(it?"prezzo sul sito":"price on site")}</small></div><a href="${esc_(x.u)}" target="_blank" rel="noopener${x.k==="act"?" sponsored":""}" data-pl="${esc_(d.city)}">${it?"Prenota":"Book"} ↗</a><button data-prm="${esc_(x.id)}" aria-label="${it?"Rimuovi":"Remove"}">✕</button></div>`).join("")}${pr>0&&v>0?`<div class="planTot"><span>${it?"Viaggio + attività":"Trip + activities"}<small>${it?"Stima: volo e hotel su lastminute.com, attività su Viator":"Estimate: flight + hotel on lastminute.com, activities on Viator"}</small></span><b>≈ ${eur(pr+v)}</b></div>`:""}</div>`;
+  return `<div class="plan" id="wzPlan" data-code="${d.code}" data-pr="${pr||0}"><h4><span>🎟️ ${it?"Il tuo piano":"Your plan"}</span><button data-ac="${d.code}">${it?"Cambia":"Change"}</button></h4>${L.map(x=>`<div class="planRow"><div><b translate="no">${esc_(x.t)}</b><small>${x.k==="act"?(x.p?`${eur(x.p*ad)}${ad>1?` (${ad} × ${eur(x.p)})`:""}`:(it?"prezzo sul sito":"price on site")):esc_(x.when||"")+" · "+(it?"prezzo sul sito":"price on site")}</small></div><a href="${esc_(x.u)}" target="_blank" rel="noopener${x.k==="act"?" sponsored":""}" data-pl="${esc_(d.city)}">${it?"Prenota":"Book"}${ad>1?` ×${ad}`:""} ↗</a><button data-prm="${esc_(x.id)}" aria-label="${it?"Rimuovi":"Remove"}">✕</button></div>`).join("")}${pr>0&&v>0?`<div class="planTot"><span>${it?"Viaggio + attività":"Trip + activities"}<small>${it?"Stima: volo e hotel su lastminute.com, attività su Viator":"Estimate: flight + hotel on lastminute.com, activities on Viator"}</small></span><b>≈ ${eur(pr+v)}</b></div>`:""}${ad>1?`<p class="planNote">👥 ${it?`Su Viator e Ticketmaster scegli ${ad} persone: il prezzo qui è già per ${ad}.`:`On Viator and Ticketmaster pick ${ad} people: the price here is already for ${ad}.`}</p>`:""}</div>`;
 }
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-prm]"); if(!b) return; const P=b.closest("#wzPlan"); if(!P) return; const c=P.dataset.code, x=planOf(c).find(y=>y.id===b.dataset.prm); if(x) planToggle(c,x);});
 document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("[data-pl]"); if(a){try{trk("vx_click",{c:a.dataset.pl,src:"plan_book"})}catch(x){}}});
