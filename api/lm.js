@@ -3,8 +3,8 @@
 // and returns {payload, sid}. The MCP session id is handed back to the browser so that multi-step tools
 // (select_hotel_options → generate_booking_link → get_alternative_flights → change_flight) share one session.
 
-const { callTool, openSession, ENDPOINT } = require("./_mcp");
-const ALLOWED = new Set(["search_flight_and_hotel_package","select_hotel_options","generate_booking_link","get_alternative_flights","change_flight","search_flights"]);
+const { callTool, openSession, ENDPOINT, rpc } = require("./_mcp");
+const ALLOWED = new Set(["search_flight_and_hotel_package","select_hotel_options","generate_booking_link","create_cart","get_alternative_flights","change_flight","search_flights"]);
 
 module.exports = async (req, res) => {
   res.setHeader("cache-control", "no-store");
@@ -18,6 +18,26 @@ module.exports = async (req, res) => {
         const r = await callTool("search_flight_and_hotel_package", { origin: "MIL", destination: "BCN", date_from: d, date_to: d2, adults: "2", max_results: 2, lang: "it", sort: "recommended" });
         const list = (r.payload && r.payload.products_summary) || [];
         return res.status(200).json({ ok: !!list.length, ms: Date.now() - t0, endpoint: ENDPOINT, error: r.error || null, sample: list.slice(0, 2).map((x) => ({ name: x.name, price_total: x.price_total })) });
+      }
+      // Diagnostics: /api/lm?tools=1 lists the server's tools (name + input schema of the cart tool);
+      // /api/lm?probe=1 runs search -> select -> cart once and reports the SHAPE of the answers (no secrets).
+      if (req.query && req.query.tools) {
+        const sid = await openSession();
+        const { msg } = await rpc({ jsonrpc: "2.0", id: 7, method: "tools/list" }, sid);
+        const tl = (msg && msg.result && msg.result.tools) || [];
+        return res.status(200).json({ tools: tl.map((t) => t.name), cart: tl.filter((t) => /cart|booking/i.test(t.name)).map((t) => ({ name: t.name, schema: t.inputSchema })) });
+      }
+      if (req.query && req.query.probe) {
+        const d = new Date(Date.now() + 10 * 864e5).toISOString().slice(0, 10), d2 = new Date(Date.now() + 12 * 864e5).toISOString().slice(0, 10);
+        const a = await callTool("search_flight_and_hotel_package", { origin: "MIL", destination: "PMI", date_from: d, date_to: d2, adults: "1", max_results: 1, lang: "it", sort: "recommended" });
+        const h = a.payload && (a.payload.products_summary || [])[0];
+        if (!h) return res.status(200).json({ step: "search", error: a.error || "no hotels" });
+        const b = await callTool("select_hotel_options", { search_id: a.payload.search_id, hotel_internal_id: h.internal_id_hotel, date_from: d, date_to: d2 }, a.sid);
+        const room = b.payload && (b.payload.room_options || [])[0];
+        if (!room) return res.status(200).json({ step: "select", error: b.error || "no rooms" });
+        const c = await callTool("generate_booking_link", { pricing_id: b.payload.pricing_id, rate_id: room.rate_id }, a.sid);
+        const shape = (o, dep) => (o && typeof o === "object" && dep < 3 ? Object.fromEntries(Object.entries(o).map(([k, v]) => [k, Array.isArray(v) ? "array(" + v.length + ")" : v && typeof v === "object" ? shape(v, dep + 1) : typeof v === "string" && /^https?:/.test(v) ? "URL" : typeof v])) : typeof o);
+        return res.status(200).json({ step: "cart", error: c.error || null, hasBookingUrl: !!(c.payload && c.payload.booking_url), shape: shape(c.payload, 0) });
       }
       return res.status(200).json({ ok: true });
     }

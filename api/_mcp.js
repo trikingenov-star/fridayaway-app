@@ -59,8 +59,33 @@ function toPayload(result) {
   return txt ? { text: txt } : null;
 }
 
-// callTool(tool, args, sid?) -> { sid, payload } | { sid, error }
+// lastminute.com renamed generate_booking_link -> create_cart. Callers keep the old name; we try the new one first,
+// fall back to the old one, and normalise the answer to { booking_url, booking_summary, ... }.
+const URL_KEYS = ["booking_url", "cart_url", "checkout_url", "deeplink", "deep_link", "url", "link", "redirect_url", "booking_link"];
+function normCart(p) {
+  if (!p || typeof p !== "object") return p;
+  if (!p.booking_url) {
+    const hit = (o) => { for (const k of URL_KEYS) if (typeof o[k] === "string" && /^https?:\/\//.test(o[k])) return o[k]; return ""; };
+    let u = hit(p);
+    if (!u) for (const v of Object.values(p)) if (v && typeof v === "object" && !Array.isArray(v)) { u = hit(v); if (u) break; }
+    if (u) p.booking_url = u;
+  }
+  if (!p.booking_summary) p.booking_summary = p.summary || p.cart_summary || p.cart || {};
+  return p;
+}
+const isUnknown = (r) => r && r.error && /unknown tool/i.test(r.error.message || "");
 async function callTool(tool, args, sid) {
+  if (tool === "generate_booking_link") {
+    let r = await callTool1("create_cart", args, sid);
+    if (isUnknown(r)) r = await callTool1("generate_booking_link", args, sid);
+    if (r && r.payload) r.payload = normCart(r.payload);
+    return r;
+  }
+  return callTool1(tool, args, sid);
+}
+
+// callTool(tool, args, sid?) -> { sid, payload } | { sid, error }
+async function callTool1(tool, args, sid) {
   const useShared = !sid;
   if (!sid) sid = await sharedSid();
   const body = () => ({ jsonrpc: "2.0", id: Math.floor(Math.random() * 1e9), method: "tools/call", params: { name: tool, arguments: args || {} } });
@@ -89,4 +114,4 @@ async function pool(items, limit, fn) {
   return out;
 }
 
-module.exports = { callTool, openSession, pool, ENDPOINT };
+module.exports = { callTool, openSession, pool, ENDPOINT, rpc };
