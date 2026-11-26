@@ -37,7 +37,8 @@ module.exports = async (req, res) => {
         if (!room) return res.status(200).json({ step: "select", error: b.error || "no rooms" });
         const c = await callTool("generate_booking_link", { pricing_id: b.payload.pricing_id, rate_id: room.rate_id }, a.sid);
         const shape = (o, dep) => (o && typeof o === "object" && dep < 3 ? Object.fromEntries(Object.entries(o).map(([k, v]) => [k, Array.isArray(v) ? "array(" + v.length + ")" : v && typeof v === "object" ? shape(v, dep + 1) : typeof v === "string" && /^https?:/.test(v) ? "URL" : typeof v])) : typeof o);
-        return res.status(200).json({ step: "cart", error: c.error || null, hasBookingUrl: !!(c.payload && c.payload.booking_url), shape: shape(c.payload, 0) });
+        const P = c.payload || {}; const hide = (t) => String(t).replace(/[0-9a-f]{8}-[0-9a-f-]{27,}/gi, "<id>").slice(0, 400);
+        return res.status(200).json({ step: "cart", error: c.error || null, hasBookingUrl: !!P.booking_url, shape: shape(P, 0), message: hide(P.message || ""), next_steps: (P.next_steps || []).map((x) => hide(typeof x === "string" ? x : JSON.stringify(x))) });
       }
       return res.status(200).json({ ok: true });
     }
