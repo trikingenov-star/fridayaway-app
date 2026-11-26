@@ -871,6 +871,8 @@ header.top .brand,#setupBrand{cursor:pointer}
 .svSk{flex:none;width:212px;height:184px;border-radius:16px}
 .svNav{display:none}
 @media (min-width:960px){.svNav{display:grid;place-items:center;position:absolute;top:44px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);box-shadow:var(--shadow);cursor:pointer;font-size:18px;line-height:1;z-index:2}.svNav.l{left:-14px}.svNav.r{right:-14px}}
+.svMode button{padding:7px 14px}
+.svMode button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:transparent}
 .svFoot{margin:0;font-size:11px;color:var(--muted)}
 .alCard h3{margin:0;font-size:19px}
 .alIco{font-size:34px;line-height:1}
@@ -1153,7 +1155,7 @@ html.neg :is(.bt,.msRow button,.meImg) img{filter:none}
       <div id="alertBtnWrap"></div>
       
       <div id="savedList" class="sec" style="margin-top:0"></div>
-      <section id="savedEv" class="svEv" hidden aria-label="Events in your saved cities"></section>
+      <section id="savedEv" class="svEv" hidden aria-label="What to do this weekend"></section>
       <div class="cmp" id="cmpWrap" hidden><table id="cmp"></table></div>
       <div class="toggle box"><label for="split">Show price per person</label><input id="split" type="checkbox"></div>
     </div>
@@ -1287,6 +1289,7 @@ const I18N=(()=>{
   const EX={
   "Swipe right to save · left to skip":"Scorri a destra per salvare · a sinistra per saltare",
   "Total price":"Prezzo totale",
+  "What to do this weekend":"Cosa fare nel weekend","In the cities you saved":"Nelle città che hai salvato","🎟️ Activities":"🎟️ Attività","🎫 Events":"🎫 Eventi","Experiences from Viator":"Esperienze da Viator",
   "The 3 best weekends, every Thursday":"I 3 weekend migliori, ogni giovedì","Notify me":"Avvisami","Your email":"La tua email",
   "We only use your email to send these offers. Reply STOP to any email to stop them.":"Usiamo la tua email solo per mandarti queste offerte. Rispondi STOP a una qualsiasi email per non riceverle più.",
   "Check your email address.":"Controlla l'indirizzo email.","Something went wrong, try again.":"Qualcosa è andato storto, riprova.",
@@ -3033,13 +3036,14 @@ function tqHTML(d){const t=TQ[d.code]; if(!t) return "";
   return `<a class="carBox tqBox" href="${esc_(href)}" target="_blank" rel="noopener${TQ_ON?" sponsored":""}" data-tq="${esc_(d.city)}"><span class="carIco" aria-hidden="true">🎟️</span><span class="carT"><b>Things to do in ${esc_(d.city)}</b><small>Skip-the-line tickets for museums and top sights</small></span><span class="carGo" aria-hidden="true">›</span></a>`}
 document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest(".tqBox"); if(a){try{trk("exp_click",{c:a.dataset.tq})}catch(x){}}});
 /* top Viator experiences (api/snapshot?kind=exp). Shown only with a production key; add ?vx=1 to the URL to preview sandbox data */
-const VX={}, VX_ALL=/[?&]vx=1/.test(location.search);
+const VX={}, VXP={}, VX_ALL=/[?&]vx=1/.test(location.search);
+const vxL=()=>uiLang()==="it"?"it":"en", vxNow=d=>VX[d.code+vxL()], vxOk=j=>!!(j&&j.items&&j.items.length&&(j.env==="prod"||VX_ALL));
+function vxGet(d){const l=vxL(),k=d.code+l; if(!VXP[k]) VXP[k]=fetch(`/api/snapshot?kind=exp&c=${d.code}&n=${encodeURIComponent(d.city)}&l=${l}`).then(r=>r.json()).catch(()=>({items:[]})).then(j=>VX[k]=j||{items:[]}); return VXP[k]}
 function vxSlot(d){setTimeout(()=>loadVX(d),0); return `<div class="vxBox" id="vxBox" hidden></div>`}
-async function loadVX(d){const l=uiLang()==="it"?"it":"en", k=d.code+l; let j=VX[k];
-  if(!j){try{j=await (await fetch(`/api/snapshot?kind=exp&c=${d.code}&n=${encodeURIComponent(d.city)}&l=${l}`)).json()}catch(e){return} VX[k]=j}
-  const el=document.getElementById("vxBox"); if(!el||!j||!j.items||!j.items.length||(j.env!=="prod"&&!VX_ALL)) return;
-  const it=l==="it";
-  el.innerHTML=`<div class="vxH">${it?"Esperienze più amate":"Top experiences"}${j.env!=="prod"?" · TEST":""}</div><div class="vxRow">${j.items.map(x=>`<a class="vxC" href="${esc_(x.u)}" target="_blank" rel="noopener sponsored" data-vx="${esc_(d.city)}"><img src="${esc_(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer"><b>${esc_(x.t)}</b><small>${x.r?`★ ${x.r.toFixed(1)} (${x.n}) · `:""}${x.p?`${it?"da":"from"} ${eur(x.p)}`:""}</small></a>`).join("")}</div>`;
+async function loadVX(d){const j=await vxGet(d);
+  const el=document.getElementById("vxBox"); if(!el||!vxOk(j)) return;
+  const it=vxL()==="it";
+  el.innerHTML=`<div class="vxH">${it?"Esperienze più amate":"Top experiences"}${j.env!=="prod"?" · TEST":""}</div><div class="vxRow">${j.items.map(x=>`<a class="vxC" href="${esc_(x.u)}" target="_blank" rel="noopener sponsored" data-vx="${esc_(d.city)}"><img src="${esc_(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer"><b translate="no">${esc_(x.t)}</b><small>${x.r?`★ ${x.r.toFixed(1)} (${x.n.toLocaleString(it?"it-IT":"en-GB")}) · `:""}${x.p?`${it?"da":"from"} ${eur(x.p)}`:""}</small></a>`).join("")}</div>`;
   el.hidden=false; try{trk("vx_shown",{c:d.city})}catch(e){}}
 document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest(".vxC"); if(a){try{trk("vx_click",{c:a.dataset.vx})}catch(x){}}});
 /* lastminute.com offers from the Awin Promotions API (/api/promos); nothing is shown when there are none */
@@ -3059,31 +3063,45 @@ function renderTgPromo(){ const ml=$("matchList"); if(!ml) return; let el=$("tgO
 async function loadPromos(){ try{ const r=await fetch("/api/snapshot?kind=promos"); if(!r.ok) return; const j=await r.json(); PROMOS=Array.isArray(j.promos)?j.promos:[]; try{renderTgPromo()}catch(e){} if(PROMOS.length){ try{trk("promo_shown",{n:PROMOS.length,code:PROMOS.some(p=>p.code)})}catch(e){} document.querySelectorAll(".card[data-code]").forEach(c=>{ const d=DATA.find(x=>x.code===c.dataset.code), a=c.querySelector(".art"); if(d&&a&&!a.querySelector(".offerTag")&&promoFor(hotelFor(d).price)) a.insertAdjacentHTML("beforeend",`<span class="offerTag">🎟️ Offer</span>`)}) } }catch(e){} }
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-copy]"); if(!b) return; const c=b.dataset.copy; try{navigator.clipboard.writeText(c)}catch(x){} b.textContent="Copied ✓"; try{trk("promo_copy",{})}catch(x){}});
 loadPromos();
-/* events in the saved cities: one carousel, with a filter by city */
-let SVF="all";
+/* saved: "What to do this weekend" — activities (Viator) and events (Ticketmaster) in the saved cities, with a city filter */
+let SVF="all", SVM="act";
 function renderSavedEvents(){
   const W=$("savedEv"); if(!W) return;
   const ds=S.saved.map(s=>DATA.find(x=>x.code===s.code)).filter(Boolean);
-  if(!ds.length||!mcp||!mcp.events){W.hidden=true;W.innerHTML="";return}
-  ds.forEach(d=>{if(EVT[evKey(d)]===undefined) loadEvents(d)});
-  const busy=ds.some(d=>EVT[evKey(d)]==="busy");
-  const withEv=ds.filter(d=>Array.isArray(EVT[evKey(d)])&&EVT[evKey(d)].length);
-  const head=`<div class="svEvH"><h3><span aria-hidden="true">🎫</span> What's on in your saved cities</h3><p>During your weekend · tap an event for tickets</p></div>`;
-  if(!withEv.length){
-    if(busy){W.hidden=false;W.innerHTML=head+`<div class="svRow">${'<div class="pskel svSk"></div>'.repeat(3)}</div>`}else{W.hidden=true;W.innerHTML=""}
+  if(!ds.length){W.hidden=true;W.innerHTML="";return}
+  const evOn=!!(mcp&&mcp.events), it=vxL()==="it";
+  if(evOn) ds.forEach(d=>{if(EVT[evKey(d)]===undefined) loadEvents(d)});
+  ds.forEach(d=>{if(!vxNow(d)) vxGet(d).then(()=>{try{renderSavedEvents()}catch(e){}})});
+  const acts=d=>vxOk(vxNow(d))?vxNow(d).items:[], evs=d=>evOn&&Array.isArray(EVT[evKey(d)])?EVT[evKey(d)]:[];
+  const actBusy=ds.some(d=>!vxNow(d)), evBusy=evOn&&ds.some(d=>EVT[evKey(d)]==="busy");
+  const withAct=ds.filter(d=>acts(d).length), withEv=ds.filter(d=>evs(d).length);
+  if(SVM==="ev"&&!withEv.length&&!evBusy) SVM="act";
+  if(SVM==="act"&&!withAct.length&&!actBusy&&withEv.length) SVM="ev";
+  const head=`<div class="svEvH"><h3><span aria-hidden="true">🗓️</span> What to do this weekend</h3><p>In the cities you saved</p></div>`;
+  if(!withAct.length&&!withEv.length){
+    if(actBusy||evBusy){W.hidden=false;W.innerHTML=head+`<div class="svRow">${'<div class="pskel svSk"></div>'.repeat(3)}</div>`}else{W.hidden=true;W.innerHTML=""}
     return;
   }
-  if(SVF!=="all"&&!withEv.some(d=>d.code===SVF)) SVF="all";
-  const all=[]; withEv.forEach(d=>EVT[evKey(d)].forEach((e,i)=>all.push({d,e,i})));
-  const list=(SVF==="all"?all:all.filter(x=>x.d.code===SVF)).sort((a,b)=>(a.e.date||"").localeCompare(b.e.date||"")||(a.e.time||"").localeCompare(b.e.time||"")||a.i-b.i);
-  const chips=withEv.length>1?`<div class="svChips" role="group" aria-label="Filter by city"><button data-svf="all" aria-pressed="${SVF==="all"}">All cities<i>${all.length}</i></button>${withEv.map(d=>`<button data-svf="${d.code}" aria-pressed="${SVF===d.code}"><span>${esc_(d.city)}</span><i>${EVT[evKey(d)].length}</i></button>`).join("")}</div>`:"";
-  const cards=list.map(({d,e})=>`<a class="svCard" href="${esc_(e.url)}" target="_blank" rel="noopener" data-svc="${esc_(d.city)}"><span class="svImg">${EV_ICON[e.seg]||"🎫"}${e.img?`<img src="${esc_(e.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}<span class="svCity"><span aria-hidden="true">📍</span> ${esc_(d.city)}</span>${e.date?`<span class="svDate">${esc_(evDay(e))}${e.time?" · "+esc_(e.time):""}</span>`:""}</span><span class="svBody"><b translate="no">${esc_(e.name)}</b><small translate="no">${esc_(e.venue||e.genre||"")}</small></span></a>`).join("");
+  const tabs=withAct.length&&withEv.length?`<div class="svChips svMode" role="group" aria-label="Show"><button data-svmode="act" aria-pressed="${SVM==="act"}">🎟️ Activities</button><button data-svmode="ev" aria-pressed="${SVM==="ev"}">🎫 Events</button></div>`:"";
+  const pool=SVM==="act"?withAct:withEv, get=SVM==="act"?acts:evs;
+  if(SVF!=="all"&&!pool.some(d=>d.code===SVF)) SVF="all";
+  let all=[];
+  if(SVM==="act"){const n=Math.max(...pool.map(d=>get(d).length)); for(let i=0;i<n;i++) pool.forEach(d=>{const x=get(d)[i]; if(x) all.push({d,e:x,i})})}
+  else {pool.forEach(d=>get(d).forEach((e,i)=>all.push({d,e,i}))); all.sort((a,b)=>(a.e.date||"").localeCompare(b.e.date||"")||(a.e.time||"").localeCompare(b.e.time||"")||a.i-b.i)}
+  const list=SVF==="all"?all:all.filter(x=>x.d.code===SVF);
+  const chips=pool.length>1?`<div class="svChips" role="group" aria-label="Filter by city"><button data-svf="all" aria-pressed="${SVF==="all"}">All cities<i>${all.length}</i></button>${pool.map(d=>`<button data-svf="${d.code}" aria-pressed="${SVF===d.code}"><span>${esc_(d.city)}</span><i>${get(d).length}</i></button>`).join("")}</div>`:"";
+  const city=d=>`<span class="svCity"><span aria-hidden="true">📍</span> ${esc_(d.city)}</span>`;
+  const cards=SVM==="act"
+    ?list.map(({d,e})=>`<a class="svCard svAct" href="${esc_(e.u)}" target="_blank" rel="noopener sponsored" data-svc="${esc_(d.city)}"><span class="svImg">🎟️<img src="${esc_(e.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">${city(d)}${e.r?`<span class="svDate">★ ${e.r.toFixed(1)}</span>`:""}</span><span class="svBody"><b translate="no">${esc_(e.t)}</b><small>${e.p?`${it?"da":"from"} ${eur(e.p)}`:""}${e.n?` · ${e.n.toLocaleString(it?"it-IT":"en-GB")} ${it?"recensioni":"reviews"}`:""}</small></span></a>`).join("")
+    :list.map(({d,e})=>`<a class="svCard svEvC" href="${esc_(e.url)}" target="_blank" rel="noopener" data-svc="${esc_(d.city)}"><span class="svImg">${EV_ICON[e.seg]||"🎫"}${e.img?`<img src="${esc_(e.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}${city(d)}${e.date?`<span class="svDate">${esc_(evDay(e))}${e.time?" · "+esc_(e.time):""}</span>`:""}</span><span class="svBody"><b translate="no">${esc_(e.name)}</b><small translate="no">${esc_(e.venue||e.genre||"")}</small></span></a>`).join("");
   W.hidden=false;
-  W.innerHTML=head+chips+`<div class="svWrap"><button class="svNav l" data-svm="-1" aria-label="Previous">‹</button><div class="svRow">${cards}</div><button class="svNav r" data-svm="1" aria-label="Next">›</button></div><p class="svFoot">Events from Ticketmaster</p>`;
-  W.querySelectorAll("[data-svf]").forEach(b=>b.onclick=()=>{SVF=b.dataset.svf; try{trk("events_open",{c:SVF==="all"?"all":(DATA.find(x=>x.code===SVF)||{}).city,src:"saved_filter"})}catch(e){} renderSavedEvents()});
+  W.innerHTML=head+tabs+chips+`<div class="svWrap"><button class="svNav l" data-svm="-1" aria-label="Previous">‹</button><div class="svRow">${cards}</div><button class="svNav r" data-svm="1" aria-label="Next">›</button></div><p class="svFoot">${SVM==="act"?"Experiences from Viator":"Events from Ticketmaster"}</p>`;
+  W.querySelectorAll("[data-svmode]").forEach(b=>b.onclick=()=>{SVM=b.dataset.svmode; SVF="all"; try{trk("events_open",{c:"all",src:"saved_mode_"+SVM})}catch(e){} renderSavedEvents()});
+  W.querySelectorAll("[data-svf]").forEach(b=>b.onclick=()=>{SVF=b.dataset.svf; try{trk("events_open",{c:SVF==="all"?"all":(DATA.find(x=>x.code===SVF)||{}).city,src:"saved_filter_"+SVM})}catch(e){} renderSavedEvents()});
   const row=W.querySelector(".svRow");
   W.querySelectorAll("[data-svm]").forEach(b=>b.onclick=()=>row.scrollBy({left:+b.dataset.svm*(row.clientWidth*.8),behavior:"smooth"}));
-  W.querySelectorAll(".svCard").forEach(a=>a.addEventListener("click",()=>{try{trk("events_open",{c:a.dataset.svc,src:"saved_card"})}catch(e){}}));
+  W.querySelectorAll(".svEvC").forEach(a=>a.addEventListener("click",()=>{try{trk("events_open",{c:a.dataset.svc,src:"saved_card"})}catch(e){}}));
+  W.querySelectorAll(".svAct").forEach(a=>a.addEventListener("click",()=>{try{trk("vx_click",{c:a.dataset.svc,src:"saved"})}catch(e){}}));
 }
 function renderSaved(){
   try{renderAlertBtn()}catch(e){}
