@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Fridayaway · post LinkedIn</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--ink:#26233A;--violet:#6D5DE6;--pink:#FF4F8B;--mist:#F6F5FB;--sun:#FFC857;--mute:#706C86;--line:#ECE9F4}
+*{box-sizing:border-box;margin:0}
+body{background:var(--mist);font-family:Inter,system-ui,sans-serif;color:var(--ink);padding:20px 16px 60px}
+.ui{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.ui h1{font-size:22px;font-weight:800}
+.ui p{color:var(--mute);font-size:14px;line-height:1.45}
+.prev{display:flex;flex-direction:column;gap:10px}
+.prev img{width:100%;border-radius:14px;box-shadow:0 6px 24px rgba(38,35,58,.12);background:#ddd}
+.btn{height:48px;border:0;border-radius:14px;background:var(--violet);color:#fff;font:700 15px Inter,sans-serif;cursor:pointer}
+.btn.alt{background:#fff;color:var(--ink);border:1px solid var(--line)}
+#status{font-size:14px;color:var(--mute)}
+/* slides are drawn offscreen at real size, then exported */
+#stage{position:absolute;left:-99999px;top:0}
+.s{width:1080px;height:1350px;position:relative;overflow:hidden;display:flex;flex-direction:column;font-family:Inter,sans-serif}
+.brand{font-weight:800;font-size:40px;letter-spacing:-0.02em}
+.brand i{font-style:normal;color:var(--pink)}
+.row{display:flex;justify-content:space-between;align-items:center}
+.pill{display:inline-flex;align-items:center;height:64px;padding:0 28px;border-radius:32px;font-weight:700;font-size:28px}
+.bg{position:absolute;inset:0;background-size:cover;background-position:center}
+/* 1 */
+.s1{color:#fff;background:#2E2680;padding:80px 80px 72px}
+.s1 .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,16,60,.55) 0%,rgba(20,16,60,0) 22%,rgba(20,16,60,0) 40%,rgba(28,22,90,.78) 68%,rgba(28,22,90,.96) 100%)}
+.s1 .z{position:relative}
+.s1 .pill{background:rgba(255,255,255,.2);color:#fff}
+.s1 h2{margin-top:auto;font-size:140px;line-height:.95;font-weight:800;letter-spacing:-0.045em}
+.s1 .sub{font-size:38px;font-weight:500;margin-top:28px;color:#EDEBFF}
+.s1 .price{margin-top:44px;background:#fff;color:var(--ink);border-radius:40px;padding:36px 46px;display:flex;align-items:center;gap:24px;align-self:flex-start}
+.s1 .price b{font-size:128px;letter-spacing:-0.04em;font-weight:800;line-height:1}
+.s1 .price span{font-size:32px;font-weight:600;color:var(--mute);line-height:1.25}
+.s1 .foot{margin-top:34px;font-size:26px;color:#D9D5FF}
+/* 2 */
+.s2{background:var(--mist)}
+.s2 .photo{position:relative;height:600px}
+.s2 .photo .brand{position:absolute;left:80px;top:72px;color:#fff}
+.s2 .photo .pill{position:absolute;right:80px;top:64px;background:rgba(255,255,255,.92);color:var(--ink)}
+.s2 .photo .fade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,0) 35%)}
+.s2 .body{flex:1;padding:44px 80px 64px;display:flex;flex-direction:column}
+.s2 h2{font-size:88px;line-height:1;font-weight:800;letter-spacing:-0.04em}
+.s2 .stars{color:#E9A400;font-size:36px;letter-spacing:6px;margin-top:12px}
+.s2 .li{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:20px 0;border-bottom:2px solid var(--line);font-size:30px}
+.s2 .list{margin-top:22px}
+.s2 .li span{color:var(--mute);font-weight:500}
+.s2 .li b{font-weight:700;text-align:right}
+.s2 .tot{margin-top:auto;background:var(--ink);color:#fff;border-radius:36px;padding:30px 44px;display:flex;justify-content:space-between;align-items:center}
+.s2 .tot small{display:block;font-size:24px;color:#D8D5E6;margin-bottom:4px}
+.s2 .tot b{font-size:84px;letter-spacing:-0.04em;font-weight:800;line-height:1}
+.s2 .tot em{font-style:normal;font-size:32px;font-weight:700;background:var(--violet);padding:18px 28px;border-radius:24px}
+/* 3 */
+.s3{background:var(--ink);color:#fff;padding:80px 80px 72px}
+.s3 h2{font-size:118px;line-height:1;font-weight:800;letter-spacing:-0.04em;margin-top:auto}
+.s3 h2 em{font-style:normal;color:var(--pink)}
+.s3 ul{list-style:none;padding:0;margin-top:56px;display:flex;flex-direction:column;gap:26px;font-size:40px;font-weight:600}
+.s3 li{display:flex;gap:22px;align-items:center}
+.s3 li i{width:22px;height:22px;border-radius:50%;background:var(--pink);flex:none}
+.s3 .cta{margin-top:64px;background:var(--violet);border-radius:36px;padding:38px 48px;font-size:44px;font-weight:800;display:flex;justify-content:space-between;align-items:center}
+.s3 .cta span{font-size:34px;font-weight:600;color:#E4E0FF}
+.s3 .tiles{position:absolute;inset:0;opacity:.07;background-image:radial-gradient(circle at 50% 50%,transparent 46px,#fff 47px,#fff 51px,transparent 52px),radial-gradient(circle at 0 0,transparent 36px,#fff 37px,#fff 41px,transparent 42px);background-size:150px 150px}
+.s3 .z{position:relative}
+</style>
+</head>
+<body>
+<div class="ui">
+  <h1>Post LinkedIn · Lisbona</h1>
+  <p>Le slide si generano qui sotto con le foto vere. Tocca <b>Salva</b> per ognuna (o tieni premuto sull'immagine) e caricale su LinkedIn nell'ordine 1, 2, 3.</p>
+  <div id="status">Preparo le slide…</div>
+  <div class="prev" id="prev"></div>
+</div>
+
+<div id="stage">
+  <div class="s s1" id="s1">
+    <div class="bg" data-src="https://images.unsplash.com/photo-1754995679551-1b9ad336d0d0?w=1300&q=82&fm=jpg&fit=crop&crop=entropy"></div>
+    <div class="shade"></div>
+    <div class="z row"><div class="brand">friday<i>away</i></div><div class="pill">ven 27 → dom 29 nov</div></div>
+    <h2 class="z">Weekend<br>a Lisbona</h2>
+    <div class="z sub">Volo diretto da Milano + hotel 4★ · 2 notti</div>
+    <div class="z price"><b>€418</b><span>a persona<br>volo + hotel</span></div>
+    <div class="z foot">Prezzo indicativo per 2 adulti · lastminute.com</div>
+  </div>
+
+  <div class="s s2" id="s2">
+    <div class="photo">
+      <div class="bg" data-src="https://hotels.staticroot.com/gh/DOBLE_SUPERIOR_1_vlzukh.jpg"></div>
+      <div class="fade"></div>
+      <div class="brand">friday<i>away</i></div>
+      <div class="pill">Il pacchetto trovato</div>
+    </div>
+    <div class="body">
+      <h2>Vincci Alfama</h2>
+      <div class="stars">★★★★</div>
+      <div class="list">
+        <div class="li"><span>Andata</span><b>ven 18:35 Bergamo → Lisbona</b></div>
+        <div class="li"><span>Ritorno</span><b>dom 14:20 Lisbona → Linate</b></div>
+        <div class="li"><span>Voto ospiti</span><b>98/100 · 478 recensioni</b></div>
+        <div class="li" style="border:0"><span>Zona</span><b>Alfama · 1 km dal centro</b></div>
+      </div>
+      <div class="tot"><div><small>Totale volo + hotel · 2 adulti</small><b>€835</b></div><em>€418 a testa</em></div>
+    </div>
+  </div>
+
+  <div class="s s3" id="s3">
+    <div class="z row"><div class="brand">friday<i>away</i></div></div>
+    <h2 class="z">Il tuo weekend<br>in <em>3 swipe</em></h2>
+    <ul class="z"><li><i></i>Scegli il budget e la partenza</li><li><i></i>Scorri le mete con il prezzo totale</li><li><i></i>Aggiungi tour ed eventi e prenota</li></ul>
+    <div class="z cta">Provalo ora <span>fridayaway.vercel.app</span></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+(async () => {
+  const st = document.getElementById("status"), prev = document.getElementById("prev");
+  const proxy = u => "/api/snapshot?kind=img&u=" + encodeURIComponent(u);
+  const load = src => new Promise(ok => { const im = new Image(); im.onload = () => ok(true); im.onerror = () => ok(false); im.src = src; });
+  const bgs = [...document.querySelectorAll(".bg[data-src]")];
+  const res = await Promise.all(bgs.map(async el => {
+    const p = proxy(el.dataset.src);
+    const okp = await load(p);
+    if (okp) el.style.backgroundImage = `url("${p}")`;
+    return okp;
+  }));
+  try { await document.fonts.ready; } catch (e) {}
+  if (res.includes(false)) st.textContent = "Una foto non si è caricata: la slide usa lo sfondo di riserva.";
+  const names = ["fridayaway-lisbona-1.png", "fridayaway-lisbona-2.png", "fridayaway-lisbona-3.png"];
+  for (let i = 0; i < 3; i++) {
+    const el = document.getElementById("s" + (i + 1));
+    const cv = await html2canvas(el, { scale: 1, useCORS: true, backgroundColor: null, width: 1080, height: 1350, windowWidth: 1200 });
+    const blob = await new Promise(r => cv.toBlob(r, "image/png"));
+    const url = URL.createObjectURL(blob);
+    const img = new Image(); img.src = url; img.alt = "Slide " + (i + 1);
+    const b = document.createElement("button"); b.className = "btn"; b.textContent = "Salva slide " + (i + 1);
+    b.onclick = async () => {
+      const f = new File([blob], names[i], { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [f] })) { try { await navigator.share({ files: [f] }); return; } catch (e) { if (e.name === "AbortError") return; } }
+      const a = document.createElement("a"); a.href = url; a.download = names[i]; document.body.appendChild(a); a.click(); a.remove();
+    };
+    prev.append(img, b);
+  }
+  if (!res.includes(false)) st.textContent = "Pronte. Prezzi indicativi del 26 nov per ven 27 → dom 29 nov.";
+})();
+</script>
+</body>
+</html>

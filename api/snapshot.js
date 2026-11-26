@@ -133,8 +133,28 @@ const expHandler = async (req, res) => {
   }
 };
 
+/* GET /api/snapshot?kind=img&u=<url>   same-origin copy of a photo (Unsplash or hotel images only),
+   so /post.html can draw it on a canvas and export PNG slides. */
+const IMG_HOSTS = new Set(["images.unsplash.com", "hotels.staticroot.com"]);
+const imgHandler = async (req, res) => {
+  let u;
+  try { u = new URL(String(req.query.u || "")); } catch (e) { return res.status(400).end("bad url"); }
+  if (u.protocol !== "https:" || !IMG_HOSTS.has(u.hostname)) return res.status(400).end("host not allowed");
+  try {
+    const r = await fetch(u.href, { headers: { "user-agent": "fridayaway/1.0" } });
+    const ct = r.headers.get("content-type") || "";
+    if (!r.ok || !ct.startsWith("image/")) return res.status(502).end("upstream " + r.status);
+    const buf = Buffer.from(await r.arrayBuffer());
+    if (buf.length > 4000000) return res.status(413).end("too big");
+    res.setHeader("content-type", ct);
+    res.setHeader("cache-control", "public, s-maxage=2592000, max-age=86400");
+    return res.status(200).send(buf);
+  } catch (e) { return res.status(502).end("fetch failed"); }
+};
+
 module.exports = (req, res) => {
   const k = String((req.query && req.query.kind) || "");
+  if (k === "img") return imgHandler(req, res);
   if (k === "promos") return promosHandler(req, res);
   if (k === "deals") return dealsHandler(req, res);
   if (k === "exp") return expHandler(req, res);
