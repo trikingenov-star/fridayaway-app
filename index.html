@@ -905,6 +905,11 @@ header.top .brand,#setupBrand{cursor:pointer}
 .xcGo{align-self:center;border:0;border-radius:999px;padding:12px 20px;font:inherit;font-size:14px;font-weight:800;background:#fff;color:#C2185B;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.2)}
 .xcFoot{margin:0;text-align:center;color:rgba(255,255,255,.85);font-size:11px}
 .planNote{margin:0;font-size:12px;color:var(--muted)}
+.svAct{position:relative}.svAct .svCity{max-width:calc(100% - 58px)}
+.svLink{display:flex;flex-direction:column;color:inherit;text-decoration:none;flex:1}
+.svAdd{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:50%;border:0;background:linear-gradient(90deg,#E8417A,#FF5A7A);color:#fff;font:inherit;font-size:20px;font-weight:800;line-height:1;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.25);display:grid;place-items:center}
+.svAct.on .svAdd{background:#fff;color:#C2185B;font-size:16px}
+.svAct.on{border-color:#E8417A;box-shadow:0 0 0 1.5px #E8417A}
 .svPl{display:inline-block;margin-top:3px;font-size:11.5px;font-weight:800;color:#C2185B}
 /* ===== saved: events in the saved cities ===== */
 .svEv{margin-top:18px;display:flex;flex-direction:column;gap:10px}
@@ -3149,7 +3154,7 @@ function xpRowInner(d){
 }
 function xpSumInner(d,h){const v=planSum(d.code), n=planOf(d.code).length; if(!n) return ""; const it=xpIt();
   return v>0?`+ ${eur(v)} ${it?"attività":"activities"} · ${it?"totale":"total"} ${eur(h.price+v)}`:`+ ${n} ${it?"nel piano":"in your plan"}`}
-function planBadge(d){const n=planOf(d.code).length; return n?`<span class="svPl">🎟️ +${n} ${xpIt()?(n>1?"attività/eventi":"attività/evento"):"planned"}${planSum(d.code)?` · ${eur(planSum(d.code))}`:""}</span>`:""}
+function planBadge(d,h){const n=planOf(d.code).length, v=planSum(d.code), it=xpIt(); return n?`<span class="svPl">🎟️ +${n} ${it?"nel piano":"planned"}${v?` · +${eur(v)}${h?` = ${eur(h.price+v)}`:""}`:""}</span>`:""}
 function xpRefresh(code){const d=DATA.find(x=>x.code===code); if(!d) return; const h=hotelFor(d);
   document.querySelectorAll(`[data-xp="${code}"]`).forEach(el=>{el.innerHTML=xpRowInner(d)});
   if(h) document.querySelectorAll(`[data-xs="${code}"]`).forEach(el=>{el.innerHTML=xpSumInner(d,h)});
@@ -3250,16 +3255,18 @@ function renderSavedEvents(){
   const chips=pool.length>1?`<div class="svChips" role="group" aria-label="Filter by city"><button data-svf="all" aria-pressed="${SVF==="all"}">All cities<i>${all.length}</i></button>${pool.map(d=>`<button data-svf="${d.code}" aria-pressed="${SVF===d.code}"><span>${esc_(d.city)}</span><i>${get(d).length}</i></button>`).join("")}</div>`:"";
   const city=d=>`<span class="svCity"><span aria-hidden="true">📍</span> ${esc_(d.city)}</span>`;
   const cards=SVM==="act"
-    ?list.map(({d,e})=>`<a class="svCard svAct" href="${esc_(e.u)}" target="_blank" rel="noopener sponsored" data-svc="${esc_(d.city)}"><span class="svImg">🎟️<img src="${esc_(e.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">${city(d)}${e.r?`<span class="svDate">★ ${e.r.toFixed(1)}</span>`:""}</span><span class="svBody"><b translate="no">${esc_(e.t)}</b><small>${e.p?`${it?"da":"from"} ${eur(e.p)}`:""}${e.n?` · ${e.n.toLocaleString(it?"it-IT":"en-GB")} ${it?"recensioni":"reviews"}`:""}</small></span></a>`).join("")
+    ?list.map(({d,e})=>{const id="a:"+(e.id||e.u), on=planOf(d.code).some(x=>x.id===id), ad=planAdults(); return `<div class="svCard svAct${on?" on":""}"><a class="svLink" href="${esc_(e.u)}" target="_blank" rel="noopener sponsored" data-svc="${esc_(d.city)}"><span class="svImg">🎟️<img src="${esc_(e.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">${city(d)}${e.r?`<span class="svDate">★ ${e.r.toFixed(1)}</span>`:""}</span><span class="svBody"><b translate="no">${esc_(e.t)}</b><small>${e.p?`${it?"da":"from"} ${eur(e.p)}${ad>1?` · ${eur(e.p*ad)} ${it?"per":"for"} ${ad}`:` ${it?"a persona":"pp"}`}`:""}</small></span></a><button class="svAdd" data-sva="${d.code}|${esc_(id)}" aria-pressed="${on}" aria-label="${on?(it?"Togli dal piano":"Remove from plan"):(it?"Aggiungi al piano":"Add to plan")}">${on?"✓":"+"}</button></div>`}).join("")
     :list.map(({d,e})=>`<a class="svCard svEvC" href="${esc_(e.url)}" target="_blank" rel="noopener" data-svc="${esc_(d.city)}"><span class="svImg">${EV_ICON[e.seg]||"🎫"}${e.img?`<img src="${esc_(e.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}${city(d)}${e.date?`<span class="svDate">${esc_(evDay(e))}${e.time?" · "+esc_(e.time):""}</span>`:""}</span><span class="svBody"><b translate="no">${esc_(e.name)}</b><small translate="no">${esc_(e.venue||e.genre||"")}</small></span></a>`).join("");
+  const keep=(W.querySelector(".svRow")||{}).scrollLeft||0;
   W.hidden=false;
   W.innerHTML=head+tabs+chips+`<div class="svWrap"><button class="svNav l" data-svm="-1" aria-label="Previous">‹</button><div class="svRow">${cards}</div><button class="svNav r" data-svm="1" aria-label="Next">›</button></div><p class="svFoot">${SVM==="act"?"Experiences from Viator":"Events from Ticketmaster"}</p>`;
   W.querySelectorAll("[data-svmode]").forEach(b=>b.onclick=()=>{SVM=b.dataset.svmode; SVF="all"; try{trk("events_open",{c:"all",src:"saved_mode_"+SVM})}catch(e){} renderSavedEvents()});
   W.querySelectorAll("[data-svf]").forEach(b=>b.onclick=()=>{SVF=b.dataset.svf; try{trk("events_open",{c:SVF==="all"?"all":(DATA.find(x=>x.code===SVF)||{}).city,src:"saved_filter_"+SVM})}catch(e){} renderSavedEvents()});
-  const row=W.querySelector(".svRow");
+  const row=W.querySelector(".svRow"); if(keep&&row){row.style.scrollBehavior="auto";row.scrollLeft=keep;row.style.scrollBehavior=""}
+  W.querySelectorAll("[data-sva]").forEach(b=>b.onclick=ev=>{ev.preventDefault();ev.stopPropagation();const [c,id]=b.dataset.sva.split("|"),d=DATA.find(x=>x.code===c),x=d&&(vxNow(d)||{items:[]}).items.find(y=>"a:"+(y.id||y.u)===id); if(x) planToggle(c,{k:"act",id,t:x.t,p:x.p||0,u:x.u,img:x.img}); else {const y=planOf(c).find(z=>z.id===id); if(y) planToggle(c,y)}});
   W.querySelectorAll("[data-svm]").forEach(b=>b.onclick=()=>row.scrollBy({left:+b.dataset.svm*(row.clientWidth*.8),behavior:"smooth"}));
   W.querySelectorAll(".svEvC").forEach(a=>a.addEventListener("click",()=>{try{trk("events_open",{c:a.dataset.svc,src:"saved_card"})}catch(e){}}));
-  W.querySelectorAll(".svAct").forEach(a=>a.addEventListener("click",()=>{try{trk("vx_click",{c:a.dataset.svc,src:"saved"})}catch(e){}}));
+  W.querySelectorAll(".svAct .svLink").forEach(a=>a.addEventListener("click",()=>{try{trk("vx_click",{c:a.dataset.svc,src:"saved"})}catch(e){}}));
 }
 function renderSaved(){
   try{renderAlertBtn()}catch(e){}
@@ -3267,7 +3274,7 @@ function renderSaved(){
   const L=$("savedList");
   if(!S.saved.length){L.innerHTML=`<div class="box"><p>Nothing saved yet. Swipe right on a weekend you like.</p></div>`;$("cmpWrap").hidden=true;return}
   const items=S.saved.map(s=>{const d=DATA.find(x=>x.code===s.code);const h=d.hotels[s.j];return {d,h}});
-  L.innerHTML=items.map(({d,h})=>`<div class="item open" role="button" tabindex="0" data-open="${d.code}" aria-label="Open ${d.city}"><div class="thumb">${art(d,true)}</div><div><h3>${d.city}</h3><div class="sub">${starStr(h.stars)} ${h.name}</div>${planBadge(d)}<div class="vlink">View & book ›</div></div><div><div class="p">${S.split?eur(h.price/2)+" pp":eur(h.price)}</div><button class="rm" data-rm="${d.code}">Remove</button></div></div>`).join("");
+  L.innerHTML=items.map(({d,h})=>`<div class="item open" role="button" tabindex="0" data-open="${d.code}" aria-label="Open ${d.city}"><div class="thumb">${art(d,true)}</div><div><h3>${d.city}</h3><div class="sub">${starStr(h.stars)} ${h.name}</div>${planBadge(d,h)}<div class="vlink">View & book ›</div></div><div><div class="p">${S.split?eur(h.price/2)+" pp":eur(h.price)}</div><button class="rm" data-rm="${d.code}">Remove</button></div></div>`).join("");
   L.querySelectorAll("[data-rm]").forEach(b=>b.onclick=e=>{e.stopPropagation();S.saved=S.saved.filter(s=>s.code!==b.dataset.rm);updateCount();renderSaved()});
   L.querySelectorAll("[data-open]").forEach(el=>{const go=()=>{const c=el.dataset.open,s=S.saved.find(x=>x.code===c);if(s)S.choice[c]=s.j;openSheet(c)};el.onclick=go;el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}}});
   if(items.length>=2){
