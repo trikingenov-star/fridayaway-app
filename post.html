@@ -31,7 +31,8 @@ body{background:var(--mist);font-family:Inter,system-ui,sans-serif;color:var(--i
 .s1 .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,16,60,.55) 0%,rgba(20,16,60,0) 22%,rgba(20,16,60,0) 40%,rgba(28,22,90,.78) 68%,rgba(28,22,90,.96) 100%)}
 .s1 .z{position:relative}
 .s1 .pill{background:rgba(255,255,255,.2);color:#fff}
-.s1 h2{margin-top:auto;font-size:140px;line-height:.95;font-weight:800;letter-spacing:-0.045em}
+.s1 .tag{margin-top:auto;align-self:flex-start;background:var(--pink);color:#fff;font-weight:800;font-size:34px;letter-spacing:.02em;padding:16px 28px;border-radius:20px}
+.s1 h2{margin-top:26px;font-size:140px;line-height:.95;font-weight:800;letter-spacing:-0.045em}
 .s1 .sub{font-size:38px;font-weight:500;margin-top:28px;color:#EDEBFF}
 .s1 .price{margin-top:44px;background:#fff;color:var(--ink);border-radius:40px;padding:36px 46px;display:flex;align-items:center;gap:24px;align-self:flex-start}
 .s1 .price b{font-size:128px;letter-spacing:-0.04em;font-weight:800;line-height:1}
@@ -80,10 +81,11 @@ body{background:var(--mist);font-family:Inter,system-ui,sans-serif;color:var(--i
     <div class="bg" data-src="https://images.unsplash.com/photo-1754995679551-1b9ad336d0d0?w=1300&q=82&fm=jpg&fit=crop&crop=entropy"></div>
     <div class="shade"></div>
     <div class="z row"><div class="brand">friday<i>away</i></div><div class="pill">ven 27 → dom 29 nov</div></div>
+    <div class="z tag">VOLO + HOTEL 4★</div>
     <h2 class="z">Weekend<br>a Lisbona</h2>
-    <div class="z sub">Volo diretto da Milano + hotel 4★ · 2 notti</div>
-    <div class="z price"><b>€418</b><span>a persona<br>volo + hotel</span></div>
-    <div class="z foot">Prezzo indicativo per 2 adulti · lastminute.com</div>
+    <div class="z sub">Volo diretto da Milano · 2 notti ad Alfama</div>
+    <div class="z price"><b>€547</b><span>1 persona<br><strong style="color:var(--ink)">volo + hotel 4★</strong></span></div>
+    <div class="z foot">Prezzo indicativo per 1 persona · lastminute.com</div>
   </div>
 
   <div class="s s2" id="s2">
@@ -102,7 +104,7 @@ body{background:var(--mist);font-family:Inter,system-ui,sans-serif;color:var(--i
         <div class="li"><span>Voto ospiti</span><b>98/100 · 478 recensioni</b></div>
         <div class="li" style="border:0"><span>Zona</span><b>Alfama · 1 km dal centro</b></div>
       </div>
-      <div class="tot"><div><small>Totale volo + hotel · 2 adulti</small><b>€835</b></div><em>€418 a testa</em></div>
+      <div class="tot"><div><small>Volo + hotel 4★ · 1 persona</small><b>€547</b></div><em>2 notti</em></div>
     </div>
   </div>
 
@@ -144,7 +146,7 @@ body{background:var(--mist);font-family:Inter,system-ui,sans-serif;color:var(--i
     };
     prev.append(img, b);
   }
-  if (!res.includes(false)) st.textContent = "Pronte. Prezzi indicativi del 26 nov per ven 27 → dom 29 nov.";
+  if (!res.includes(false)) st.textContent = "Pronte. Prezzi indicativi del 26 nov per 1 persona, ven 27 → dom 29 nov.";
 })();
 </script>
 </body>
