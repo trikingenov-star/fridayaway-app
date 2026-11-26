@@ -3018,7 +3018,7 @@ function esimHTML(d){const c=ESIM[d.code]; if(!c) return "";
   return `<a class="carBox esimBox" href="${esc_(u)}" target="_blank" rel="noopener sponsored" data-esim="${esc_(d.city)}"><span class="carIco" aria-hidden="true">📶</span><span class="carT"><b>Internet in ${esc_(d.country)} without roaming</b><small>Outside EU roaming: get a travel eSIM before you leave</small></span><span class="carGo" aria-hidden="true">›</span></a>`}
 document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest(".esimBox"); if(a){try{trk("esim_click",{c:a.dataset.esim})}catch(x){}}});
 /* things to do (Tiqets via Awin). Tracking turns on when Awin approves the program: set TQ_ON=true */
-const TQ_ON=false, TQ_MID="12427";
+const TQ_ON=true, TQ_MID="12427";
 const TQ={BCN:["barcelona-attractions-c66342","attrazioni-barcellona-c66342"],ROM:["rome-attractions-c71631","attrazioni-roma-c71631"],PAR:["things-to-do-in-paris-c66746","attrazioni-parigi-c66746"],LON:["london-attractions-c67458","attrazioni-londra-c67458"],AMS:["amsterdam-attractions-c75061","attrazioni-amsterdam-c75061"],LIS:["lisbon-attractions-c76528","attrazioni-lisbona-c76528"],PRG:["prague-attractions-c64162","attrazioni-praga-c64162"],MAD:["madrid-attractions-c66254","attrazioni-madrid-c66254"],VIE:["vienna-attractions-c60335","attrazioni-vienna-c60335"]};
 function tqHTML(d){const t=TQ[d.code]; if(!t) return "";
   const it=uiLang()==="it", u=`https://www.tiqets.com/${it?"it":"en"}/${t[it?1:0]}/`;
