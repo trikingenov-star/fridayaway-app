@@ -110,7 +110,7 @@ const expHandler = async (req, res) => {
   const q = req.query || {}, c = String(q.c || "").toUpperCase(), n = String(q.n || "").slice(0, 60), l = q.l === "it" ? "it" : "en", dbg = [];
   if (!/^[A-Z]{3}$/.test(c) || !n) return res.status(400).json({ error: "bad request" });
   if (!process.env.VIATOR_API_KEY) return res.status(200).json({ items: [], off: true });
-  const ck = `vx:${c}:${l}`;
+  const ck = `vx2:${c}:${l}`;
   try {
     if (!q.health) { const hit = await cmd(["GET", ck]).catch(() => null); if (hit) { res.setHeader("cache-control", "public, s-maxage=3600, stale-while-revalidate=86400"); return res.status(200).json(JSON.parse(hit)); } }
     const dest = await vxDestId(c, n, dbg);
@@ -121,8 +121,8 @@ const expHandler = async (req, res) => {
       const v = (im.variants || []).filter((x) => x.width >= 300).sort((a, b) => a.width - b.width)[0] || (im.variants || []).slice(-1)[0] || {};
       const rv = p.reviews || {}, pr = p.pricing && p.pricing.summary || {};
       let u = String(p.productUrl || ""); if (u) u += (u.includes("?") ? "&" : "?") + "campaign=fa_vx_" + c;
-      return { t: clip(p.title, 90), img: v.url || "", p: Math.round(pr.fromPrice || 0), r: +rv.combinedAverageRating || 0, n: rv.totalReviews || 0, u };
-    }).filter((x) => x.u && x.img && /^https:\/\//.test(x.u)).slice(0, 3);
+      return { id: String(p.productCode || ""), t: clip(p.title, 90), img: v.url || "", p: Math.round(pr.fromPrice || 0), r: +rv.combinedAverageRating || 0, n: rv.totalReviews || 0, u };
+    }).filter((x) => x.u && x.img && /^https:\/\//.test(x.u)).slice(0, 8);
     const out = { items, env, dest };
     if (items.length) await cmd(["SET", ck, JSON.stringify(out), "EX", 86400]).catch(() => {});
     res.setHeader("cache-control", items.length ? "public, s-maxage=3600, stale-while-revalidate=86400" : "s-maxage=300");

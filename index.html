@@ -846,6 +846,42 @@ header.top .brand,#setupBrand{cursor:pointer}
 .carT b{font-size:14.5px}
 .carT small{font-size:12px;color:var(--muted);line-height:1.3}
 .carGo{flex:none;font-size:22px;color:var(--primary);font-weight:700}
+/* ===== trip plan: activities and events added to a weekend ===== */
+.card .xpRow{order:2}
+.xpRow{display:flex;gap:8px;width:100%;min-width:0}
+.xpRow:empty{display:none}
+.xpRow .evPill{flex:1;min-width:0}
+.acPill{flex:none;display:flex;align-items:center;gap:6px;border:0;border-radius:12px;padding:8px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;color:#fff;background:linear-gradient(90deg,#E8417A,#FF5A7A);box-shadow:0 4px 12px rgba(232,65,122,.28);white-space:nowrap}
+.xpRow .acPill:only-child{flex:1;justify-content:center}
+.acPill.on{background:var(--surface);color:#C2185B;box-shadow:none;border:1.5px solid #E8417A}
+.xpSum{font-size:12px;font-weight:700;color:#C2185B;margin-top:2px}.xpSum:empty{display:none}
+.xpTabs{display:flex;gap:6px}
+.xpTabs button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 14px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.xpTabs button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:transparent}
+.xpIt{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:6px;background:var(--surface)}
+.xpIt.on{border-color:#E8417A;background:color-mix(in srgb,#E8417A 6%,var(--surface))}
+.xpIt .evImg{width:72px;height:52px;border-radius:8px;overflow:hidden;background:var(--bg);display:grid;place-items:center;font-size:20px}
+.xpIt .evImg img{width:100%;height:100%;object-fit:cover;display:block}
+.xpIt a{color:inherit;text-decoration:none;min-width:0}
+.xpIt b{font-size:13.5px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.xpIt small{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
+.xpAdd{border:0;border-radius:10px;padding:8px 11px;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;background:linear-gradient(90deg,#E8417A,#FF5A7A);color:#fff;white-space:nowrap}
+.xpIt.on .xpAdd{background:var(--surface);color:#C2185B;border:1.5px solid #E8417A}
+.xpFoot{position:sticky;bottom:calc(-14px - env(safe-area-inset-bottom,0px));margin:4px -16px calc(-14px - env(safe-area-inset-bottom,0px));padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.xpFoot span{font-size:13px}.xpFoot b{font-size:15px}
+.xpFoot button{border:0;border-radius:12px;padding:11px 18px;font:inherit;font-weight:800;background:var(--ink);color:var(--surface);cursor:pointer}
+.plan{margin-top:12px;border:1.5px solid color-mix(in srgb,#E8417A 40%,var(--line));border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:var(--surface)}
+.plan h4{margin:0;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+.plan h4 button{border:0;background:none;color:#C2185B;font:inherit;font-size:13px;font-weight:800;cursor:pointer}
+.planRow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;font-size:13px}
+.planRow b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.planRow small{color:var(--muted);font-size:11.5px}
+.planRow a{font-size:12px;font-weight:800;color:#C2185B;text-decoration:none;white-space:nowrap}
+.planRow button{border:0;background:var(--bg);border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:12px;color:var(--muted)}
+.planTot{border-top:1px dashed var(--line);padding-top:8px;font-size:13px;display:flex;justify-content:space-between}
+.planTot small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.planEmpty{margin-top:12px;width:100%;border:1.5px dashed #E8417A;background:transparent;color:#C2185B;border-radius:14px;padding:12px;font:inherit;font-size:13.5px;font-weight:800;cursor:pointer}
+.svPl{display:inline-block;margin-top:3px;font-size:11.5px;font-weight:800;color:#C2185B}
 /* ===== saved: events in the saved cities ===== */
 .svEv{margin-top:18px;display:flex;flex-direction:column;gap:10px}
 .svEv[hidden]{display:none}
@@ -1974,13 +2010,13 @@ function cardHTML(o,pos){
     <div class="art">${art(d)}<span class="temp">☀ ${d.temp}°C</span>${promoFor(h.price)?`<span class="offerTag">🎟️ Offer</span>`:""}${pos===0&&o.s>8?`<span class="match">Top match</span>`:""}<div class="city"><h2>${d.city}</h2><span>${d.country}</span></div></div>
     <div class="body">
 
-      ${pos<2?`<button class="evPill" data-ev="${d.code}" aria-label="Events in ${d.city}">${evPillInner(d)}</button>`:""}
+      ${pos<2?`<div class="xpRow" data-xp="${d.code}">${xpRowInner(d)}</div>`:""}
       ${pos<2?"":hotelLine(h)}
       ${fcLegs(d.code)?fcBlock(d.code):FL[d.code]&&!S.trip.live&&!timeIssue(d.code)?`<div class="legs"><div class="leg"><span>${dayFrom()}</span><b>${FL[d.code].o[0]} ${FL[d.code].o[2]} → ${FL[d.code].o[1]} ${FL[d.code].o[3]}</b><span class="fn">${FL[d.code].o[4].split(" · ")[0]}</span></div><div class="leg"><span>${dayTo()}</span><b>${FL[d.code].i[0]} ${FL[d.code].i[2]} → ${FL[d.code].i[1]} ${FL[d.code].i[3]}</b><span class="fn">${FL[d.code].i[4].split(" · ")[0]}</span></div></div>`:""}
       ${fcLegs(d.code)?"":S.trip.live||!FL[d.code]?`<div class="leg exactNote" style="grid-template-columns:1fr"><span>Exact flights are shown when you open this weekend</span></div>`:timeIssue(d.code)?`<div class="leg" style="grid-template-columns:1fr"><span>Flights to match your times (${timeTxt()}) are picked when you book</span></div>`:FL[d.code]&&FL[d.code].note?`<div class="warnline">${FL[d.code].note}</div>`:earlyReturn(d.code)?`<div class="warnline">Early flight home on Sunday (${FL[d.code].i[2]})</div>`:""}
       ${pos<2?`<div class="cardFacts" data-cf="${d.code}">${cardFactsInner(d,h)}</div>`:""}
       ${up?`<div class="upg"><span><b>+${eur(up.price-h.price)}</b> for ${starStr(up.stars)} ${up.name.length>26?up.name.slice(0,25)+"…":up.name}${up.rating?` · ${(up.rating/10).toFixed(1)}`:""}</span><button data-up="${d.code}|${up.j}">Step up</button></div>`:""}
-      <div class="priceRow"><div><div class="pfrom">Flight + hotel from</div><div class="price">${eur(h.price)}</div>${pp}${dealHTML(d)}<div class="pver" data-pv="${d.code}">${pverInner(h)}</div></div><div class="prR">${marginPill(h.price)}${pos<2?`<button class="goTrip" data-go="${d.code}" aria-label="Book ${d.city}">Book ›</button>`:""}</div></div>
+      <div class="priceRow"><div><div class="pfrom">Flight + hotel from</div><div class="price">${eur(h.price)}</div>${pp}<div class="xpSum" data-xs="${d.code}">${xpSumInner(d,h)}</div>${dealHTML(d)}<div class="pver" data-pv="${d.code}">${pverInner(h)}</div></div><div class="prR">${marginPill(h.price)}${pos<2?`<button class="goTrip" data-go="${d.code}" aria-label="Book ${d.city}">Book ›</button>`:""}</div></div>
     </div></article>`;
 }
 /* Budget margin: what is left of the budget once flight + hotel are paid, and what that is per day there. */
@@ -2539,7 +2575,7 @@ async function wzReview(){
     if(pr>0&&!w.logged){w.logged=1; try{trk("price_diff",{c:d.city,card:Math.round(was||0),final:Math.round(pr),fl:w.flSel==="pkg"?0:1})}catch(e){}}
     $("wzTotal").innerHTML=`<div class="totalbox"><span>Total price · all included</span><b>${eur(pr,true)}</b><small>Return flights + hotel · ${wzPeople()}${L.sum&&L.sum.cancellation_policy?` · ${esc_(L.sum.cancellation_policy)}`:""}</small></div>${chg?`<div class="pchg">The card showed ${eur(was)}. ${w.flSel==="pkg"?"Flight + hotel prices change during the day: this total is today's live price.":"The difference comes from the flights you picked."}</div>`:""}${S.budgetOn?marginHTML(pr):""}${splitHTML(d.code,pr,true)}`;
     $("wzFoot").innerHTML=`<a class="checkout wzGo" href="${esc_(awin(L.url,"fa_"+w.code))}" target="_blank" rel="noopener sponsored">Book on lastminute.com ↗</a>`;
-    $("wzBody").insertAdjacentHTML("beforeend",`${promoHTML(pr)}${vxSlot(d)}${tqHTML(d)}${esimHTML(d)}${carHTML(d)}`);
+    $("wzBody").insertAdjacentHTML("beforeend",`${planHTML(d,pr)}${promoHTML(pr)}${vxSlot(d)}${tqHTML(d)}${esimHTML(d)}${carHTML(d)}`);
     loadSplit(d.code);
   };
   if(w.cur&&w.cur.sel===w.flSel){done(w.cur.L);return}
@@ -2723,6 +2759,7 @@ async function loadEvents(d){
   try{const g=(typeof GEO!=="undefined"&&GEO[d.code])||null; const r=await mcp.events({lat:g?g[0]:"",lon:g?g[1]:"",city:d.city,from:S.trip.from,to:S.trip.to}); EVT[k]=((r&&r.events)||[]).filter(e=>e&&e.name);}
   catch(e){EVT[k]=[]}
   document.querySelectorAll(`[data-ev="${d.code}"]`).forEach(el=>{el.innerHTML=evPillInner(d)});
+  try{xpRefresh(d.code)}catch(e){}
   try{if(S.saved.some(s=>s.code===d.code)) renderSavedEvents()}catch(e){}
   try{if(WZ&&WZ.code===d.code&&WZ.step===0) wzEvents()}catch(e){}
   if(PANEL.code===d.code) renderPanels();
@@ -3041,9 +3078,9 @@ const vxL=()=>uiLang()==="it"?"it":"en", vxNow=d=>VX[d.code+vxL()], vxOk=j=>!!(j
 function vxGet(d){const l=vxL(),k=d.code+l; if(!VXP[k]) VXP[k]=fetch(`/api/snapshot?kind=exp&c=${d.code}&n=${encodeURIComponent(d.city)}&l=${l}`).then(r=>r.json()).catch(()=>({items:[]})).then(j=>VX[k]=j||{items:[]}); return VXP[k]}
 function vxSlot(d){setTimeout(()=>loadVX(d),0); return `<div class="vxBox" id="vxBox" hidden></div>`}
 async function loadVX(d){const j=await vxGet(d);
-  const el=document.getElementById("vxBox"); if(!el||!vxOk(j)) return;
+  const el=document.getElementById("vxBox"); if(!el||!vxOk(j)||planOf(d.code).length) return;
   const it=vxL()==="it";
-  el.innerHTML=`<div class="vxH">${it?"Esperienze più amate":"Top experiences"}${j.env!=="prod"?" · TEST":""}</div><div class="vxRow">${j.items.map(x=>`<a class="vxC" href="${esc_(x.u)}" target="_blank" rel="noopener sponsored" data-vx="${esc_(d.city)}"><img src="${esc_(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer"><b translate="no">${esc_(x.t)}</b><small>${x.r?`★ ${x.r.toFixed(1)} (${x.n.toLocaleString(it?"it-IT":"en-GB")}) · `:""}${x.p?`${it?"da":"from"} ${eur(x.p)}`:""}</small></a>`).join("")}</div>`;
+  el.innerHTML=`<div class="vxH">${it?"Esperienze più amate":"Top experiences"}${j.env!=="prod"?" · TEST":""}</div><div class="vxRow">${j.items.slice(0,3).map(x=>`<a class="vxC" href="${esc_(x.u)}" target="_blank" rel="noopener sponsored" data-vx="${esc_(d.city)}"><img src="${esc_(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer"><b translate="no">${esc_(x.t)}</b><small>${x.r?`★ ${x.r.toFixed(1)} (${x.n.toLocaleString(it?"it-IT":"en-GB")}) · `:""}${x.p?`${it?"da":"from"} ${eur(x.p)}`:""}</small></a>`).join("")}</div>`;
   el.hidden=false; try{trk("vx_shown",{c:d.city})}catch(e){}}
 document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest(".vxC"); if(a){try{trk("vx_click",{c:a.dataset.vx})}catch(x){}}});
 /* lastminute.com offers from the Awin Promotions API (/api/promos); nothing is shown when there are none */
@@ -3063,6 +3100,72 @@ function renderTgPromo(){ const ml=$("matchList"); if(!ml) return; let el=$("tgO
 async function loadPromos(){ try{ const r=await fetch("/api/snapshot?kind=promos"); if(!r.ok) return; const j=await r.json(); PROMOS=Array.isArray(j.promos)?j.promos:[]; try{renderTgPromo()}catch(e){} if(PROMOS.length){ try{trk("promo_shown",{n:PROMOS.length,code:PROMOS.some(p=>p.code)})}catch(e){} document.querySelectorAll(".card[data-code]").forEach(c=>{ const d=DATA.find(x=>x.code===c.dataset.code), a=c.querySelector(".art"); if(d&&a&&!a.querySelector(".offerTag")&&promoFor(hotelFor(d).price)) a.insertAdjacentHTML("beforeend",`<span class="offerTag">🎟️ Offer</span>`)}) } }catch(e){} }
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-copy]"); if(!b) return; const c=b.dataset.copy; try{navigator.clipboard.writeText(c)}catch(x){} b.textContent="Copied ✓"; try{trk("promo_copy",{})}catch(x){}});
 loadPromos();
+/* ===== trip plan: activities (Viator) and events (Ticketmaster) the user adds to a weekend.
+   Each one is booked on its own site; the app only sums an estimated total (activities are priced per person). ===== */
+const PLAN=(()=>{try{return JSON.parse(localStorage.getItem("fa_plan")||"{}")||{}}catch(e){return {}}})();
+const planOf=c=>PLAN[c]||[];
+function planSave(){try{localStorage.setItem("fa_plan",JSON.stringify(PLAN))}catch(e){}}
+const planAdults=()=>Math.max(1,+S.trip.adults||1);
+const planSum=c=>planOf(c).reduce((t,x)=>t+(x.k==="act"&&x.p>0?x.p*planAdults():0),0);
+const xpIt=()=>vxL()==="it";
+function planToggle(code,item){const L=PLAN[code]=planOf(code).slice(), i=L.findIndex(x=>x.id===item.id);
+  if(i>=0){L.splice(i,1); try{trk("plan_remove",{c:code,k:item.k})}catch(e){}} else {L.push(item); try{trk("plan_add",{c:code,k:item.k,p:item.p||0})}catch(e){}}
+  if(!L.length) delete PLAN[code]; planSave(); xpRefresh(code);}
+function xpRowInner(d){
+  const ev=EVT[evKey(d)], hasEv=Array.isArray(ev)&&ev.length, it=xpIt(), n=planOf(d.code).length;
+  if(!vxNow(d)) vxGet(d).then(()=>xpRefresh(d.code));
+  const acts=vxOk(vxNow(d)), j=vxNow(d), from=acts?Math.min(...j.items.map(x=>x.p||1e9)):0;
+  const ac=acts||n?`<button class="acPill${n?" on":""}" data-ac="${d.code}" aria-label="${it?"Attività a":"Things to do in"} ${esc_(d.city)}">${n?`✓ ${n} ${it?"nel piano":"in plan"}`:`🎟️ ${it?"+ Attività":"+ Activities"}${hasEv?"":from&&from<1e9?` · ${it?"da":"from"} ${eur(from)}`:""}`}</button>`:"";
+  return `${hasEv?`<button class="evPill" data-ev="${d.code}" aria-label="Events in ${esc_(d.city)}">${evPillInner(d)}</button>`:""}${ac}`;
+}
+function xpSumInner(d,h){const v=planSum(d.code), n=planOf(d.code).length; if(!n) return ""; const it=xpIt();
+  return v>0?`+ ${eur(v)} ${it?"attività":"activities"} · ${it?"totale":"total"} ${eur(h.price+v)}`:`+ ${n} ${it?"nel piano":"in your plan"}`}
+function planBadge(d){const n=planOf(d.code).length; return n?`<span class="svPl">🎟️ +${n} ${xpIt()?(n>1?"attività/eventi":"attività/evento"):"planned"}${planSum(d.code)?` · ${eur(planSum(d.code))}`:""}</span>`:""}
+function xpRefresh(code){const d=DATA.find(x=>x.code===code); if(!d) return; const h=hotelFor(d);
+  document.querySelectorAll(`[data-xp="${code}"]`).forEach(el=>{el.innerHTML=xpRowInner(d)});
+  if(h) document.querySelectorAll(`[data-xs="${code}"]`).forEach(el=>{el.innerHTML=xpSumInner(d,h)});
+  const P=document.getElementById("wzPlan"); if(P&&P.dataset.code===code) P.outerHTML=planHTML(d,+P.dataset.pr||0);
+  try{if(S.saved.some(s=>s.code===code)) renderSaved()}catch(e){}}
+/* sheet to explore and add */
+let XPT="act";
+async function openXP(code,tab){
+  const d=DATA.find(x=>x.code===code); if(!d) return; XPT=tab||"act";
+  let o=$("xpOv"); if(!o){o=document.createElement("div");o.id="xpOv";o.className="evOv";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.addEventListener("click",e=>{if(e.target===o)o.hidden=true});document.body.appendChild(o);}
+  o.hidden=false; o.innerHTML=`<div class="evCard"><div class="pskel" style="height:60px"></div><div class="pskel" style="height:60px"></div></div>`;
+  try{trk("plan_open",{c:d.city,k:XPT})}catch(e){}
+  await vxGet(d); if(mcp&&mcp.events&&EVT[evKey(d)]===undefined) loadEvents(d);
+  renderXP(d);
+}
+function renderXP(d){
+  const o=$("xpOv"); if(!o||o.hidden) return; const it=xpIt();
+  const acts=vxOk(vxNow(d))?vxNow(d).items:[], ev=Array.isArray(EVT[evKey(d)])?EVT[evKey(d)]:[];
+  if(XPT==="ev"&&!ev.length) XPT="act"; if(XPT==="act"&&!acts.length&&ev.length) XPT="ev";
+  const inPlan=id=>planOf(d.code).some(x=>x.id===id);
+  const tabs=acts.length&&ev.length?`<div class="xpTabs"><button data-xpt="act" aria-pressed="${XPT==="act"}">🎟️ ${it?"Attività":"Activities"}</button><button data-xpt="ev" aria-pressed="${XPT==="ev"}">🎫 ${it?"Eventi":"Events"}</button></div>`:"";
+  const btn=on=>`<button class="xpAdd">${on?(it?"✓ Aggiunta":"✓ Added"):(it?"+ Aggiungi":"+ Add")}</button>`;
+  const rows=XPT==="act"
+    ?acts.map((x,i)=>{const id="a:"+(x.id||x.u),on=inPlan(id);return `<div class="xpIt${on?" on":""}" data-xi="${i}"><span class="evImg"><img src="${esc_(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span><a href="${esc_(x.u)}" target="_blank" rel="noopener sponsored"><b translate="no">${esc_(x.t)}</b><small>${x.r?`★ ${x.r.toFixed(1)} (${x.n.toLocaleString(it?"it-IT":"en-GB")}) · `:""}${x.p?`${it?"da":"from"} ${eur(x.p)} ${it?"a persona":"pp"}`:""}</small></a>${btn(on)}</div>`}).join("")
+    :ev.map((e,i)=>{const id="e:"+(e.url||e.name),on=inPlan(id);return `<div class="xpIt${on?" on":""}" data-xi="${i}"><span class="evImg">${e.img?`<img src="${esc_(e.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:(EV_ICON[e.seg]||"🎫")}</span><a href="${esc_(e.url)}" target="_blank" rel="noopener"><b translate="no">${esc_(e.name)}</b><small>${esc_(evDay(e))}${e.time?" · "+esc_(e.time):""}${e.venue?" · "+esc_(e.venue):""}</small></a>${btn(on)}</div>`}).join("");
+  const n=planOf(d.code).length, v=planSum(d.code);
+  const empty=!acts.length&&!ev.length?`<p>${it?"Nessuna attività disponibile per ora.":"Nothing available right now."}</p>`:"";
+  o.innerHTML=`<div class="evCard"><button class="evX" aria-label="Close">✕</button><h3>${it?"Cosa fare a":"Things to do in"} ${esc_(d.city)}</h3><p>${it?"Aggiungi al tuo weekend: le prenoti dopo il volo, una per una.":"Add them to your weekend: you book each one after the trip."}</p>${tabs}${rows}${empty}<p>${XPT==="act"?"Experiences from Viator":"Events from Ticketmaster"}</p><div class="xpFoot"><span>${n?`${it?"Nel piano":"In your plan"}: <b>${n}</b>${v?` · <b>${eur(v)}</b>${planAdults()>1?` (${planAdults()} ${it?"pers.":"people"})`:""}`:""}`:(it?"Niente aggiunto per ora":"Nothing added yet")}</span><button class="xpDone">${it?"Fatto":"Done"}</button></div></div>`;
+  o.querySelector(".evX").onclick=o.querySelector(".xpDone").onclick=()=>{o.hidden=true};
+  o.querySelectorAll("[data-xpt]").forEach(b=>b.onclick=()=>{XPT=b.dataset.xpt;renderXP(d)});
+  o.querySelectorAll(".xpAdd").forEach(b=>b.onclick=()=>{const i=+b.closest(".xpIt").dataset.xi;
+    if(XPT==="act"){const x=acts[i]; planToggle(d.code,{k:"act",id:"a:"+(x.id||x.u),t:x.t,p:x.p||0,u:x.u,img:x.img});}
+    else {const e=ev[i]; planToggle(d.code,{k:"ev",id:"e:"+(e.url||e.name),t:e.name,u:e.url,when:evDay(e)+(e.time?" · "+e.time:"")});}
+    renderXP(d)});
+  o.querySelectorAll(".xpIt a").forEach(a=>a.addEventListener("click",()=>{try{trk(XPT==="act"?"vx_click":"events_open",{c:d.city,src:"plan_sheet"})}catch(e){}}));
+}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-ac]"); if(b){e.stopPropagation();openXP(b.dataset.ac,"act");}},true);
+/* review step: the plan, with Change / Remove and a booking link for each item */
+function planHTML(d,pr){const L=planOf(d.code), it=xpIt();
+  if(!L.length) return `<button class="planEmpty" id="wzPlan" data-code="${d.code}" data-pr="${pr||0}" data-ac="${d.code}">🎟️ ${it?"+ Aggiungi attività ed eventi al weekend":"+ Add activities and events to your weekend"}</button>`;
+  const v=planSum(d.code), ad=planAdults();
+  return `<div class="plan" id="wzPlan" data-code="${d.code}" data-pr="${pr||0}"><h4><span>🎟️ ${it?"Il tuo piano":"Your plan"}</span><button data-ac="${d.code}">${it?"Cambia":"Change"}</button></h4>${L.map(x=>`<div class="planRow"><div><b translate="no">${esc_(x.t)}</b><small>${x.k==="act"?(x.p?`${eur(x.p*ad)}${ad>1?` (${ad} × ${eur(x.p)})`:""}`:(it?"prezzo sul sito":"price on site")):esc_(x.when||"")+" · "+(it?"prezzo sul sito":"price on site")}</small></div><a href="${esc_(x.u)}" target="_blank" rel="noopener${x.k==="act"?" sponsored":""}" data-pl="${esc_(d.city)}">${it?"Prenota":"Book"} ↗</a><button data-prm="${esc_(x.id)}" aria-label="${it?"Rimuovi":"Remove"}">✕</button></div>`).join("")}${pr>0&&v>0?`<div class="planTot"><span>${it?"Viaggio + attività":"Trip + activities"}<small>${it?"Stima: volo e hotel su lastminute.com, attività su Viator":"Estimate: flight + hotel on lastminute.com, activities on Viator"}</small></span><b>≈ ${eur(pr+v)}</b></div>`:""}</div>`;
+}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-prm]"); if(!b) return; const P=b.closest("#wzPlan"); if(!P) return; const c=P.dataset.code, x=planOf(c).find(y=>y.id===b.dataset.prm); if(x) planToggle(c,x);});
+document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("[data-pl]"); if(a){try{trk("vx_click",{c:a.dataset.pl,src:"plan_book"})}catch(x){}}});
 /* saved: "What to do this weekend" — activities (Viator) and events (Ticketmaster) in the saved cities, with a city filter */
 let SVF="all", SVM="act";
 function renderSavedEvents(){
@@ -3072,7 +3175,7 @@ function renderSavedEvents(){
   const evOn=!!(mcp&&mcp.events), it=vxL()==="it";
   if(evOn) ds.forEach(d=>{if(EVT[evKey(d)]===undefined) loadEvents(d)});
   ds.forEach(d=>{if(!vxNow(d)) vxGet(d).then(()=>{try{renderSavedEvents()}catch(e){}})});
-  const acts=d=>vxOk(vxNow(d))?vxNow(d).items:[], evs=d=>evOn&&Array.isArray(EVT[evKey(d)])?EVT[evKey(d)]:[];
+  const acts=d=>vxOk(vxNow(d))?vxNow(d).items.slice(0,3):[], evs=d=>evOn&&Array.isArray(EVT[evKey(d)])?EVT[evKey(d)]:[];
   const actBusy=ds.some(d=>!vxNow(d)), evBusy=evOn&&ds.some(d=>EVT[evKey(d)]==="busy");
   const withAct=ds.filter(d=>acts(d).length), withEv=ds.filter(d=>evs(d).length);
   if(SVM==="ev"&&!withEv.length&&!evBusy) SVM="act";
@@ -3109,7 +3212,7 @@ function renderSaved(){
   const L=$("savedList");
   if(!S.saved.length){L.innerHTML=`<div class="box"><p>Nothing saved yet. Swipe right on a weekend you like.</p></div>`;$("cmpWrap").hidden=true;return}
   const items=S.saved.map(s=>{const d=DATA.find(x=>x.code===s.code);const h=d.hotels[s.j];return {d,h}});
-  L.innerHTML=items.map(({d,h})=>`<div class="item open" role="button" tabindex="0" data-open="${d.code}" aria-label="Open ${d.city}"><div class="thumb">${art(d,true)}</div><div><h3>${d.city}</h3><div class="sub">${starStr(h.stars)} ${h.name}</div><div class="vlink">View & book ›</div></div><div><div class="p">${S.split?eur(h.price/2)+" pp":eur(h.price)}</div><button class="rm" data-rm="${d.code}">Remove</button></div></div>`).join("");
+  L.innerHTML=items.map(({d,h})=>`<div class="item open" role="button" tabindex="0" data-open="${d.code}" aria-label="Open ${d.city}"><div class="thumb">${art(d,true)}</div><div><h3>${d.city}</h3><div class="sub">${starStr(h.stars)} ${h.name}</div>${planBadge(d)}<div class="vlink">View & book ›</div></div><div><div class="p">${S.split?eur(h.price/2)+" pp":eur(h.price)}</div><button class="rm" data-rm="${d.code}">Remove</button></div></div>`).join("");
   L.querySelectorAll("[data-rm]").forEach(b=>b.onclick=e=>{e.stopPropagation();S.saved=S.saved.filter(s=>s.code!==b.dataset.rm);updateCount();renderSaved()});
   L.querySelectorAll("[data-open]").forEach(el=>{const go=()=>{const c=el.dataset.open,s=S.saved.find(x=>x.code===c);if(s)S.choice[c]=s.j;openSheet(c)};el.onclick=go;el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}}});
   if(items.length>=2){
