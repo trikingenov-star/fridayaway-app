@@ -4,7 +4,7 @@
 // (select_hotel_options → generate_booking_link → get_alternative_flights → change_flight) share one session.
 
 const { callTool, openSession, ENDPOINT, rpc } = require("./_mcp");
-const ALLOWED = new Set(["search_flight_and_hotel_package","select_hotel_options","generate_booking_link","create_cart","get_alternative_flights","change_flight","search_flights"]);
+const ALLOWED = new Set(["search_flight_and_hotel_package","select_hotel_options","generate_booking_link","create_cart","create_checkout_link","get_alternative_flights","change_flight","search_flights"]);
 
 module.exports = async (req, res) => {
   res.setHeader("cache-control", "no-store");
@@ -38,7 +38,7 @@ module.exports = async (req, res) => {
         const c = await callTool("generate_booking_link", { pricing_id: b.payload.pricing_id, rate_id: room.rate_id }, a.sid);
         const shape = (o, dep) => (o && typeof o === "object" && dep < 3 ? Object.fromEntries(Object.entries(o).map(([k, v]) => [k, Array.isArray(v) ? "array(" + v.length + ")" : v && typeof v === "object" ? shape(v, dep + 1) : typeof v === "string" && /^https?:/.test(v) ? "URL" : typeof v])) : typeof o);
         const P = c.payload || {}; const hide = (t) => String(t).replace(/[0-9a-f]{8}-[0-9a-f-]{27,}/gi, "<id>").slice(0, 400);
-        return res.status(200).json({ step: "cart", error: c.error || null, hasBookingUrl: !!P.booking_url, shape: shape(P, 0), message: hide(P.message || ""), next_steps: (P.next_steps || []).map((x) => hide(typeof x === "string" ? x : JSON.stringify(x))) });
+        return res.status(200).json({ step: "cart", error: c.error || null, hasBookingUrl: !!P.booking_url, viaCheckout: !!P._checkout, shape: shape(P, 0), message: hide(P.message || ""), next_steps: (P.next_steps || []).map((x) => hide(typeof x === "string" ? x : JSON.stringify(x))) });
       }
       return res.status(200).json({ ok: true });
     }

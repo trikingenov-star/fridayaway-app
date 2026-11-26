@@ -61,7 +61,7 @@ function toPayload(result) {
 
 // lastminute.com renamed generate_booking_link -> create_cart. Callers keep the old name; we try the new one first,
 // fall back to the old one, and normalise the answer to { booking_url, booking_summary, ... }.
-const URL_KEYS = ["booking_url", "cart_url", "checkout_url", "deeplink", "deep_link", "url", "link", "redirect_url", "booking_link"];
+const URL_KEYS = ["booking_url", "checkout_url", "checkout_link", "payment_url", "cart_url", "checkout_url", "deeplink", "deep_link", "url", "link", "redirect_url", "booking_link"];
 function normCart(p) {
   if (!p || typeof p !== "object") return p;
   if (!p.booking_url) {
@@ -77,7 +77,19 @@ const isUnknown = (r) => r && r.error && /unknown tool/i.test(r.error.message ||
 async function callTool(tool, args, sid) {
   if (tool === "generate_booking_link") {
     let r = await callTool1("create_cart", args, sid);
-    if (isUnknown(r)) r = await callTool1("generate_booking_link", args, sid);
+    if (isUnknown(r)) { r = await callTool1("generate_booking_link", args, sid); if (r && r.payload) r.payload = normCart(r.payload); return r; }
+    // new flow: the cart has no link yet, the checkout link comes from create_checkout_link (no baggage added: same as before)
+    const P = r && r.payload;
+    if (P && P.cart_id && !r.error) {
+      const sd = r.sid || sid;
+      let k = await callTool1("create_checkout_link", { cart_id: P.cart_id }, sd);
+      if (k && k.error && /user|uuid|required|missing/i.test(k.error.message || "") && P.user_uuid) k = await callTool1("create_checkout_link", { cart_id: P.cart_id, user_uuid: P.user_uuid }, sd);
+      if (k && k.error) return { sid: k.sid || sd, error: k.error };
+      const K = normCart(Object.assign({}, k.payload || {}));
+      r.payload = Object.assign({}, P, K, { booking_summary: (K.booking_summary && Object.keys(K.booking_summary).length ? K.booking_summary : P.booking_summary) || {}, booking_url: K.booking_url, _checkout: true });
+      r.sid = k.sid || sd;
+      return r;
+    }
     if (r && r.payload) r.payload = normCart(r.payload);
     return r;
   }
