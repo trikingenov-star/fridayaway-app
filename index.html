@@ -834,6 +834,13 @@ header.top .brand,#setupBrand{cursor:pointer}
 .promoCode button{border:0;background:var(--primary);color:#fff;font-weight:700;border-radius:10px;padding:9px 14px;cursor:pointer}
 .carBox{display:flex;align-items:center;gap:12px;margin-top:12px;padding:12px 14px;border-radius:14px;text-decoration:none;color:var(--ink);background:var(--surface);border:1.5px dashed color-mix(in srgb,var(--primary) 45%,var(--line))}
 .carBox:active{transform:scale(.99)}
+.vxBox{margin-top:12px}.vxBox[hidden]{display:none}
+.vxH{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin:0 2px 8px}
+.vxRow{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+.vxC{flex:0 0 72%;max-width:230px;scroll-snap-align:start;display:flex;flex-direction:column;border-radius:14px;overflow:hidden;background:var(--surface);border:1px solid var(--line);text-decoration:none;color:var(--ink)}
+.vxC img{width:100%;height:110px;object-fit:cover;display:block;background:var(--line)}
+.vxC b{font-size:13px;line-height:1.3;padding:8px 10px 2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vxC small{font-size:12px;color:var(--muted);padding:0 10px 10px}
 .carIco{font-size:26px;line-height:1;flex:none}
 .carT{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
 .carT b{font-size:14.5px}
@@ -2529,7 +2536,7 @@ async function wzReview(){
     if(pr>0&&!w.logged){w.logged=1; try{trk("price_diff",{c:d.city,card:Math.round(was||0),final:Math.round(pr),fl:w.flSel==="pkg"?0:1})}catch(e){}}
     $("wzTotal").innerHTML=`<div class="totalbox"><span>Total price · all included</span><b>${eur(pr,true)}</b><small>Return flights + hotel · ${wzPeople()}${L.sum&&L.sum.cancellation_policy?` · ${esc_(L.sum.cancellation_policy)}`:""}</small></div>${chg?`<div class="pchg">The card showed ${eur(was)}. ${w.flSel==="pkg"?"Flight + hotel prices change during the day: this total is today's live price.":"The difference comes from the flights you picked."}</div>`:""}${S.budgetOn?marginHTML(pr):""}${splitHTML(d.code,pr,true)}`;
     $("wzFoot").innerHTML=`<a class="checkout wzGo" href="${esc_(awin(L.url,"fa_"+w.code))}" target="_blank" rel="noopener sponsored">Book on lastminute.com ↗</a>`;
-    $("wzBody").insertAdjacentHTML("beforeend",`${promoHTML(pr)}${tqHTML(d)}${esimHTML(d)}${carHTML(d)}`);
+    $("wzBody").insertAdjacentHTML("beforeend",`${promoHTML(pr)}${vxSlot(d)}${tqHTML(d)}${esimHTML(d)}${carHTML(d)}`);
     loadSplit(d.code);
   };
   if(w.cur&&w.cur.sel===w.flSel){done(w.cur.L);return}
@@ -3025,6 +3032,16 @@ function tqHTML(d){const t=TQ[d.code]; if(!t) return "";
   const href=TQ_ON?`https://www.awin1.com/cread.php?awinmid=${TQ_MID}&awinaffid=${AWIN.aff}&clickref=${encodeURIComponent("fa_tq_"+d.code)}&ued=${encodeURIComponent(u)}`:u;
   return `<a class="carBox tqBox" href="${esc_(href)}" target="_blank" rel="noopener${TQ_ON?" sponsored":""}" data-tq="${esc_(d.city)}"><span class="carIco" aria-hidden="true">🎟️</span><span class="carT"><b>Things to do in ${esc_(d.city)}</b><small>Skip-the-line tickets for museums and top sights</small></span><span class="carGo" aria-hidden="true">›</span></a>`}
 document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest(".tqBox"); if(a){try{trk("exp_click",{c:a.dataset.tq})}catch(x){}}});
+/* top Viator experiences (api/snapshot?kind=exp). Shown only with a production key; add ?vx=1 to the URL to preview sandbox data */
+const VX={}, VX_ALL=/[?&]vx=1/.test(location.search);
+function vxSlot(d){setTimeout(()=>loadVX(d),0); return `<div class="vxBox" id="vxBox" hidden></div>`}
+async function loadVX(d){const l=uiLang()==="it"?"it":"en", k=d.code+l; let j=VX[k];
+  if(!j){try{j=await (await fetch(`/api/snapshot?kind=exp&c=${d.code}&n=${encodeURIComponent(d.city)}&l=${l}`)).json()}catch(e){return} VX[k]=j}
+  const el=document.getElementById("vxBox"); if(!el||!j||!j.items||!j.items.length||(j.env!=="prod"&&!VX_ALL)) return;
+  const it=l==="it";
+  el.innerHTML=`<div class="vxH">${it?"Esperienze più amate":"Top experiences"}${j.env!=="prod"?" · TEST":""}</div><div class="vxRow">${j.items.map(x=>`<a class="vxC" href="${esc_(x.u)}" target="_blank" rel="noopener sponsored" data-vx="${esc_(d.city)}"><img src="${esc_(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer"><b>${esc_(x.t)}</b><small>${x.r?`★ ${x.r.toFixed(1)} (${x.n}) · `:""}${x.p?`${it?"da":"from"} ${eur(x.p)}`:""}</small></a>`).join("")}</div>`;
+  el.hidden=false; try{trk("vx_shown",{c:d.city})}catch(e){}}
+document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest(".vxC"); if(a){try{trk("vx_click",{c:a.dataset.vx})}catch(x){}}});
 /* lastminute.com offers from the Awin Promotions API (/api/promos); nothing is shown when there are none */
 let PROMOS=[];
 function promoFor(total){ /* best offer whose minimum spend the trip total reaches */
