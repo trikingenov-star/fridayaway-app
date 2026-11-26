@@ -855,12 +855,15 @@ body.v2{--r-card:28px}
 .v2 .t3Btn{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border:0;border-radius:17px;background:var(--ink);color:var(--surface);font:inherit;font-size:13px;font-weight:700;cursor:pointer;flex:none}
 .v2 .t3Btn svg{width:16px;height:16px}
 .v2 .t3Btn span{display:none}
-@media (min-width:430px){.v2 .t3Btn span{display:inline}.v2 .t3Btn{width:auto;padding:0 12px}}
 .v2 .t3Btn{width:34px;padding:0;justify-content:center}
 .v2 .top .instBtn .ibT{display:none}
 .v2 .top .topR{gap:6px}
 .v2 .top .instBtn{width:34px;height:34px;padding:0;justify-content:center;border-radius:17px}
 .v2 .top .brand{font-size:20px}
+.v2 .top .brand span{display:inline}
+.v2 .top .trip{display:none!important}
+@media (max-width:389px){.v2 .top .brand{font-size:18px}.v2 .top .topR{gap:4px}.v2 .t3Btn,.v2 .top .instBtn{width:30px;height:30px}.v2 .top .lang button{padding:4px 6px}}
+
 .v2 .top .lang button{padding:5px 8px}
 .v2 .tabbar{grid-template-columns:repeat(3,1fr)}
 .v2 .tabbar button[data-tab="drop"]{display:none}
@@ -3335,12 +3338,14 @@ function sbqRender(){
 }
 setInterval(()=>{if(document.visibilityState==="visible"&&$("setup").hidden){sbqI++;sbqRender()}},3500);
 
+function isV2(){if(document.body.classList.contains("v2")) return true; try{const m=location.search.match(/[?&]v2=([01])/); return m?m[1]==="1":localStorage.getItem("fa_v2")==="1"}catch(e){return false}}
 function renderSum(){
   const a=$("sumA"), b=$("sumB"); if(!a) return;
   const v=[...S.vibes].map(x=>VLABEL[x]); const t=S.trip;
-  a.textContent=`${oriName()} · ${dfmt(t.from)} → ${dfmt(t.to)}`;
+  const v2=isV2();
+  a.textContent=v2?`${dfmt(t.from)} → ${dfmt(t.to)}`:`${oriName()} · ${dfmt(t.from)} → ${dfmt(t.to)}`;
   sbqRender();
-  b.textContent=[`${t.adults} adult${t.adults>1?"s":""}`, S.budgetOn?`max ${eur(S.budget)}`:"no budget limit", S.maxFly?`flights ≤ ${S.maxFly/60}h`:"", v.length?v.join(", "):"", t.tOut?`leave after ${t.tOut}`:"", t.tIn?`home after ${t.tIn}`:""].filter(Boolean).join(" · ");
+  b.textContent=[v2?`${t.adults} adult${t.adults>1?"s":""} · ${oriName()}`:`${t.adults} adult${t.adults>1?"s":""}`, S.budgetOn?`max ${eur(S.budget)}`:"no budget limit", S.maxFly?`flights ≤ ${S.maxFly/60}h`:"", v.length?v.join(", "):"", t.tOut?`leave after ${t.tOut}`:"", t.tIn?`home after ${t.tIn}`:""].filter(Boolean).join(" · ");
 }
 function openSetup(){
   $("dFrom").value=S.trip.from; $("dTo").value=S.trip.to; $("adults").value=String(S.trip.adults);
