@@ -1163,6 +1163,132 @@ html.neg :is(.bt,.msRow button,.meImg) img{filter:none}
 .darkBtn{flex:none;width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
 .darkBtn svg{width:16px;height:16px}
 .darkBtn[aria-pressed="true"]{background:var(--ink);color:var(--app);border-color:var(--ink)}
+
+/* ===== 27 Nov review ===== */
+/* language: one globe, list on tap */
+.lang{position:relative;border:0;padding:0;background:none}
+.lang .globe{display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 9px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font:inherit;font-size:12px;font-weight:800;cursor:pointer;letter-spacing:.03em}
+.lang .globe svg{width:16px;height:16px}
+.lang .langMenu{position:absolute;right:0;top:calc(100% + 6px);z-index:70;min-width:150px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 30px rgba(38,35,58,.16);padding:6px;display:flex;flex-direction:column;gap:2px}
+.lang .langMenu[hidden]{display:none}
+.lang .langMenu button{border:0;background:none;text-align:left;font:inherit;font-size:14px;font-weight:600;color:var(--ink);padding:9px 12px;border-radius:10px;cursor:pointer;letter-spacing:0;line-height:1.2}
+.lang .langMenu button:hover{background:var(--app)}
+.lang .langMenu button[aria-pressed="true"]{background:var(--ink);color:var(--app)}
+.v2 .top .lang .globe{height:34px}
+/* Book is the main action on the card */
+.card .goTrip{background:var(--primary);color:#fff;border:0;font-size:15px;font-weight:800;padding:11px 18px;border-radius:14px;box-shadow:0 6px 16px color-mix(in srgb,var(--primary) 35%,transparent)}
+.card .goTrip:hover{filter:brightness(1.07)}
+.v2 .card .goTrip{padding:11px 18px;font-size:15px;font-weight:800}
+/* header: no squeezed trip text between phone and wide desktop; compact tabs on small desktops */
+@media (max-width:1560px){.top .trip{display:none!important}}
+@media (min-width:960px) and (max-width:1180px){
+  .tabbar button{padding:8px 10px;font-size:13px;gap:5px}
+  .top .instBtn .ibT{display:none}
+  .top .topR{gap:6px}
+}
+@media (min-width:601px) and (max-width:959px){.top .brand{min-width:0}.top .topR{gap:8px}}
+/* planner: flat surfaces, one accent, labelled rows */
+.setupIn .ask{background:var(--surface);border:1px solid var(--line);box-shadow:none}
+.setupIn .ask:before,.setupIn .ask:after,.setupIn .askrow:before,.setupIn .askrow:after,#setupGo:before,#setupGo:after{content:none!important;display:none!important}
+.setupIn textarea{background:var(--app);border:1px solid var(--line);box-shadow:none}
+#setupGo{background:var(--primary);box-shadow:none}
+.setupIn .chip{box-shadow:none;border-color:var(--line)}
+.setupIn .chip[data-f][aria-pressed="true"]{background:var(--ink);color:var(--app);border-color:var(--ink)}
+.setupIn .budget #b{background:linear-gradient(var(--primary),var(--primary)) 0/var(--bp,17%) 100% no-repeat,var(--line)}
+.setupIn .budget #b::-webkit-slider-thumb{border-color:var(--primary)}
+.setupIn .budget #b::-moz-range-thumb{border-color:var(--primary)}
+.setupIn .bTip,.setupIn .bTip:after{--bw:var(--primary)}
+.chipSet{display:flex;flex-direction:column;gap:6px;min-width:0}
+.chipLbl{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.02em}
+.flyrow .chipLbl{margin-right:4px}
+.siWrap{position:relative}
+.siWrap .setupInst{padding:8px 40px 8px 12px;border-style:solid;border-width:1px;width:100%}
+.siWrap .setupInst small{display:none}
+.siWrap .setupInst .si{font-size:18px}
+.siX{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:30px;height:30px;border:0;border-radius:50%;background:none;color:var(--muted);font-size:15px;cursor:pointer}
+.siWrap:has(.setupInst[hidden]){display:none}
+.setupTaste{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13.5px;color:var(--muted);background:var(--app);border:1px solid var(--line);border-radius:12px;padding:9px 12px}
+.setupTaste b{color:var(--ink)}
+.setupTaste button{border:0;background:none;color:var(--primary);font:inherit;font-weight:700;cursor:pointer;white-space:nowrap;padding:0}
+@media (min-width:1024px){
+  .setupIn{max-width:1160px;padding-left:32px;padding-right:32px}
+  .setupIn #setupSlot .ask{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);column-gap:36px;row-gap:14px;align-items:start;padding:24px}
+  .setupIn #setupSlot .ask>*{grid-column:1}
+  .setupIn #setupSlot .ask>details.more,.setupIn #setupSlot .ask>.budget,.setupIn #setupSlot .ask>#liveStatus,.setupIn #setupSlot .ask>#read{grid-column:2}
+  .setupIn #setupSlot .ask>details.more{grid-row:1 / span 3}
+  .setupIn #setupSlot .ask>.budget{grid-row:4}
+  .setupIn #setupGo{align-self:flex-end;width:auto;min-width:320px;padding-left:32px;padding-right:32px}
+}
+/* card: why it is shown */
+.forYou{font-size:12.5px;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.forYou b{color:var(--ink);font-weight:700}
+.forYou i{font-style:normal;width:6px;height:6px;border-radius:50%;background:var(--primary);flex:none}
+/* together offers */
+.tgDeal{display:flex;flex-direction:column;align-items:flex-start;gap:4px;width:100%;text-align:left;border:0;border-radius:18px;padding:16px 18px;background:var(--ink);color:var(--app);font:inherit;cursor:pointer;position:relative;overflow:hidden}
+.tgDeal .big{font-size:22px;font-weight:800;letter-spacing:-.01em;line-height:1.15}
+.tgDeal .sm{font-size:13px;color:color-mix(in srgb,var(--app) 70%,transparent);line-height:1.35}
+.tgDeal .cta{margin-top:6px;font-size:13px;font-weight:800;color:#FFD23F}
+.tgOfferTop{margin:4px 0 14px;display:flex;flex-direction:column;gap:10px;position:relative}
+.tgOfferTop .tgPop{position:static}
+.tabbar .tgBadge{position:absolute;top:3px;right:calc(50% - 30px);background:#FFD23F;color:#3b2a00;font-size:10px;font-weight:800;padding:2px 6px;border-radius:999px;transform:rotate(8deg);line-height:1.2;white-space:nowrap}
+@media (min-width:960px){.tabbar .tgBadge{position:static;transform:none;margin-left:2px}}
+.grpHint{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;border:1px solid #F1D36B;background:#FFF6D6;color:#5a4300;border-radius:999px;padding:7px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;margin:2px 0}
+.grpHint b{background:#FFD23F;color:#3b2a00;border-radius:999px;padding:1px 7px;font-size:12px}
+:root[data-neg] .grpHint{background:var(--surface);color:var(--ink)}
+/* booking: flight first */
+.wzFlArt{position:relative;height:150px;border-radius:16px;overflow:hidden;flex:none}
+.wzFlArt .city{position:absolute;left:14px;bottom:12px;color:#fff;z-index:2}
+.wzFlArt .city h2{font-size:26px;letter-spacing:-.02em;margin:0;line-height:1}
+.wzFlArt .city span{font-size:13px;opacity:.9}
+.wzFlArt .city{text-shadow:0 1px 8px rgba(0,0,0,.55)}
+.wzFlArt:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.45));z-index:1}
+.wzNote{font-size:12.5px;color:var(--muted);margin:2px 0 0}
+.wzFrom{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line);padding-top:12px;margin-top:4px;font-size:14px;color:var(--muted)}
+.wzFrom b{font-size:22px;color:var(--ink)}
+/* profile page */
+main[data-s="profile"]>.sec{max-width:720px;margin-left:auto;margin-right:auto}
+.pfHead{display:flex;align-items:center;gap:14px;margin-top:6px}
+.pfAv{flex:none;width:72px;height:72px;border-radius:50%;border:2px solid var(--line);background:var(--surface);display:grid;place-items:center;font-size:34px;cursor:pointer;padding:0;overflow:hidden;position:relative;color:var(--ink);font-weight:800}
+.pfAv img{width:100%;height:100%;object-fit:cover}
+.pfAv .pfEd{position:absolute;right:2px;bottom:2px;width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;font-size:12px;display:grid;place-items:center;border:2px solid var(--surface)}
+.pfHead h2{margin:0;font-size:24px;letter-spacing:-.02em;overflow-wrap:anywhere}
+.pfLvl{display:inline-block;margin-top:4px;font-size:13px;font-weight:700;color:var(--primary);background:color-mix(in srgb,var(--primary) 12%,transparent);padding:3px 10px;border-radius:999px}
+.pfPick{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px}
+.pfPick[hidden]{display:none}
+.pfPick button.em{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--app);font-size:22px;cursor:pointer}
+.pfPick button.em[aria-pressed="true"]{border:2px solid var(--primary)}
+.pfPick label,.pfPick .pfRm{border:1px solid var(--line);background:var(--app);border-radius:999px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink);font-family:inherit}
+.pfCard{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.pfCard h3{margin:0;font-size:16px}
+.pfCard p{margin:0;font-size:13px;color:var(--muted);line-height:1.4}
+.pfStreak{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:center}
+.pfStreak .n{font-size:44px;font-weight:800;letter-spacing:-.03em;line-height:1;color:var(--ink)}
+.pfStreak .n small{display:block;font-size:12px;font-weight:700;color:var(--muted);letter-spacing:0;margin-top:2px}
+.pfStreak .wk{display:flex;gap:5px;flex-wrap:wrap}
+.pfStreak .wk i{width:18px;height:18px;border-radius:6px;background:var(--line)}
+.pfStreak .wk i.on{background:var(--primary)}
+.pfStreak p{grid-column:1/-1}
+.pfBadges{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.pfBadge{border:1px solid var(--line);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:3px;background:var(--app)}
+.pfBadge b{font-size:13px;line-height:1.25}
+.pfBadge small{font-size:11.5px;color:var(--muted)}
+.pfBadge .ic{font-size:20px}
+.pfBadge.off{opacity:.5}
+.pfBadge.off .ic{filter:grayscale(1)}
+.pfTags{display:flex;flex-wrap:wrap;gap:8px}
+.ichip{border:1px solid var(--line);background:var(--app);color:var(--ink);border-radius:999px;padding:9px 15px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.ichip[aria-pressed="true"]{background:var(--ink);color:var(--app);border-color:var(--ink)}
+.pfRow{display:flex;align-items:center;justify-content:space-between;gap:12px;border:0;background:none;font:inherit;color:var(--ink);text-align:left;padding:4px 0;cursor:pointer;width:100%}
+.pfRow+.pfRow{border-top:1px solid var(--line);padding-top:12px}
+.pfRow span b{display:block;font-size:15px}
+.pfRow span small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.pfRow i{font-style:normal;color:var(--primary);font-weight:800;white-space:nowrap}
+.pfNote{font-size:12px;color:var(--muted);text-align:center;margin:4px 0 8px}
+.userBtn .uAv{display:none}
+.userBtn.hasAv{overflow:hidden;font-size:17px}
+.userBtn.hasAv svg,.userBtn.hasAv .uIn{display:none!important}
+.userBtn.hasAv .uAv{display:grid;place-items:center;width:100%;height:100%}
+.userBtn .uAv img{width:100%;height:100%;object-fit:cover}
 </style>
 </head>
 <body>
@@ -1170,7 +1296,7 @@ html.neg :is(.bt,.msRow button,.meImg) img{filter:none}
 <div class="app">
   <header class="top gut">
     <div class="brand"><img class="logo" alt="" src="data:image/png;base64,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"><span>Friday<b>away</b></span></div>
-    <div class="topR"><div class="trip" id="tripTxt"></div><button class="t3Btn" id="t3Btn" aria-label="Top 3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M9 20h6"/></svg><span>Top 3</span></button><button class="instBtn" data-src="header" hidden><span aria-hidden="true">📲</span><span class="ibT">Install</span></button><div class="lang" role="group" aria-label="Language"><button data-lang="it" aria-pressed="false">IT</button><button data-lang="en" aria-pressed="false">EN</button></div><button class="darkBtn" aria-pressed="false" aria-label="Black mode" title="Black mode"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button><button class="userBtn" aria-label="Profile" title="Profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4.5 20c1.2-3.8 4.2-5.6 7.5-5.6s6.3 1.8 7.5 5.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="uIn"></span></button></div>
+    <div class="topR"><div class="trip" id="tripTxt"></div><button class="t3Btn" id="t3Btn" aria-label="Top 3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M9 20h6"/></svg><span>Top 3</span></button><button class="instBtn" data-src="header" hidden><span aria-hidden="true">📲</span><span class="ibT">Install</span></button><div class="lang" role="group" aria-label="Language"><button type="button" class="globe" aria-haspopup="true" aria-expanded="false" aria-label="Language"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="gl notr" translate="no"></span></button><div class="langMenu notr" translate="no" hidden><button type="button" data-lang="it" aria-pressed="false">Italiano</button><button type="button" data-lang="en" aria-pressed="false">English</button><button type="button" data-lang="es" aria-pressed="false">Español</button></div></div><button class="darkBtn" aria-pressed="false" aria-label="Black mode" title="Black mode"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button><button class="userBtn" aria-label="Profile" title="Profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4.5 20c1.2-3.8 4.2-5.6 7.5-5.6s6.3 1.8 7.5 5.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="uIn"></span></button></div>
   </header>
 
   <!-- DISCOVER -->
@@ -1183,17 +1309,19 @@ html.neg :is(.bt,.msRow button,.meImg) img{filter:none}
         <textarea id="q" placeholder="Describe your weekend…">Somewhere warm by the sea, great food, nice hotel near the centre, max €450</textarea>
         <button class="go" id="go">Go</button>
       </div>
-      <div class="chips" role="group" aria-label="Moods">
+      <div class="chipSet"><span class="chipLbl">Mood</span><div class="chips" role="group" aria-label="Moods">
         <button class="chip" data-v="sea">Sea</button>
         <button class="chip" data-v="food">Food</button>
         <button class="chip" data-v="culture">Culture</button>
         <button class="chip" data-v="city">City</button>
         <button class="chip" data-v="nightlife">Nightlife</button>
         <button class="chip" data-v="relax">Relax</button>
+      </div></div>
+      <div class="chipSet"><span class="chipLbl">Filters</span><div class="chips" role="group" aria-label="Filters">
         <button class="chip" data-f="flex">Free cancel</button>
         <button class="chip" data-f="direct">Direct</button>
-      </div>
-      <div class="flyrow" role="group" aria-label="Maximum flight time"><span>✈️ Max flight time</span><button class="chip fchip" data-fly="0">Any</button><button class="chip fchip" data-fly="120">2h</button><button class="chip fchip" data-fly="180">3h</button><button class="chip fchip" data-fly="240">4h</button></div>
+      </div></div>
+      <div class="flyrow" role="group" aria-label="Maximum flight time"><span class="chipLbl">Max flight time</span><button class="chip fchip" data-fly="0">Any</button><button class="chip fchip" data-fly="120">2h</button><button class="chip fchip" data-fly="180">3h</button><button class="chip fchip" data-fly="240">4h</button></div>
       <details class="more" id="more"><summary id="moreSum">From, dates &amp; travellers</summary>
       <div class="when" role="group" aria-label="Dates and times">
         <label>From<select id="orig"><option value="MIL" selected>Milan</option><option value="TRN">Turin</option><option value="GOA">Genoa</option><option value="VRN">Verona</option><option value="VCE">Venice</option><option value="BLQ">Bologna</option><option value="PSA">Pisa</option><option value="FLR">Florence</option><option value="ROM">Rome</option><option value="NAP">Naples</option><option value="BRI">Bari</option><option value="CTA">Catania</option><option value="PMO">Palermo</option><option value="CAG">Cagliari</option><option value="ZRH">Zurich</option><option value="GVA">Geneva</option></select></label>
@@ -1271,6 +1399,11 @@ html.neg :is(.bt,.msRow button,.meImg) img{filter:none}
       <h3>Your matches</h3>
       <div id="matchList" class="sec" style="margin-top:0"></div>
     </div>
+  </main>
+
+  <!-- PROFILE -->
+  <main class="screen gut" data-s="profile" hidden>
+    <div class="sec notr" id="profPage" translate="no"></div>
   </main>
 
   <!-- DROP -->
@@ -1365,7 +1498,7 @@ html.neg :is(.bt,.msRow button,.meImg) img{filter:none}
 </div>
 <div class="setup" id="setup" hidden role="dialog" aria-modal="true" aria-label="Plan your weekend">
   <div class="setupIn">
-    <div class="setupHead"><div class="brand" id="setupBrand"></div><div class="shR"><div class="lang" role="group" aria-label="Language"><button data-lang="it" aria-pressed="false">IT</button><button data-lang="en" aria-pressed="false">EN</button></div><button class="darkBtn" aria-pressed="false" aria-label="Black mode" title="Black mode"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button><button class="userBtn" aria-label="Profile" title="Profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4.5 20c1.2-3.8 4.2-5.6 7.5-5.6s6.3 1.8 7.5 5.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="uIn"></span></button><button class="linkbtn" id="setupX">Close ✕</button></div></div>
+    <div class="setupHead"><div class="brand" id="setupBrand"></div><div class="shR"><div class="lang" role="group" aria-label="Language"><button type="button" class="globe" aria-haspopup="true" aria-expanded="false" aria-label="Language"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="gl notr" translate="no"></span></button><div class="langMenu notr" translate="no" hidden><button type="button" data-lang="it" aria-pressed="false">Italiano</button><button type="button" data-lang="en" aria-pressed="false">English</button><button type="button" data-lang="es" aria-pressed="false">Español</button></div></div><button class="darkBtn" aria-pressed="false" aria-label="Black mode" title="Black mode"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button><button class="userBtn" aria-label="Profile" title="Profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4.5 20c1.2-3.8 4.2-5.6 7.5-5.6s6.3 1.8 7.5 5.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="uIn"></span></button><button class="linkbtn" id="setupX">Close ✕</button></div></div>
     <button class="setupInst" data-src="setup" hidden><span class="si" aria-hidden="true">📲</span><span><b>Install the app</b><small>Add it to your home screen in two taps</small></span><span class="instBtn" aria-hidden="true">Install</span></button>
     <h2>Plan your weekend</h2>
     <p class="muted">Budget, mood, departure and dates. We find the flight + hotel weekends that fit.</p>
@@ -1392,7 +1525,7 @@ const I18N=(()=>{
   "Done! Your first deals arrive on Thursday 🔔":"Fatto! Le prime offerte ti arrivano giovedì 🔔","🔔 You get the best weekends every Thursday":"🔔 Ricevi i weekend migliori ogni giovedì",
   "Get the 3 best weekends every Thursday":"Ricevi i 3 weekend migliori ogni giovedì","Free, for your budget, one email a week":"Gratis, per il tuo budget, una email a settimana",
   "Choose your hotel · price of the hotel for 2 nights":"Scegli l'hotel · prezzo dell'hotel per 2 notti","Choose your room · price of the room for 2 nights":"Scegli la camera · prezzo della camera per 2 notti","incl. flights":"voli inclusi",
-  "‹ Back":"‹ Indietro","Hotel":"Hotel","Room":"Camera","Black mode":"Modalità nera","Book ›":"Prenota ›","per person":"a persona",
+  "‹ Back":"‹ Indietro","Your flights":"I tuoi voli","Choose hotel ›":"Scegli l'hotel ›","Hotel":"Hotel","Room":"Camera","Black mode":"Modalità nera","Book ›":"Prenota ›","per person":"a persona",
   "Continue · choose room":"Continua · scegli la camera","Continue · choose flights":"Continua · scegli i voli","Continue · review":"Continua · riepilogo",
   "Choose your hotel · price includes flights":"Scegli l'hotel · il prezzo include i voli","Choose your room · price includes flights":"Scegli la camera · il prezzo include i voli",
   "Choose your flights · total with hotel and room":"Scegli i voli · totale con hotel e camera","Included in your package":"Inclusi nel pacchetto","Other flight times":"Altri orari di volo",
@@ -1488,7 +1621,7 @@ const I18N=(()=>{
   };
   /* phrases and names replaced inside longer, generated strings (longest first, whole words only) */
   const PH={
-  "From, dates & travellers":"Partenza, date e viaggiatori","Dates and times":"Date e orari","✈️ Max flight time":"✈️ Volo max",
+  "From, dates & travellers":"Partenza, date e viaggiatori","Dates and times":"Date e orari","✈️ Max flight time":"✈️ Volo max","Max flight time":"Volo max","Mood":"Umore","Filters":"Filtri",
   "What's on in":"Cosa succede a","During your trip · tap an event for tickets and details":"Durante il tuo viaggio · tocca un evento per biglietti e dettagli","Events from Ticketmaster":"Eventi da Ticketmaster","What's on ›":"Eventi ›","What's on":"Eventi","events":"eventi","See all":"Vedi tutti","Other hotels in":"Altri hotel a","tap to switch":"tocca per cambiare","h there":"h sul posto","typical high":"massima tipica","1 stop":"1 scalo","check-out":"check-out","Choose a room, then pick flights that":"Scegli una camera, poi i voli che","Finding flights that":"Cerco voli che","leave after":"partono dopo le","fly home after":"rientrano dopo le",
   "Fits your mood:":"In linea con il tuo mood:","Closest to a deal:":"Quasi un match:","like it":"lo vogliono",
   "Finding weekends in more cities":"Cerco weekend in altre città","Searching live prices from":"Cerco prezzi live da","Live prices for":"Prezzi live per",
@@ -1529,24 +1662,142 @@ const I18N=(()=>{
     [/\b(\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/g,(a,d,m)=>d+" "+({Jan:"gen",Feb:"feb",Mar:"mar",Apr:"apr",May:"mag",Jun:"giu",Jul:"lug",Aug:"ago",Sep:"set",Oct:"ott",Nov:"nov",Dec:"dic"})[m]],
     [/\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b(?=,|\s*·|\s*$|\s+\d)/g,(a,w)=>({Mon:"lun",Tue:"mar",Wed:"mer",Thu:"gio",Fri:"ven",Sat:"sab",Sun:"dom"})[w]]
   ];
+  /* Spanish: same engine as Italian (exact strings, then phrases, then patterns); anything missing stays in English */
+  const ES_EX={
+  "Swipe right to save · left to skip":"Desliza a la derecha para guardar · a la izquierda para saltar","Total price":"Precio total",
+  "What to do this weekend":"Qué hacer este fin de semana","In the cities you saved":"En las ciudades que guardaste","🎟️ Activities":"🎟️ Actividades","🎫 Events":"🎫 Eventos","Experiences from Viator":"Experiencias de Viator",
+  "The 3 best weekends, every Thursday":"Los 3 mejores fines de semana, cada jueves","Notify me":"Avísame","Your email":"Tu email",
+  "We only use your email to send these offers. Reply STOP to any email to stop them.":"Solo usamos tu email para enviarte estas ofertas. Responde STOP a cualquier email para dejar de recibirlas.",
+  "Check your email address.":"Revisa tu dirección de email.","Something went wrong, try again.":"Algo salió mal, inténtalo de nuevo.",
+  "Done! Your first deals arrive on Thursday 🔔":"¡Listo! Tus primeras ofertas llegan el jueves 🔔","🔔 You get the best weekends every Thursday":"🔔 Recibes los mejores fines de semana cada jueves",
+  "Get the 3 best weekends every Thursday":"Recibe los 3 mejores fines de semana cada jueves","Free, for your budget, one email a week":"Gratis, para tu presupuesto, un email a la semana",
+  "Choose your hotel · price of the hotel for 2 nights":"Elige tu hotel · precio del hotel por 2 noches","Choose your room · price of the room for 2 nights":"Elige tu habitación · precio de la habitación por 2 noches",
+  "incl. flights":"vuelos incl.","Your flights":"Tus vuelos","Choose hotel ›":"Elegir hotel ›","‹ Back":"‹ Atrás","Hotel":"Hotel","Room":"Habitación","Black mode":"Modo negro","Book ›":"Reservar ›","per person":"por persona",
+  "Continue · choose room":"Continuar · elegir habitación","Continue · choose flights":"Continuar · elegir vuelos","Continue · review":"Continuar · revisar",
+  "Choose your hotel · price includes flights":"Elige tu hotel · el precio incluye vuelos","Choose your room · price includes flights":"Elige tu habitación · el precio incluye vuelos",
+  "Choose your flights · total with hotel and room":"Elige tus vuelos · total con hotel y habitación","Included in your package":"Incluidos en tu paquete","Other flight times":"Otros horarios de vuelo",
+  "Flights that match your times":"Vuelos que encajan con tus horarios","Same price":"Mismo precio","Book on lastminute.com ↗":"Reservar en lastminute.com ↗","Try again":"Reintentar",
+  "🎟️ Offer":"🎟️ Oferta","Copy":"Copiar","🎟️ Offers":"🎟️ Ofertas","below usual":"por debajo de lo habitual","Copied ✓":"Copiado ✓",
+  "Checking today's price and rooms…":"Comprobando el precio de hoy y las habitaciones…","Locking your room…":"Bloqueando tu habitación…","Looking for other flight times…":"Buscando otros horarios de vuelo…",
+  "Preparing your checkout…":"Preparando tu pago…","Total price · all included":"Precio total · todo incluido","Open lastminute.com ↗":"Abrir lastminute.com ↗",
+  "Edit your search":"Edita tu búsqueda","Edit ✎":"Editar ✎","Top sights":"Imprescindibles","Describe your weekend":"Describe tu fin de semana","Describe your weekend…":"Describe tu fin de semana…",
+  "Go":"Ir","Moods":"Estados de ánimo","Sea":"Mar","Food":"Comida","Culture":"Cultura","City":"Ciudad","Nightlife":"Vida nocturna","Relax":"Relax","Free cancel":"Cancelación gratis","Direct":"Directos",
+  "Any":"Cualquiera","Maximum flight time":"Tiempo máximo de vuelo","From":"Desde","Depart":"Ida","Return":"Vuelta","Leave after":"Salir después de","Fly home after":"Volver después de",
+  "Adults":"Adultos","Update":"Actualizar","Budget":"Presupuesto","No budget":"Sin presupuesto","Set":"Fijar","No limit":"Sin límite","Pass the phone":"Pasa el móvil",
+  "Skip":"Descartar","Back":"Atrás","Save":"Guardar","SAVE":"GUARDAR","SKIP":"DESCARTAR","Bring back the last card":"Recuperar la última carta","Saved weekends":"Fines de semana guardados",
+  "See all ›":"Ver todo ›","See total price ›":"Ver precio total ›","Use this room":"Usar esta habitación","Use these flights":"Usar estos vuelos","Finding the best room and flights…":"Buscando la mejor habitación y vuelos…",
+  "Change":"Cambiar","Choose another hotel":"Elige otro hotel","No rooms left for these dates. Pick another hotel.":"No quedan habitaciones para estas fechas. Elige otro hotel.",
+  "Rent a car at the airport":"Alquila un coche en el aeropuerto","What's on in your saved cities":"Qué pasa en tus ciudades guardadas","During your weekend · tap an event for tickets":"Durante tu fin de semana · toca un evento para entradas",
+  "All cities":"Todas las ciudades","Looking for events in your saved cities…":"Buscando eventos en tus ciudades guardadas…","Events from Ticketmaster":"Eventos de Ticketmaster","Events in your saved cities":"Eventos en tus ciudades guardadas",
+  "Show price per person":"Mostrar precio por persona","Decide together":"Decidid juntos","Everyone swipes the same deck. Only weekends you all like show up.":"Todos deslizan las mismas cartas. Solo aparecen los fines de semana que os gustan a todos.",
+  "Game lobby":"Sala de juego","↻ Start over":"↻ Empezar de nuevo","Start over":"Empezar de nuevo","Your matches":"Vuestros matches","Send me the Top 3 every Tuesday":"Envíame el Top 3 cada martes",
+  "Discover":"Descubrir","Saved":"Guardados","Together":"Juntos","App":"App","Plan your weekend":"Planea tu fin de semana",
+  "Budget, mood, departure and dates. We find the flight + hotel weekends that fit.":"Presupuesto, ánimo, salida y fechas. Encontramos los fines de semana con vuelo + hotel que encajan.",
+  "Close ✕":"Cerrar ✕","Close":"Cerrar","Show my destination!":"¡Muéstrame el destino!","Finding your perfect weekends":"Buscando tus fines de semana perfectos","It only takes a few seconds.":"Solo tarda unos segundos.",
+  "Add player":"Añadir jugador","All ✓":"Todos ✓","Book":"Reservar","Continue":"Continuar","Direct flights":"Vuelos directos","Done ✓":"Hecho ✓","Double room":"Habitación doble","Twin room":"Habitación twin","Single room":"Habitación individual",
+  "Estimated split. You pay the package total, flight + hotel together.":"Reparto estimado. Pagas el total del paquete, vuelo + hotel juntos.","Everyone's locked in":"Todos han elegido",
+  "Exact flights are shown when you open this weekend":"Los vuelos exactos se muestran al abrir este fin de semana","Exact flights are shown when you book.":"Los vuelos exactos se muestran al reservar.",
+  "Flights in this package":"Vuelos de este paquete","Flip all":"Girar todas","Fridayaway home":"Inicio de Fridayaway","Gather round 👀":"Acercaos 👀","Hold to reveal the matches":"Mantén pulsado para ver los matches",
+  "Hold to unlock your turn":"Mantén pulsado para desbloquear tu turno","Hold your thumb here to reveal your matches":"Mantén el pulgar aquí para ver vuestros matches","Ready":"Listo","Remove":"Quitar","Reset":"Restablecer",
+  "See results ▸":"Ver resultados ▸","Stop the game":"Parar el juego","Swiping now":"Eligiendo ahora","Top match":"Mejor match","View & book ›":"Ver y reservar ›","You like":"Te gusta","Your exact flights · live":"Tus vuelos exactos · en vivo",
+  "Your shared picks will appear here. Are you on the same wavelength? 👀✈️":"Aquí aparecerán vuestras elecciones comunes. ¿Estáis en la misma onda? 👀✈️",
+  "central":"céntrico","food":"comida","sea":"mar","city":"ciudad","culture":"cultura","nightlife":"vida nocturna","relax":"relax","relax & spa":"relax y spa","value for money":"buena relación calidad-precio","4★ and up":"4★ o más",
+  "Backpack mode":"Modo mochila","Smart & cheap":"Listo y barato","Sweet spot":"Punto justo","Treat yourselves":"Daos un capricho","Imperial suite":"Suite imperial","★ YOUR #1 OF TOP 3":"★ TU N.º 1 DEL TOP 3",
+  "⭐ Guest rating":"⭐ Valoración","Guest rating":"Valoración","📍 Hotel to centre":"📍 Hotel al centro","To centre":"Al centro","🔒 Waiting":"🔒 Esperando","🕑 Time there":"🕑 Tiempo allí","☀️ Typical high":"☀️ Máxima típica","Typical high":"Máxima típica",
+  "A strong all-round weekend":"Un fin de semana completo","Almost there…":"Casi listo…","Cancellation":"Cancelación","Checking flights":"Comprobando vuelos","Checking flights from your city…":"Comprobando vuelos desde tu ciudad…",
+  "Checking real flight times":"Comprobando horarios reales","Checking today's price for this weekend…":"Comprobando el precio de hoy para este fin de semana…","Clear times":"Borrar horarios","Comparing hotels for your dates…":"Comparando hoteles para tus fechas…",
+  "Flight":"Vuelo","Flight change failed":"No se pudo cambiar el vuelo","Flights in your package after your times · live":"Vuelos de tu paquete después de tus horarios · en vivo","Free":"Gratis",
+  "Fridayaway is built for short breaks: up to 7 nights.":"Fridayaway está pensado para escapadas cortas: hasta 7 noches.","Getting the exact flights and rooms…":"Obteniendo vuelos y habitaciones exactos…",
+  "Here they are! Tap one to book":"¡Aquí están! Toca uno para reservar","Keep swiping":"Sigue deslizando","Liked by all":"Gusta a todos",
+  "Live prices are not available right now. Try again in a minute.":"Los precios en vivo no están disponibles ahora. Inténtalo en un minuto.","Loading flight options…":"Cargando opciones de vuelo…",
+  "Locked. Nobody can peek 🤫":"Bloqueado. Nadie puede mirar 🤫","Matching your budget and mood…":"Buscando según tu presupuesto y ánimo…","New":"Nuevo","New game: swipes cleared.":"Nueva partida: elecciones borradas.",
+  "Next":"Siguiente","Previous":"Anterior","No booking link":"Sin enlace de reserva","No flights at those times":"No hay vuelos a esas horas","No match":"Sin match","No match this time":"Esta vez no hay match",
+  "Nothing fits. Raise the budget.":"Nada encaja. Sube el presupuesto.","Nothing saved yet. Swipe right on a weekend you like.":"Aún no has guardado nada. Desliza a la derecha un fin de semana que te guste.",
+  "Opens this exact flight + hotel + room. lastminute.com confirms the final price before you pay.":"Abre este vuelo + hotel + habitación exactos. lastminute.com confirma el precio final antes de pagar.",
+  "Over budget":"Fuera de presupuesto","Pick a return date after the departure date.":"Elige una fecha de vuelta posterior a la de ida.","Picked from what you saved so far":"Elegido según lo que has guardado",
+  "Play again":"Jugar otra vez","Preparing…":"Preparando…","Raise the budget or drop a filter.":"Sube el presupuesto o quita un filtro.","Reading your request":"Leyendo tu petición","Reading…":"Leyendo…",
+  "Saved. Top 3 every Tuesday.":"Guardado. Top 3 cada martes.","See matches":"Ver matches","See other flight times":"Ver otros horarios","Show all":"Mostrar todo","Similar hotels available now":"Hoteles similares disponibles ahora",
+  "Tap a card to flip it":"Toca una carta para girarla","Taste reset.":"Gustos restablecidos.","The departure date must be today or later.":"La fecha de salida debe ser hoy o posterior.","These flights match your times.":"Estos vuelos encajan con tus horarios.",
+  "Updating your package…":"Actualizando tu paquete…","Upgraded. Price updated.":"Mejorado. Precio actualizado.","Use this flight":"Usar este vuelo","Your #1 weekend is hiding underneath":"Tu fin de semana n.º 1 se esconde debajo",
+  "lastminute.com is not responding right now. Try again in a minute.":"lastminute.com no responde ahora. Inténtalo en un minuto.","✨ Scratch here ✨":"✨ Rasca aquí ✨",
+  "Photo: Wikimedia Commons (author & licence)":"Foto: Wikimedia Commons (autor y licencia)","Nobody saved a weekend. Try a bigger budget?":"Nadie guardó un fin de semana. ¿Probáis con más presupuesto?",
+  "Free WiFi":"WiFi gratis","Pool":"Piscina","Parking":"Parking","Restaurant":"Restaurante","Fitness Center":"Gimnasio","Adults Only":"Solo adultos","Excellent":"Excelente","Superb":"Excepcional","Very good":"Muy bueno","Good":"Bueno","Fair":"Correcto",
+  "← Back":"← Atrás","Photo: hotel via lastminute.com":"Foto: hotel vía lastminute.com","Wikimedia Commons · tap a photo for author and licence":"Wikimedia Commons · toca una foto para autor y licencia",
+  "Rooms and photos for this hotel are not available right now. Pick another hotel below.":"Las habitaciones y fotos de este hotel no están disponibles ahora. Elige otro hotel abajo.",
+  "Saved sample prices":"Precios de ejemplo guardados","Tap Edit at the top to change budget, dates and departure.":"Toca Editar arriba para cambiar presupuesto, fechas y salida.",
+  "Sea & food, max €600":"Mar y comida, máx. €600","Art city, 2 nights":"Ciudad de arte, 2 noches","Party with friends":"Fiesta con amigos","Spa for two":"Spa para dos",
+  "Tap the search bar to describe your weekend, or Edit to change dates and budget.":"Toca la barra de búsqueda para describir tu fin de semana, o Editar para cambiar fechas y presupuesto.",
+  "Search: describe your weekend":"Buscar: describe tu fin de semana","Language":"Idioma","Install":"Instalar","📲 Install":"📲 Instalar","Install the app":"Instala la app","Not now":"Ahora no","Got it":"Entendido",
+  "Get Fridayaway on your phone":"Ten Fridayaway en tu móvil","Get Fridayaway on your computer":"Ten Fridayaway en tu ordenador","Add it to your home screen: it opens full screen, like a real app.":"Añádela a tu pantalla de inicio: se abre a pantalla completa, como una app de verdad.",
+  "One tap from your home screen":"A un toque desde tu pantalla de inicio","Full screen":"Pantalla completa","Free, no app store":"Gratis, sin tienda de apps","Install Fridayaway":"Instalar Fridayaway","Add it to your home screen in two taps":"Añádela a tu pantalla de inicio en dos toques",
+  "Already installed? Open it from your home screen.":"¿Ya la tienes? Ábrela desde tu pantalla de inicio.","Tap Share":"Toca Compartir","Tap Share in the bottom bar":"Toca Compartir en la barra inferior","Tap Share at the top right":"Toca Compartir arriba a la derecha",
+  "Choose “Add to Home Screen”":"Elige “Añadir a pantalla de inicio”","Tap “Add” at the top right":"Toca “Añadir” arriba a la derecha","Tap the ⋮ menu":"Toca el menú ⋮","Tap the ⋮ menu at the top right":"Toca el menú ⋮ arriba a la derecha",
+  "Choose “Install app”":"Elige “Instalar app”","Choose “Install app” or “Add to Home screen”":"Elige “Instalar app” o “Añadir a pantalla de inicio”","Installing…":"Instalando…","Installed! Find Fridayaway on your home screen.":"¡Instalada! Encuentra Fridayaway en tu pantalla de inicio.",
+  "Product case":"Caso de producto","Yes":"Sí","No":"No","Sources":"Fuentes",
+  "Activities":"Actividades","Events":"Eventos","What to do":"Qué hacer","What to do in":"Qué hacer en","Things to do in":"Qué hacer en","activities":"actividades","in your plan":"en tu plan","Your plan":"Tu plan",
+  "+ Add":"+ Añadir","✓ Added":"✓ Añadida","+ Add activities and events to your weekend":"+ Añade actividades y eventos a tu fin de semana","Add activities and events":"Añadir actividades y eventos","Choose ›":"Elegir ›","Change ›":"Cambiar ›",
+  "Add them to your weekend: you book each one after the trip":"Añádelas a tu fin de semana: reservas cada una después del viaje","Nothing available right now.":"Nada disponible por ahora.","Nothing to show right now.":"Nada que mostrar por ahora.",
+  "Done":"Hecho","Top experiences":"Mejores experiencias","Trip + activities":"Viaje + actividades","Nothing added yet":"Aún no has añadido nada","Open the weekend to add them":"Abre el fin de semana para añadirlas","Add to plan":"Añadir al plan","Remove from plan":"Quitar del plan",
+  "Your profile":"Tu perfil","Sign in or sign up":"Inicia sesión o regístrate","Sign in":"Iniciar sesión","Sign up":"Registrarse","Sign out":"Cerrar sesión","Signed out.":"Has cerrado sesión.","Welcome back":"Hola de nuevo","Welcome back!":"¡Hola de nuevo!",
+  "Create your profile":"Crea tu perfil","Create profile":"Crear perfil","Profile created 🎉":"Perfil creado 🎉","Synced on all your devices":"Sincronizados en todos tus dispositivos","One email a week, for your budget":"Un email a la semana, para tu presupuesto",
+  "The 3 best weekends every Thursday":"Los 3 mejores fines de semana cada jueves","The 3 best weekends every Thursday, if you like":"Los 3 mejores fines de semana cada jueves, si quieres","Your saved weekends on every device":"Tus fines de semana guardados en todos tus dispositivos",
+  "Password (at least 6 characters)":"Contraseña (mínimo 6 caracteres)","The password needs at least 6 characters.":"La contraseña necesita al menos 6 caracteres.","Wrong password.":"Contraseña incorrecta.",
+  "There is already a profile with this email: sign in.":"Ya existe un perfil con este email: inicia sesión.","No profile with this email: sign up.":"No hay perfil con este email: regístrate.","Too many attempts, try again in 15 minutes.":"Demasiados intentos, inténtalo en 15 minutos.",
+  "We only use your email for your profile and, if you turn it on, the Thursday email.":"Solo usamos tu email para tu perfil y, si lo activas, para el email del jueves.","Stop the board ✋":"Para el panel ✋","Let's go! ✈":"¡Vamos! ✈","Flip it and find out 👀":"Gírala y descúbrelo 👀",
+  "price on site":"precio en el sitio","reviews":"reseñas","total":"total","people":"personas","planned":"en el plan","pp":"p. p."
+  };
+  const ES_PH={"From, dates & travellers":"Salida, fechas y viajeros","Dates and times":"Fechas y horarios","✈️ Max flight time":"✈️ Vuelo máx.","Max flight time":"Vuelo máx.","Mood":"Ánimo","Filters":"Filtros",
+  "What's on in":"Qué pasa en","During your trip · tap an event for tickets and details":"Durante tu viaje · toca un evento para entradas y detalles","What's on ›":"Eventos ›","What's on":"Eventos","events":"eventos","event":"evento","See all":"Ver todo",
+  "Other hotels in":"Otros hoteles en","tap to switch":"toca para cambiar","h there":"h allí","typical high":"máxima típica","1 stop":"1 escala","Fits your mood:":"Encaja con tu ánimo:","Closest to a deal:":"Casi un match:","like it":"lo quieren",
+  "Finding weekends in more cities":"Buscando fines de semana en más ciudades","Searching live prices from":"Buscando precios en vivo desde","Live prices for":"Precios en vivo para","Prices checked at":"Precios comprobados a las",
+  "final price confirmed by lastminute.com at checkout":"precio final confirmado por lastminute.com al pagar","lastminute.com answered with an error:":"lastminute.com respondió con un error:",
+  "just sold out for these dates. We refreshed the live hotels: pick one below.":"se acaba de agotar para estas fechas. Hemos actualizado los hoteles: elige uno abajo.","is no longer available for these dates.":"ya no está disponible para estas fechas.",
+  "choose a room":"elige una habitación","prices are flight + hotel total":"los precios son el total vuelo + hotel","flight + hotel total":"total vuelo + hotel","total with hotel":"total con hotel","Price checked live at":"Precio comprobado en vivo a las",
+  "Price updated just now:":"Precio actualizado ahora:","instead of":"en lugar de","Flight + hotel prices change during the day; this is today's price.":"Los precios de vuelo + hotel cambian durante el día; este es el precio de hoy.","The card showed":"La carta mostraba",
+  "Flight + hotel prices change during the day: this total is today's live price.":"Los precios de vuelo + hotel cambian durante el día: este total es el precio en vivo de hoy.","The difference comes from the flights you picked.":"La diferencia viene de los vuelos que elegiste.",
+  "Flight + hotel from":"Vuelo + hotel desde","Flight + hotel":"Vuelo + hotel","flight + hotel":"vuelo + hotel","Left in budget":"Queda en el presupuesto","/day to spend":"/día para gastar","per person":"por persona","from centre":"del centro","photos and rooms":"fotos y habitaciones",
+  "trip details":"· detalles","Top sights in":"Qué ver en","tap to enlarge":"toca para ampliar","Flip card":"Girar carta","Photo":"Foto","Pass the phone to":"Pasa el móvil a","Pass to":"Pasa a","swipes first. Then pass the phone.":"elige primero. Luego pasa el móvil.",
+  "is swiping":"está eligiendo","add friends, then start":"añade amigos y empieza","Start:":"Empieza:","swipes first":"elige primero","no budget limit":"sin límite de presupuesto","city":"ciudad","flights":"vuelos","sea":"mar","food":"comida","culture":"cultura","nightlife":"vida nocturna","relax & spa":"relax y spa",
+  "players":"jugadores","Player":"Jugador","Budget for":"Presupuesto para","Price for":"Precio para","Total for":"Total para","total for":"total para","Rooms":"Habitaciones","Breakfast":"Desayuno","Room only":"Solo alojamiento","Half board":"Media pensión","Full board":"Pensión completa",
+  "Free cancellation":"Cancelación gratuita","Non-refundable":"No reembolsable","Flights":"Vuelos","destinations":"destinos","destination":"destino","matches":"encajan","cities":"ciudades","adults":"adultos","adult":"adulto","nights":"noches","night":"noche","direct":"directo","matches!":"¡matches!","match!":"¡match!",
+  "Open":"Abrir","options":"opciones","from":"desde","From":"Desde","left":"restantes","under budget":"bajo presupuesto","over budget":"sobre presupuesto","Customize":"Personalizar","each":"cada uno","for":"para",
+  "Spain":"España","Portugal":"Portugal","Italy":"Italia","Greece":"Grecia","Czechia":"Chequia","Hungary":"Hungría","France":"Francia","Croatia":"Croacia","Netherlands":"Países Bajos","Denmark":"Dinamarca","Belgium":"Bélgica","Cyprus":"Chipre","Finland":"Finlandia","Germany":"Alemania",
+  "Iceland":"Islandia","Ireland":"Irlanda","Latvia":"Letonia","Lithuania":"Lituania","Morocco":"Marruecos","Norway":"Noruega","Poland":"Polonia","Sweden":"Suecia","United Kingdom":"Reino Unido","Switzerland":"Suiza","Turkey":"Turquía",
+  "Milan":"Milán","Turin":"Turín","Genoa":"Génova","Venice":"Venecia","Florence":"Florencia","Rome":"Roma","Naples":"Nápoles","Geneva":"Ginebra","Zurich":"Zúrich","Lisbon":"Lisboa","Seville":"Sevilla","Athens":"Atenas","Prague":"Praga","Paris":"París","Copenhagen":"Copenhague",
+  "London":"Londres","Edinburgh":"Edimburgo","Dublin":"Dublín","Brussels":"Bruselas","Berlin":"Berlín","Munich":"Múnich","Hamburg":"Hamburgo","Stockholm":"Estocolmo","Warsaw":"Varsovia","Krakow":"Cracovia","Gdansk":"Gdansk","Belgrade":"Belgrado","Bucharest":"Bucarest",
+  "Marseille":"Marsella","Lyon":"Lyon","Nice":"Niza","Crete":"Creta","Rhodes":"Rodas","Corfu":"Corfú","Thessaloniki":"Tesalónica","Zagreb":"Zagreb","Zadar":"Zadar","Canary Islands":"Canarias"};
+  const ES_NB=[["No flight for this hotel matches your times (","Ningún vuelo de este hotel encaja con tus horarios ("],["). Try another city or change the times.","). Prueba otra ciudad o cambia los horarios."],
+    [", flights and hotel. Final price is confirmed by lastminute.com at checkout.",", vuelos y hotel. lastminute.com confirma el precio final al pagar."],[", hold your thumb here to unlock your turn",", mantén el pulgar aquí para desbloquear tu turno"],[": your turn. Same deck, fresh start.",": te toca. Mismas cartas, desde cero."]];
+  const ES_RX=[
+    [/^Locking (.+?)'s choices…$/,"Bloqueando las elecciones de $1…"],[/^(.+?)'s picks$/,"Las elecciones de $1"],[/^Player (\d+) name$/,"Nombre jugador $1"],[/^Saved (.+)$/,"Guardado: $1"],[/^Return flights \+ hotel/,"Vuelos ida y vuelta + hotel"],
+    [/^(\d+) events during your weekend$/,"$1 eventos en tu fin de semana"],[/^1 event during your weekend$/,"1 evento en tu fin de semana"],[/^Doesn't match your times \((.+?)\): tap Change for other flights$/,"No encaja con tus horarios ($1): toca Cambiar para otros vuelos"],
+    [/^Open (?!lastminute|in browser|this page)(.+)$/,"Abrir $1"],[/Lands in (.+?), about (\d+) km from (.+)/,"Aterriza en $1, a unos $2 km de $3"],[/(\d+) of (\d+) like it/,"gusta a $1 de $2"],[/Free cancellation until (.+)/,"Cancelación gratuita hasta $1"],
+    [/^(€[\d,.]+) with flights$/,"$1 con vuelos"],[/price of the hotel for (\d+) nights/,"precio del hotel por $1 noches"],[/price of the room for (\d+) nights/,"precio de la habitación por $1 noches"],
+    [/^Under (€[\d,.]+)(?: for (\d))?, from (.+?)\. One email a week, free, unsubscribe any time\.$/,"Por debajo de $1, desde $3. Un email a la semana, gratis, te das de baja cuando quieras."],[/^From (.+?)\. One email a week, free, unsubscribe any time\.$/,"Desde $1. Un email a la semana, gratis, te das de baja cuando quieras."],
+    [/\b1 adults\b/,"1 adulto"],[/\b1 nights\b/,"1 noche"]];
+  const ES_RX2=[[/−€(\d+) on this trip/g,"−€$1 en este viaje"],[/until (\d\d\/\d\d)/g,"hasta el $1"],[/🎟️ Groups save more/g,"🎟️ En grupo se ahorra más"],[/−€(\d+) off from €([\d,]+)/g,(a,o,m)=>"−€"+o+" con gasto desde €"+m.replace(",",".")],
+    [/Add the code at lastminute\.com checkout\. The total of your trip must reach the minimum\./g,"Añade el código al pagar en lastminute.com. El total del viaje debe alcanzar el mínimo."],[/Things to do in (.+)/g,"Qué hacer en $1"],[/📉 (\d+)% below usual/g,"📉 $1% por debajo de lo habitual"],
+    [/Paste the code at lastminute\.com checkout/g,"Pega el código al pagar en lastminute.com"],[/valid until/g,"válido hasta el"],[/\bfor (\d)/g,"para $1"],[/\b(\d+) of (\d+)\b/g,"$1 de $2"],
+    [/\b(\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/g,(a,d,m)=>d+" "+({Jan:"ene",Feb:"feb",Mar:"mar",Apr:"abr",May:"may",Jun:"jun",Jul:"jul",Aug:"ago",Sep:"sep",Oct:"oct",Nov:"nov",Dec:"dic"})[m]],
+    [/\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b(?=,|\s*·|\s*$|\s+\d)/g,(a,w)=>({Mon:"lun",Tue:"mar",Wed:"mié",Thu:"jue",Fri:"vie",Sat:"sáb",Sun:"dom"})[w]]];
   const escR=s=>s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
-  const keys=Object.keys(PH).sort((a,b)=>b.length-a.length);
-  const phRe=new RegExp("(^|[^A-Za-z\\u00C0-\\u00FF])("+keys.map(escR).join("|")+")(?=$|[^A-Za-z\\u00C0-\\u00FF])","g");
+  const mkRe=o=>{const keys=Object.keys(o).sort((a,b)=>b.length-a.length); return new RegExp("(^|[^A-Za-z\\u00C0-\\u00FF])("+keys.map(escR).join("|")+")(?=$|[^A-Za-z\\u00C0-\\u00FF])","g");};
+  const D={it:{EX,PH,NB,RX,RX2,re:mkRe(PH)},es:{EX:ES_EX,PH:ES_PH,NB:ES_NB,RX:ES_RX,RX2:ES_RX2,re:mkRe(ES_PH)}};
   const cache=new Map();
-  function core(s){
-    let r=EX[s]; if(r!=null) return r;
-    r=s; for(const [a,b] of NB) r=r.split(a).join(b); for(const [re,rep] of RX) r=r.replace(re,rep);
-    r=r.replace(phRe,(a,p,w)=>p+PH[w]);
-    for(const [re,rep] of RX2) r=r.replace(re,rep);
+  function core(s,L){
+    let r=L.EX[s]; if(r!=null) return r;
+    r=s; for(const [a,b] of L.NB) r=r.split(a).join(b); for(const [re,rep] of L.RX) r=r.replace(re,rep);
+    r=r.replace(L.re,(a,p,w)=>p+L.PH[w]);
+    for(const [re,rep] of L.RX2) r=r.replace(re,rep);
     return r;
   }
   function tr(s){
-    if(!s||!/[A-Za-z]/.test(s)) return s;
-    const m=s.match(/^(\s*)([\s\S]*?)(\s*)$/); let r=cache.get(m[2]);
-    if(r==null){r=core(m[2]);cache.set(m[2],r)} return m[1]+r+m[3];
+    if(!s||!/[A-Za-z]/.test(s)||!D[lang]) return s;
+    const m=s.match(/^(\s*)([\s\S]*?)(\s*)$/), k=lang+"|"+m[2]; let r=cache.get(k);
+    if(r==null){r=core(m[2],D[lang]);cache.set(k,r)} return m[1]+r+m[3];
   }
   let lang=""; try{lang=localStorage.getItem("fa_lang")||""}catch(e){}
-  if(lang!=="it"&&lang!=="en") lang=/^it\b/i.test(navigator.language||"")?"it":"en";
+  if(!["it","en","es"].includes(lang)) lang=/^it\b/i.test(navigator.language||"")?"it":/^es\b/i.test(navigator.language||"")?"es":"en";
   const ATTR=["placeholder","aria-label","title"];
   const skip=el=>!el||el.closest("script,style,textarea,.notr,[translate=no]");
   const skipA=el=>!el||el.closest("script,style,.notr,[translate=no]");
@@ -1573,29 +1824,35 @@ const I18N=(()=>{
     document.querySelectorAll("[placeholder],[aria-label],[title]").forEach(el=>{ if(!el.__ea) return; ATTR.forEach(a=>{ if(el.__ea[a]!=null&&el.getAttribute(a)===el.__ia[a]) el.setAttribute(a,el.__ea[a]); }); el.__ia={}; });
   }
   const mo=new MutationObserver(list=>{
-    if(lang!=="it") return;
+    if(lang==="en") return;
     for(const m of list){
       if(m.type==="characterData") doText(m.target);
       else if(m.type==="attributes") {if(!skipA(m.target)) doAttr(m.target,m.attributeName);}
       else m.addedNodes.forEach(walk);
     }
   });
-  const Q_EN="Somewhere warm by the sea, great food, nice hotel near the centre, max €450", Q_IT="Un posto caldo sul mare, buon cibo, bel hotel in centro, max €450";
-  function swapQ(){ const q=document.getElementById("q"); if(!q) return; const from=lang==="it"?Q_EN:Q_IT, to=lang==="it"?Q_IT:Q_EN; if(q.value.trim()===from){q.value=to; try{if(S.lastQ===from)S.lastQ=to}catch(e){}} }
-  function sync(){ document.documentElement.lang=lang; document.querySelectorAll(".lang button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lang===lang))); }
+  const QS={en:"Somewhere warm by the sea, great food, nice hotel near the centre, max €450",it:"Un posto caldo sul mare, buon cibo, bel hotel in centro, max €450",es:"Un sitio cálido junto al mar, buena comida, buen hotel en el centro, máx. €450"};
+  function swapQ(){ const q=document.getElementById("q"); if(!q) return; const v=q.value.trim(); if(Object.values(QS).includes(v)&&v!==QS[lang]){q.value=QS[lang]; try{if(Object.values(QS).includes(S.lastQ))S.lastQ=QS[lang]}catch(e){}} }
+  function sync(){ document.documentElement.lang=lang; document.querySelectorAll(".lang button[data-lang]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lang===lang))); document.querySelectorAll(".lang .gl").forEach(g=>g.textContent=lang.toUpperCase()); }
   function set(l,user){
+    if(!["it","en","es"].includes(l)) return;
     if(l===lang&&!user) return; lang=l; try{localStorage.setItem("fa_lang",l)}catch(e){}
-    if(l==="it") walk(document.body); else restore();
+    restore(); if(l!=="en") walk(document.body);
     swapQ(); sync(); try{window.dispatchEvent(new Event("fa-lang"))}catch(e){} if(user) try{trk("lang",{l})}catch(e){}
   }
   function start(){
     mo.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:ATTR});
-    document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest(".lang button"); if(b){e.preventDefault(); if(b.dataset.lang!==lang) set(b.dataset.lang,true);}});
-    if(lang==="it"){walk(document.body);swapQ();} sync();
+    document.addEventListener("click",e=>{const t=e.target.closest&&e.target;
+      const g=t&&t.closest(".lang .globe"); const box=g&&g.closest(".lang");
+      document.querySelectorAll(".lang .langMenu").forEach(m=>{ if(!box||!box.contains(m)){m.hidden=true; const gb=m.parentElement.querySelector(".globe"); if(gb) gb.setAttribute("aria-expanded","false");} });
+      if(g){e.preventDefault(); const m=box.querySelector(".langMenu"); m.hidden=!m.hidden; g.setAttribute("aria-expanded",String(!m.hidden)); return;}
+      const b=t&&t.closest(".lang button[data-lang]"); if(b){e.preventDefault(); b.closest(".langMenu").hidden=true; if(b.dataset.lang!==lang) set(b.dataset.lang,true);}});
+    document.addEventListener("keydown",e=>{if(e.key==="Escape") document.querySelectorAll(".lang .langMenu").forEach(m=>m.hidden=true)});
+    if(lang!=="en"){walk(document.body);swapQ();} sync();
   }
   return {tr,set,start,get lang(){return lang}};
 })();
-const TX=s=>I18N.lang==="it"?I18N.tr(s):s;
+const TX=s=>I18N.lang!=="en"?I18N.tr(s):s;
 
 /* ===== Real indicative package prices: lastminute.com MCP, MIL → X, 23–25 Oct 2026, 2 adults (fetched 17 Oct 2026) =====
    hotel tuple: [name, stars, rating(0-100), reviews, km from centre, facilities, total EUR for 2, free cancellation] */
@@ -2408,7 +2665,7 @@ function goHotel(){
 /* ===== detail sheet ===== */
 function legHTML(day,l){return `<div class="leg"><span>${day}</span><b>${l[0]} ${l[2]} → ${l[1]} ${l[3]}</b><span class="fn">${l[4]}</span></div>`}
 /* ===== guided booking: 1 hotel → 2 room → 3 flights → 4 review & book (one screen at a time) ===== */
-const WZ_STEPS=["Hotel","Book"];
+const WZ_STEPS=["Flight","Hotel","Book"];
 let WZ=null;
 const uiLang=()=>document.documentElement.lang==="it"?"it":"en";
 const wzCanc=c=>{const m=/^(.*?)(?:until|fino al?|entro il)\s*(\d{4}-\d{2}-\d{2})\s*$/i.exec(String(c||"").trim()); return m?`${/gratu|free/i.test(m[1])?"Free cancellation":m[1].trim()} until ${dfmt(m[2])}`:String(c||"");};
@@ -2432,17 +2689,17 @@ function openSheet(code){
     <div class="wzFoot" id="wzFoot"></div></div>`;
   const close=()=>{bookCtl.n++;WZ=null;$("layer").innerHTML=""};
   $("scrim").onclick=close; $("sheetClose").onclick=close;
-  $("wzBack").onclick=()=>{ if(!WZ) return close(); const s=WZ.step; if(s===1||s===2) wzGo(3); else if(s===3) wzGo(0); else close(); };
-  wzGo(0);
+  $("wzBack").onclick=()=>{ if(!WZ) return close(); const s=WZ.step; if(s===1||s===2) wzGo(3); else if(s===3) wzGo(0); else if(s===0) wzGo(4); else close(); };
+  wzGo(4);
 }
 function wzGo(n){
   if(!WZ) return; WZ.step=n;
-  const vn=n===0?0:1;
+  const vn=n===4?0:n===0?1:2;
   $("wzSteps").innerHTML=WZ_STEPS.map((s,i)=>`<span class="${i<vn?"done":i===vn?"on":""}"><i>${i<vn?"✓":i+1}</i><em>${s}</em></span>`).join("");
-  $("wzBack").style.visibility=n>0?"visible":"hidden";
+  $("wzBack").style.visibility=n!==4?"visible":"hidden";
   const sh=document.querySelector(".sheet.wz"); if(sh) sh.scrollTop=0;
-  if(n>0) try{trk("book_step",{c:WZ.d.city,s:n+1})}catch(e){}
-  [wzHotel,wzRoom,wzFlights,wzReview][n]();
+  if(n>0&&n!==4) try{trk("book_step",{c:WZ.d.city,s:n+1})}catch(e){}
+  [wzHotel,wzRoom,wzFlights,wzReview,wzFlight0][n]();
 }
 const wzLive=w=>w&&WZ===w&&w.run===bookCtl.n;
 function wzBusy(t){$("wzBody").insertAdjacentHTML("beforeend",`<div class="step wzWait"><span class="spin"></span>${t}</div>`)}
@@ -2636,9 +2893,9 @@ async function wzReview(){
     const pr=L.price||(alt?alt.price.total:0);
     const was=w.card!=null?w.card:null, chg=was!=null&&pr>0&&Math.abs(pr-was)>=1;
     if(pr>0&&!w.logged){w.logged=1; try{trk("price_diff",{c:d.city,card:Math.round(was||0),final:Math.round(pr),fl:w.flSel==="pkg"?0:1})}catch(e){}}
-    $("wzTotal").innerHTML=`<div class="totalbox"><span>Total price · all included</span><b>${eur(pr,true)}</b><small>Return flights + hotel · ${wzPeople()}${L.sum&&L.sum.cancellation_policy?` · ${esc_(L.sum.cancellation_policy)}`:""}</small></div>${chg?`<div class="pchg">The card showed ${eur(was)}. ${w.flSel==="pkg"?"Flight + hotel prices change during the day: this total is today's live price.":"The difference comes from the flights you picked."}</div>`:""}${S.budgetOn?marginHTML(pr):""}${splitHTML(d.code,pr,true)}`;
+    $("wzTotal").innerHTML=`${planHTML(d,pr)}<div class="totalbox"><span>Total price · all included</span><b>${eur(pr,true)}</b><small>Return flights + hotel · ${wzPeople()}${L.sum&&L.sum.cancellation_policy?` · ${esc_(L.sum.cancellation_policy)}`:""}</small></div>${chg?`<div class="pchg">The card showed ${eur(was)}. ${w.flSel==="pkg"?"Flight + hotel prices change during the day: this total is today's live price.":"The difference comes from the flights you picked."}</div>`:""}${S.budgetOn?marginHTML(pr):""}${splitHTML(d.code,pr,true)}`;
     $("wzFoot").innerHTML=`<a class="checkout wzGo" href="${esc_(awin(L.url,"fa_"+w.code))}" target="_blank" rel="noopener sponsored">Book on lastminute.com ↗</a>`;
-    $("wzBody").insertAdjacentHTML("beforeend",`${planHTML(d,pr)}${promoHTML(pr)}${vxSlot(d)}${tqHTML(d)}${esimHTML(d)}${carHTML(d)}`);
+    $("wzBody").insertAdjacentHTML("beforeend",`${promoHTML(pr)}${vxSlot(d)}${tqHTML(d)}${esimHTML(d)}${carHTML(d)}`);
     loadSplit(d.code);
   };
   if(w.cur&&w.cur.sel===w.flSel){done(w.cur.L);return}
@@ -2819,7 +3076,7 @@ async function loadEvents(d){
   const k=evKey(d); if(EVT[k]!==undefined) return;
   if(!mcp||!mcp.events){EVT[k]=[];return}
   EVT[k]="busy";
-  try{const g=(typeof GEO!=="undefined"&&GEO[d.code])||null; const r=await mcp.events({lat:g?g[0]:"",lon:g?g[1]:"",city:d.city,from:S.trip.from,to:S.trip.to}); EVT[k]=((r&&r.events)||[]).filter(e=>e&&e.name);}
+  try{const g=(typeof GEO!=="undefined"&&GEO[d.code])||null; const r=await mcp.events({lat:g?g[0]:"",lon:g?g[1]:"",city:d.city,from:S.trip.from,to:S.trip.to}); EVT[k]=tasteSort(((r&&r.events)||[]).filter(e=>e&&e.name),evTxt);}
   catch(e){EVT[k]=[]}
   document.querySelectorAll(`[data-ev="${d.code}"]`).forEach(el=>{el.innerHTML=evPillInner(d)});
   try{xpRefresh(d.code)}catch(e){}
@@ -3139,7 +3396,7 @@ document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest
 /* top Viator experiences (api/snapshot?kind=exp). Shown only with a production key; add ?vx=1 to the URL to preview sandbox data */
 const VX={}, VXP={}, VX_ALL=/[?&]vx=1/.test(location.search);
 const vxL=()=>uiLang()==="it"?"it":"en", vxNow=d=>VX[d.code+vxL()], vxOk=j=>!!(j&&j.items&&j.items.length&&(j.env==="prod"||VX_ALL));
-function vxGet(d){const l=vxL(),k=d.code+l; if(!VXP[k]) VXP[k]=fetch(`/api/snapshot?kind=exp&c=${d.code}&n=${encodeURIComponent(d.city)}&l=${l}`).then(r=>r.json()).catch(()=>({items:[]})).then(j=>VX[k]=j||{items:[]}); return VXP[k]}
+function vxGet(d){const l=vxL(),k=d.code+l; if(!VXP[k]) VXP[k]=fetch(`/api/snapshot?kind=exp&c=${d.code}&n=${encodeURIComponent(d.city)}&l=${l}`).then(r=>r.json()).catch(()=>({items:[]})).then(j=>{j=j||{items:[]}; if(Array.isArray(j.items)) j.items=tasteSort(j.items,vxTxt); return VX[k]=j}); return VXP[k]}
 function vxSlot(d){setTimeout(()=>loadVX(d),0); return `<div class="vxBox" id="vxBox" hidden></div>`}
 async function loadVX(d){const j=await vxGet(d);
   const el=document.getElementById("vxBox"); if(!el||!vxOk(j)||planOf(d.code).length) return;
@@ -3633,7 +3890,7 @@ $("q").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.prevent
 function showTab(t){
   document.querySelectorAll(".screen").forEach(s=>s.hidden=s.dataset.s!==t);
   document.querySelectorAll(".tabbar button").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===t||(t==="case"&&b.dataset.tab==="drop")?"page":"false"));
-  if(t==="saved") renderSaved(); if(t==="together") renderTogether(); if(t==="drop") renderDrop();
+  if(t==="saved") renderSaved(); if(t==="together") renderTogether(); if(t==="drop") renderDrop(); if(t==="profile") renderProfile();
   window.scrollTo(0,0);
 }
 document.querySelectorAll(".tabbar button").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
@@ -3802,7 +4059,7 @@ function acRender(mode){
   }
   o.querySelector(".instX").onclick=()=>{o.hidden=true};
 }
-document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest(".userBtn"); if(b){e.preventDefault();acOpen()}});
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest(".userBtn"); if(b){e.preventDefault();openProfile()}});
 window.addEventListener("fa-lang",()=>{acBtn();const o=$("acOv");if(o&&!o.hidden)acRender(o.querySelector('.acTabs [aria-pressed="true"]')?.dataset.m||"login")});
 acBtn();
 if(AC.tok) acApi({action:"me",token:AC.tok}).then(r=>{if(r.ok)acSignedIn(r.j);else if(r.status===401){AC.tok="";AC.user=null;acStore();acBtn()}}).catch(()=>{});
@@ -3879,7 +4136,160 @@ function instMaybe(why){
   setTimeout(()=>{ if(canInstallHere()&&document.getElementById("setup").hidden) instOpen(why); },900);
 }
 
+/* ===== 27 Nov review: profile page, interests that sort the deck, weekly streak, flight-first booking, group offers ===== */
+const L3=(en,it,es)=>{const l=document.documentElement.lang; return l==="it"?it:l==="es"?(es||en):en};
+const lsGet=(k,d)=>{try{const v=localStorage.getItem(k); return v==null?d:JSON.parse(v)}catch(e){return d}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+
+/* interests: chosen once in the profile, matched with destination and event keywords */
+const INTR=[
+  {k:"sea",en:"Sea",it:"Mare",es:"Mar"},{k:"warm",en:"Warm weather",it:"Caldo",es:"Calor"},{k:"cold",en:"Cold weather",it:"Freddo",es:"Frío"},
+  {k:"food",en:"Food",it:"Cibo",es:"Comida"},{k:"culture",en:"Culture",it:"Cultura",es:"Cultura"},{k:"city",en:"City",it:"Città",es:"Ciudad"},
+  {k:"nightlife",en:"Nightlife",it:"Vita notturna",es:"Vida nocturna"},{k:"music",en:"Music & concerts",it:"Musica e concerti",es:"Música y conciertos"},
+  {k:"sport",en:"Sport",it:"Sport",es:"Deporte"},{k:"nature",en:"Nature & views",it:"Natura e panorami",es:"Naturaleza y vistas"},
+  {k:"relax",en:"Relax",it:"Relax",es:"Relax"},{k:"short",en:"Short flight",it:"Volo breve",es:"Vuelo corto"}];
+const intLbl=k=>{const x=INTR.find(i=>i.k===k); return x?L3(x.en,x.it,x.es):k};
+const NATURE=new Set("TFS LPA ACE FUE FNC MAH SPU DBV ZAD REK OSL HEL CAG OLB AHO SUF JTR CFU RHO HER FAO BDS MLA IBZ PMI GRX EDI NCE MRS CTA NAP LIS".split(" "));
+const MUSIC=new Set("VIE BER LON DUB AMS PAR LIS BCN MAD IBZ PRG BUD HAM KRK BEG NAP MLA JMK".split(" "));
+let PROF=lsGet("fa_prof",{tags:[],av:""}); if(!Array.isArray(PROF.tags)) PROF.tags=[];
+function destKeys(d){
+  const k=new Set(d.tags||[]);
+  if(d.temp>=20) k.add("warm"); if(d.temp<=12) k.add("cold");
+  try{const m=flyMin(d.code); if(m!=null&&m<=135) k.add("short")}catch(e){}
+  if(NATURE.has(d.code)) k.add("nature"); if(MUSIC.has(d.code)) k.add("music");
+  return k;
+}
+const profMatch=d=>{if(!PROF.tags.length) return []; const k=destKeys(d); return PROF.tags.filter(t=>k.has(t));};
+/* the deck: each matching interest adds to the destination's score (moods picked now still weigh more) */
+const _scoreDest=scoreDest;
+scoreDest=function(d){const o=_scoreDest(d); const pm=profMatch(d); o.pm=pm; o.s+=pm.length*2.5; return o;};
+/* events and activities: the ones that match your interests come first */
+const KW={music:/music|concert|concerto|concierto|live|festival|jazz|rock|opera|dj|orchestra|band|tour\b/i,sport:/sport|football|soccer|calcio|fútbol|match|marathon|maratona|tennis|basket|rugby|race|gara|stadium|stadio|bike|kayak|surf/i,
+  culture:/museum|museo|gallery|galleria|art|arte|history|storia|theatre|theater|teatro|opera|palace|palazzo|cathedral|basilica|monument/i,food:/food|cibo|comida|wine|vino|tasting|degust|cooking|cucina|tapas|street food|market|mercato|dinner|cena/i,
+  nightlife:/night|notte|noche|club|party|pub|bar\b|cocktail|crawl/i,sea:/boat|barca|beach|spiaggia|playa|snorkel|sail|vela|cruise|island|isola|dolphin/i,nature:/hike|trek|nature|natura|park|parco|volcano|vulcano|mountain|montagna|cave|grotta|waterfall|garden/i,
+  relax:/spa|thermal|terme|bath|hammam|wellness|massage|massaggio/i,city:/walking tour|city tour|tour a piedi|bike tour|segway|tuk/i};
+function tasteScore(txt){let s=0; for(const t of PROF.tags){const re=KW[t]; if(re&&re.test(txt)) s++} return s;}
+function tasteSort(arr,txt){ if(!Array.isArray(arr)||!PROF.tags.length) return arr; return arr.map((x,i)=>({x,i,s:tasteScore(txt(x))})).sort((a,b)=>b.s-a.s||a.i-b.i).map(o=>o.x); }
+const evTxt=e=>[e.name,e.seg,e.genre,e.sub].filter(Boolean).join(" "), vxTxt=x=>[x.t,x.c,x.cat].filter(Boolean).join(" ");
+function resortTaste(){ try{for(const k in EVT) if(Array.isArray(EVT[k])) EVT[k]=tasteSort(EVT[k],evTxt)}catch(e){} try{for(const k in VX) if(VX[k]&&Array.isArray(VX[k].items)) VX[k].items=tasteSort(VX[k].items,vxTxt)}catch(e){} }
+/* card: say why it is shown */
+const _cardHTML=cardHTML;
+cardHTML=function(o,pos){ let h=_cardHTML(o,pos);
+  if(pos<2&&o.pm&&o.pm.length){ h=h.replace('<div class="body">',`<div class="body"><div class="forYou notr" translate="no"><i></i>${L3("For your tastes","Per i tuoi gusti","Para tus gustos")}: <b>${o.pm.slice(0,3).map(intLbl).join(" · ")}</b></div>`); }
+  return h; };
+
+/* weekly streak: weeks in a row with at least one visit (Monday to Sunday, this device) */
+const weekNo=()=>{const d=new Date(); const day=Math.floor((d.getTime()-d.getTimezoneOffset()*6e4)/864e5); return Math.floor((day+3)/7);};
+let WK=lsGet("fa_wk",null);
+(function(){const w=weekNo(); if(!WK||typeof WK.w!=="number"){WK={w,s:1,b:1,n:1,h:[w]}} else if(WK.w!==w){WK.s=WK.w===w-1?WK.s+1:1; WK.w=w; WK.n=(WK.n||0)+1; WK.b=Math.max(WK.b||1,WK.s); WK.h=(WK.h||[]).concat(w).slice(-12)} lsSet("fa_wk",WK);})();
+function badges(){const sv=(S.saved||[]).length+((typeof AC!=="undefined"&&AC.pend)?AC.pend.length:0);
+  return [
+    {ic:"🛫",on:WK.n>=1,t:L3("First week","Prima settimana","Primera semana"),d:L3("You opened Fridayaway","Hai aperto Fridayaway","Abriste Fridayaway")},
+    {ic:"❤️",on:sv>=3,t:L3("3 weekends saved","3 weekend salvati","3 escapadas guardadas"),d:sv>=3?L3("Done","Fatto","Hecho"):`${Math.min(sv,3)} / 3`},
+    {ic:"🔥",on:WK.b>=2,t:L3("2 weeks in a row","2 settimane di fila","2 semanas seguidas"),d:WK.b>=2?L3("Done","Fatto","Hecho"):`${Math.min(WK.s,2)} / 2`},
+    {ic:"⚡",on:WK.b>=5,t:L3("5 weeks in a row","5 settimane di fila","5 semanas seguidas"),d:WK.b>=5?L3("Done","Fatto","Hecho"):`${Math.min(WK.s,5)} / 5`},
+    {ic:"📅",on:WK.n>=8,t:L3("2 months with us","2 mesi con noi","2 meses con nosotros"),d:WK.n>=8?L3("Done","Fatto","Hecho"):`${WK.n} / 8 ${L3("weeks","settimane","semanas")}`},
+    {ic:"🏆",on:WK.b>=10,t:L3("10 weeks in a row","10 settimane di fila","10 semanas seguidas"),d:WK.b>=10?L3("Done","Fatto","Hecho"):`${Math.min(WK.s,10)} / 10`}];}
+function level(n){return n>=5?L3("Friday Getaway Expert","Esperto di fughe del venerdì","Experto en escapadas del viernes"):n>=3?L3("Friday Regular","Habitué del venerdì","Habitual del viernes"):n>=2?L3("Weekend Explorer","Esploratore del weekend","Explorador de fin de semana"):L3("Sometimes Flyer","Viaggiatore occasionale","Viajero ocasional");}
+
+/* profile page */
+const AVS=["🦊","🐼","🐙","🦁","🐧","🐢","🦄","🐸"];
+function avHTML(){const img=lsGet("fa_avimg",""); if(img) return `<img src="${img}" alt="">`;
+  if(PROF.av) return PROF.av; if(typeof AC!=="undefined"&&AC.user&&AC.user.email) return esc_(AC.user.email[0].toUpperCase()); return "🙂";}
+function openProfile(){ const st=$("setup"); if(st&&!st.hidden){const x=$("setupX"); if(x) x.click();} showTab("profile"); try{trk("profile_open",{tags:PROF.tags.length,s:WK.s})}catch(e){} }
+function renderProfile(){
+  const el=$("profPage"); if(!el) return;
+  const signed=typeof AC!=="undefined"&&AC.tok&&AC.user, B=badges(), got=B.filter(b=>b.on).length;
+  const name=signed?esc_(AC.user.email.split("@")[0]):L3("Guest","Ospite","Invitado");
+  const sv=(S.saved||[]).length+((typeof AC!=="undefined"&&AC.pend)?AC.pend.length:0), al=(typeof alertDone==="function"&&alertDone())||(signed&&AC.user.alerts);
+  const wkRow=Array.from({length:8},(_,i)=>{const w=WK.w-7+i; return `<i class="${(WK.h||[]).includes(w)?"on":""}" title="${L3("week","settimana","semana")}"></i>`}).join("");
+  el.innerHTML=`
+    <div class="pfHead"><button class="pfAv" id="pfAv" aria-label="${L3("Change photo or avatar","Cambia foto o avatar","Cambiar foto o avatar")}">${avHTML()}<span class="pfEd" aria-hidden="true">✎</span></button>
+      <div><h2>${name}</h2><span class="pfLvl">${level(got)}</span></div></div>
+    <div class="pfPick" id="pfPick" hidden>${AVS.map(a=>`<button class="em" data-av="${a}" aria-pressed="${PROF.av===a&&!lsGet("fa_avimg","")}">${a}</button>`).join("")}
+      <label>${L3("Upload photo","Carica foto","Subir foto")}<input type="file" accept="image/*" id="pfFile" hidden></label>${lsGet("fa_avimg","")?`<button class="pfRm" id="pfRm">${L3("Remove photo","Togli foto","Quitar foto")}</button>`:""}</div>
+    <section class="pfCard pfStreak">
+      <div class="n">${WK.s}<small>${WK.s===1?L3("week in a row","settimana di fila","semana seguida"):L3("weeks in a row","settimane di fila","semanas seguidas")}</small></div>
+      <div class="wk" aria-label="${L3("Last 8 weeks","Ultime 8 settimane","Últimas 8 semanas")}">${wkRow}</div>
+      <p>${L3("Open Fridayaway once a week to keep your streak and level up.","Apri Fridayaway una volta a settimana per tenere la serie e salire di livello.","Abre Fridayaway una vez a la semana para mantener la racha y subir de nivel.")} ${L3("Best","Record","Récord")}: ${WK.b} · ${L3("Total","Totale","Total")}: ${WK.n}</p>
+    </section>
+    <section class="pfCard"><h3>${L3("Badges","Badge","Insignias")} · ${got}/${B.length}</h3><div class="pfBadges">${B.map(b=>`<div class="pfBadge${b.on?"":" off"}"><span class="ic">${b.ic}</span><b>${b.t}</b><small>${b.d}</small></div>`).join("")}</div></section>
+    <section class="pfCard"><h3>${L3("Your interests","I tuoi interessi","Tus intereses")}</h3>
+      <p>${L3("Pick what you like: destinations and things to do that match come first, and each card tells you why.","Scegli cosa ti piace: mete e cose da fare in linea con i tuoi gusti vengono prima, e ogni carta ti dice perché.","Elige lo que te gusta: los destinos y planes que encajan salen primero, y cada carta te dice por qué.")}</p>
+      <div class="pfTags">${INTR.map(i=>`<button class="ichip" data-int="${i.k}" aria-pressed="${PROF.tags.includes(i.k)}">${L3(i.en,i.it,i.es)}</button>`).join("")}</div></section>
+    <section class="pfCard">
+      <button class="pfRow" data-go="saved"><span><b>${L3("Saved weekends","Weekend salvati","Fines de semana guardados")}</b><small>${sv} ${sv===1?L3("weekend","weekend","escapada"):L3("weekends","weekend","escapadas")}</small></span><i>${L3("Open ›","Apri ›","Abrir ›")}</i></button>
+      <button class="pfRow" data-acc="1"><span><b>${L3("The 3 best weekends every Thursday","I 3 migliori weekend ogni giovedì","Los 3 mejores fines de semana cada jueves")}</b><small>${al?L3("On","Attivo","Activado"):signed?L3("Off","Spento","Desactivado"):L3("Sign in to turn it on","Accedi per attivarlo","Inicia sesión para activarlo")}</small></span><i>${signed?L3("Manage ›","Gestisci ›","Gestionar ›"):L3("Sign in ›","Accedi ›","Entrar ›")}</i></button>
+      <button class="pfRow" data-acc="1"><span><b>${L3("Account","Account","Cuenta")}</b><small>${signed?esc_(AC.user.email):L3("Keep saved weekends on every device","Tieni i weekend salvati su tutti i dispositivi","Guarda tus escapadas en todos tus dispositivos")}</small></span><i>${signed?L3("Manage ›","Gestisci ›","Gestionar ›"):L3("Sign in ›","Accedi ›","Entrar ›")}</i></button>
+    </section>
+    <p class="pfNote">${L3("Interests, streak and avatar are saved on this device.","Interessi, serie e avatar restano su questo dispositivo.","Intereses, racha y avatar se guardan en este dispositivo.")}</p>`;
+  $("pfAv").onclick=()=>{const p=$("pfPick"); p.hidden=!p.hidden};
+  el.querySelectorAll("[data-av]").forEach(b=>b.onclick=()=>{PROF.av=b.dataset.av; lsSet("fa_prof",PROF); try{localStorage.removeItem("fa_avimg")}catch(e){} renderProfile(); syncUserBtns();});
+  const rm=$("pfRm"); if(rm) rm.onclick=()=>{try{localStorage.removeItem("fa_avimg")}catch(e){} renderProfile(); syncUserBtns();};
+  $("pfFile").onchange=e=>{const f=e.target.files&&e.target.files[0]; if(!f) return; const rd=new FileReader();
+    rd.onload=()=>{const im=new Image(); im.onload=()=>{const c=document.createElement("canvas"), z=192; c.width=c.height=z; const g=c.getContext("2d"), m=Math.min(im.width,im.height);
+      g.drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,z,z); try{localStorage.setItem("fa_avimg",JSON.stringify(c.toDataURL("image/jpeg",.82)))}catch(x){toast(L3("Photo too large for this device.","Foto troppo grande per questo dispositivo.","Foto demasiado grande para este dispositivo."))} renderProfile(); syncUserBtns(); try{trk("profile_photo",{})}catch(x){}};
+      im.src=rd.result}; rd.readAsDataURL(f)};
+  el.querySelectorAll("[data-int]").forEach(b=>b.onclick=()=>{const k=b.dataset.int, i=PROF.tags.indexOf(k); if(i>=0) PROF.tags.splice(i,1); else PROF.tags.push(k);
+    lsSet("fa_prof",PROF); b.setAttribute("aria-pressed",String(i<0)); resortTaste(); try{renderDeck()}catch(e){} syncTasteRow(); try{trk("profile_tag",{k,on:i<0,n:PROF.tags.length})}catch(e){}});
+  el.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>showTab(b.dataset.go));
+  el.querySelectorAll("[data-acc]").forEach(b=>b.onclick=()=>acOpen());
+}
+/* header button shows the avatar once one is chosen */
+function syncUserBtns(){const img=lsGet("fa_avimg",""); document.querySelectorAll(".userBtn").forEach(b=>{let x=b.querySelector(".uAv"); if(!img&&!PROF.av){if(x) x.remove(); b.classList.remove("hasAv"); return}
+  if(!x){x=document.createElement("span");x.className="uAv";b.appendChild(x)} x.innerHTML=img?`<img src="${img}" alt="">`:PROF.av; b.classList.add("hasAv");});}
+/* planner: one line that links the tastes to the profile, no second set of questions */
+function syncTasteRow(){
+  const st=document.querySelector(".setupIn"); if(!st) return; let r=$("setupTaste");
+  if(!r){r=document.createElement("div");r.id="setupTaste";r.className="setupTaste notr";r.setAttribute("translate","no"); const p=st.querySelector("p.muted"); (p||st.querySelector("h2")).insertAdjacentElement("afterend",r);
+    r.addEventListener("click",e=>{if(e.target.closest("button")) openProfile();});}
+  r.innerHTML=PROF.tags.length?`<span>${L3("Sorted by your tastes","Ordinato per i tuoi gusti","Ordenado según tus gustos")}: <b>${PROF.tags.slice(0,4).map(intLbl).join(", ")}${PROF.tags.length>4?"…":""}</b></span><button type="button">${L3("Edit","Modifica","Editar")}</button>`
+    :`<span>${L3("Tell us what you like and we sort the weekends for you","Dicci cosa ti piace e ordiniamo i weekend per te","Dinos qué te gusta y ordenamos las escapadas por ti")}</span><button type="button">${L3("Set tastes","Imposta gusti","Elegir gustos")}</button>`;
+}
+/* install banner in the planner: smaller and can be closed */
+(function(){const b=document.querySelector(".setupIn .setupInst"); if(!b) return; const w=document.createElement("div"); w.className="siWrap"; b.parentNode.insertBefore(w,b); w.appendChild(b);
+  const x=document.createElement("button"); x.type="button"; x.className="siX"; x.setAttribute("aria-label","Close"); x.textContent="✕"; w.appendChild(x);
+  const hide=()=>{w.style.display="none"}; if(lsGet("fa_instx",0)) hide(); x.onclick=e=>{e.stopPropagation(); lsSet("fa_instx",1); hide(); try{trk("install_close",{how:"setup_x"})}catch(x){}};})();
+
+/* booking: Flight → Hotel → Book. The first step shows the flights of the package before the hotel. */
+function wzFlight0(){
+  const w=WZ, d=w.d, h=hotelFor(d), code=w.code;
+  const F=FL[code], legs=fcLegs(code)?fcBlock(code):(F&&!S.trip.live&&!timeIssue(code))?`<div class="legs"><div class="leg"><span>${dayFrom()}</span><b>${F.o[0]} ${F.o[2]} → ${F.o[1]} ${F.o[3]}</b><span class="fn">${F.o[4]}</span></div><div class="leg"><span>${dayTo()}</span><b>${F.i[0]} ${F.i[2]} → ${F.i[1]} ${F.i[3]}</b><span class="fn">${F.i[4]}</span></div></div>`:"";
+  $("wzBody").innerHTML=`<div class="wzFlArt">${art(d)}<div class="city"><h2>${esc_(d.city)}</h2><span>${esc_(d.country)}</span></div></div>
+    <p class="muted wzMeta">${dfmt(S.trip.from)} → ${dfmt(S.trip.to)} · ${wzPeople()}</p>
+    <span class="eyebrow">Your flights</span>
+    ${legs||`<div class="leg exactNote" style="grid-template-columns:1fr"><span>Exact flights are shown when you book.</span></div>`}
+    ${F&&F.note?`<div class="warnline">${F.note}</div>`:""}
+    <p class="wzNote notr" translate="no">${L3("Times are confirmed with today's price at the last step, where you can also pick other flights.","Gli orari si confermano con il prezzo di oggi all'ultimo passo, dove puoi anche scegliere altri voli.","Los horarios se confirman con el precio de hoy en el último paso, donde también puedes elegir otros vuelos.")}</p>
+    <div class="wzFrom"><span>Flight + hotel from</span><b>${eur(h.price)}</b></div>`;
+  $("wzFoot").innerHTML=`<button class="btn ghost wzSave" id="sheetSave">Save</button><button class="btn" id="wzNext">Choose hotel ›</button>`;
+  $("sheetSave").onclick=()=>{const j=hotelFor(d).j;const ex=S.saved.find(s=>s.code===code);if(ex)ex.j=j;else S.saved.push({code,j});S.seen.add(code);updateCount();bookCtl.n++;WZ=null;$("layer").innerHTML="";renderDeck();toast(`Saved ${d.city}`)};
+  $("wzNext").onclick=()=>{try{trk("book_step",{c:d.city,s:"flight_ok"})}catch(e){} wzGo(0);};
+}
+
+/* together: the offer leads with the benefit, conditions right under it; badge on the tab and a hint on Discover */
+function bestGroupPromo(){const l=PROMOS.filter(p=>p.code&&p.off&&p.min); return l.sort((a,b)=>b.off-a.off)[0]||null;}
+renderTgPromo=function(){
+  const sec=document.querySelector('main[data-s="together"] .sec'); let el=$("tgOffer"); const h=tgPromoHTML(), p=bestGroupPromo();
+  syncGroupHints(p);
+  if(!h||!p||!sec){ if(el) el.remove(); return }
+  if(!el||!el.classList.contains("tgOfferTop")){ if(el) el.remove(); el=document.createElement("div"); el.id="tgOffer"; el.className="tgOfferTop";
+    const lob=sec.querySelector(".lobby"); (lob||sec.firstChild).insertAdjacentElement("beforebegin",el);
+    el.addEventListener("click",e=>{ if(e.target.closest("[data-copy]")) return; const b=e.target.closest("#tgOfferBtn"), pop=el.querySelector(".tgPop"); if(b&&pop){pop.hidden=!pop.hidden; b.querySelector(".cta").textContent=pop.hidden?L3("See the codes ›","Vedi i codici ›","Ver los códigos ›"):L3("Hide codes","Nascondi codici","Ocultar códigos"); if(!pop.hidden){try{trk("promo_open",{src:"together_top"})}catch(x){}}} }); }
+  const until=p.end?` · ${L3("until","fino al","hasta el")} ${esc_(p.end.slice(8,10)+"/"+p.end.slice(5,7))}`:"";
+  const key=h+"|"+document.documentElement.lang; if(el.dataset.h===key) return; const open=el.querySelector(".tgPop")&&!el.querySelector(".tgPop").hidden; el.dataset.h=key;
+  el.innerHTML=`<button type="button" id="tgOfferBtn" class="tgDeal notr" translate="no"><span class="big">${L3(`Book for 2+, save €${p.off}`,`Prenota in 2 o più, risparmi €${p.off}`,`Reserva para 2 o más, ahorra €${p.off}`)}</span><span class="sm">${L3(`On bookings from €${p.min.toLocaleString("en")} · code to add at lastminute.com checkout${until}`,`Su prenotazioni da €${p.min.toLocaleString("it")} · codice da inserire al checkout di lastminute.com${until}`,`En reservas desde €${p.min.toLocaleString("es")} · código para añadir al pagar en lastminute.com${until}`)}</span><span class="cta">${open?L3("Hide codes","Nascondi codici","Ocultar códigos"):L3("See the codes ›","Vedi i codici ›","Ver los códigos ›")}</span></button><div class="tgPop"${open?"":" hidden"}>${h}</div>`;
+};
+function syncGroupHints(p){
+  const tb=document.querySelector('.tabbar button[data-tab="together"]'); if(tb){let bd=tb.querySelector(".tgBadge"); if(p){if(!bd){bd=document.createElement("span");bd.className="tgBadge notr";bd.setAttribute("translate","no");tb.appendChild(bd)} bd.textContent=`−€${p.off}`} else if(bd) bd.remove();}
+  let g=$("grpHint"); const vb=$("vibeBar");
+  if(!p||!vb){ if(g) g.remove(); return }
+  if(!g){g=document.createElement("button");g.type="button";g.id="grpHint";g.className="grpHint notr";g.setAttribute("translate","no");vb.insertAdjacentElement("beforebegin",g);g.onclick=()=>{try{trk("promo_open",{src:"discover_hint"})}catch(e){} showTab("together")};}
+  g.innerHTML=`<span>${L3("2+ travellers","2+ viaggiatori","2+ viajeros")}</span><b>−€${p.off}</b><span>${L3("See offer ›","Vedi offerta ›","Ver oferta ›")}</span>`;
+}
+window.addEventListener("fa-lang",()=>{try{renderTgPromo()}catch(e){} try{syncTasteRow()}catch(e){} try{const pp=document.querySelector('main[data-s="profile"]'); if(pp&&!pp.hidden) renderProfile()}catch(e){}});
 I18N.start();
+syncTasteRow(); syncUserBtns(); resortTaste();
 </script>
 
 <script>if("serviceWorker" in navigator&&location.protocol==="https:")addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));</script>
