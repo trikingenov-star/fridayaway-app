@@ -4619,7 +4619,7 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
 #mapView[hidden]{display:none}
 #mapView .mapSkip{display:none}
 #mapView.intro{z-index:230;pointer-events:none}
-#mapView.intro .mapHud,#mapView.intro .mapLeg,#mapView.intro .mapHint,#mapView.intro .mapCard,#mapView.intro #mapTog{display:none!important}
+#mapView.intro .mapSearch,#mapView.intro .mapChips,#mapView.intro .mapHud,#mapView.intro .mapLeg,#mapView.intro .mapHint,#mapView.intro .mapCard,#mapView.intro #mapTog{display:none!important}
 #mapView.intro .mpin{pointer-events:none;animation:mfade .6s both}
 @keyframes mfade{from{opacity:0}}
 #mapView.intro:not(.introBack) .mapSkip{display:block;position:absolute;left:50%;bottom:calc(34px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);pointer-events:auto;border:0;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-weight:700;font-size:14px;border-radius:999px;padding:9px 20px;z-index:6;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
@@ -4651,7 +4651,23 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
 .mapProg u{display:block;height:100%;width:0;border-radius:3px;background:linear-gradient(90deg,#2fd6c0,#8F7BFF,#FF5A7A);transition:width .5s}
 .mapProg.pulse span{animation:mpp .6s}
 @keyframes mpp{40%{transform:scale(1.18);color:#2fd6c0}}
-.mapLeg{position:absolute;left:14px;top:calc(58px + env(safe-area-inset-top,0px));z-index:3;font-size:11px;color:#b8bcf0;display:flex;align-items:center;gap:6px;pointer-events:none}
+.mapSearch{position:absolute;left:12px;right:12px;top:calc(60px + env(safe-area-inset-top,0px));z-index:5;display:flex;align-items:center;gap:8px;background:rgba(20,24,90,.88);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:0 10px;height:42px;color:#cfd2ff}
+.mapSearch input{flex:1;min-width:0;background:none;border:0;outline:0;color:#fff;font:inherit;font-size:16px;-webkit-appearance:none;appearance:none}
+.mapSearch input::placeholder{color:#a9aef0}
+.mapSearch input::-webkit-search-cancel-button{display:none}
+.mapQn{flex:none;background:#2fd6c0;color:#06211d;font-size:12px;font-weight:800;border-radius:999px;padding:3px 9px}
+.mapQx{flex:none;border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:50%;width:24px;height:24px;font-size:12px;cursor:pointer;line-height:24px;padding:0}
+.mapChips{position:absolute;left:0;right:0;top:calc(108px + env(safe-area-inset-top,0px));z-index:5;display:flex;gap:7px;overflow-x:auto;padding:0 12px 4px;scrollbar-width:none;touch-action:pan-x}
+.mapChips::-webkit-scrollbar{display:none}
+.mchip{flex:none;border:1px solid rgba(255,255,255,.22);background:rgba(20,24,90,.88);color:#fff;font:inherit;font-weight:700;font-size:13px;border-radius:999px;padding:7px 12px;cursor:pointer;white-space:nowrap}
+.mchip[aria-pressed="true"]{background:#fff;color:#1b1d3a;border-color:#fff}
+.mpin .mk{position:absolute;left:50%;top:-20px;transform:translateX(-50%);white-space:nowrap;background:#fff;color:#1b1d3a;font-size:11px;font-weight:800;border-radius:999px;padding:2px 8px;display:none;z-index:3;box-shadow:0 3px 8px rgba(0,0,0,.4)}
+.mpin.hit .mk{display:block}
+.mpin.hit .mc{box-shadow:0 0 0 3px #fff,0 0 20px var(--pc)}
+.mpin.hit.off{opacity:.95;filter:none}
+.mpin.dim{opacity:.22}
+.mapCard .t small.hitn{color:#0f766e;font-weight:700}
+.mapLeg{position:absolute;left:14px;top:calc(150px + env(safe-area-inset-top,0px));z-index:3;font-size:11px;color:#b8bcf0;display:flex;align-items:center;gap:6px;pointer-events:none}
 .mapLeg u{width:90px;height:6px;border-radius:3px;background:linear-gradient(90deg,#2fd6c0,#8F7BFF,#FF5A7A)}
 .mapHint{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(138px + env(safe-area-inset-bottom,0px));z-index:3;background:rgba(255,255,255,.14);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;border-radius:999px;padding:9px 16px;font-size:13px;font-weight:700;white-space:nowrap;pointer-events:none}
 .mapHint[hidden]{display:none}
@@ -4674,7 +4690,7 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
   let disc=new Set(); try{disc=new Set(JSON.parse(localStorage.getItem("fa_disc")||"[]"))}catch(e){}
   const saveD=()=>{try{localStorage.setItem("fa_disc",JSON.stringify([...disc]))}catch(e){}};
   const root=document.createElement("div"); root.id="mapView"; root.hidden=true;
-  root.innerHTML='<canvas id="mapC"></canvas><div id="mapPins"></div><div class="mapHud"><div class="mapProg" id="mapProg"><span id="mapPt"></span><i><u id="mapPb"></u></i></div></div><div class="mapLeg"><span>€</span><u></u><span>€€€</span></div><div class="mapHint" id="mapHint"></div><div class="mapCard" id="mapCard" hidden></div><button type="button" class="mapSkip"></button>';
+  root.innerHTML='<canvas id="mapC"></canvas><div id="mapPins"></div><div class="mapHud"><div class="mapProg" id="mapProg"><span id="mapPt"></span><i><u id="mapPb"></u></i></div></div><div class="mapSearch" id="mapSearch"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mapQ" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false"><span class="mapQn" id="mapQn" hidden></span><button type="button" class="mapQx" id="mapQx" aria-label="Clear" hidden>✕</button></div><div class="mapChips" id="mapChips"></div><div class="mapLeg"><span>€</span><u></u><span>€€€</span></div><div class="mapHint" id="mapHint"></div><div class="mapCard" id="mapCard" hidden></div><button type="button" class="mapSkip"></button>';
   document.body.appendChild(root);
   const TGH='<button type="button" data-v="cards"></button><button type="button" data-v="map"></button>';
   const tog=document.createElement("div"); tog.id="mapTog"; tog.setAttribute("role","group"); tog.innerHTML=TGH; root.appendChild(tog);
@@ -4684,7 +4700,7 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
   const V={clon:10,clat:45,K:100,Kf:60,Kmax:900}; let TB=[-20,40,30,62], O=[45.46,9.19];
   const F=2600,TILT=.78,CL=Math.cos(46*Math.PI/180),CT=Math.cos(TILT),ST=Math.sin(TILT);
   let pmin=0,pmax=1;
-  const viewH=()=>Math.max(200,H-170), cyOf=()=>(H-170)*.5+(window.visualViewport?0:0)+34;
+  const isIn=()=>root.classList.contains('intro'), viewH=()=>Math.max(200,isIn()?H-170:H-300), cyOf=()=>isIn()?(H-170)*.5+34:(H-24)/2;
   function P(lon,lat,z){const X=(lon-V.clon)*CL,Y=lat-V.clat,Z=z||0;const sy=-(Y*CT+Z*ST),d=Y*ST-Z*CT,s=F/(F+d*V.K);return[W/2+X*V.K*s,cyOf()+sy*V.K*s,s]}
   function col(p){const t=Math.max(0,Math.min(1,(p-pmin)/((pmax-pmin)||1)));const a=[47,214,192],b=[143,123,255],e=[255,90,122];const m=t<.5?[a,b,t*2]:[b,e,(t-.5)*2];return m[0].map((v,i)=>Math.round(v+(m[1][i]-v)*m[2]))}
   function build(){
@@ -4696,9 +4712,9 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
     pinsEl.innerHTML=""; items.forEach(it=>{const el=document.createElement("button"); el.type="button"; el.className="mpin"; el.dataset.c=it.code;
       const [r,g,b]=it.inS?col(it.price):[150,155,190]; el.style.setProperty("--pc",`rgb(${r},${g},${b})`); el.style.setProperty("--pg",`rgba(${r},${g},${b},.55)`);
       const u=(typeof PHOTO!=="undefined"&&PHOTO[it.code])||""; el.setAttribute("aria-label",it.city+" "+eur(it.price));
-      el.innerHTML=`<span class="mc">${u?`<img src="${u}" alt="" decoding="async" loading="lazy">`:""}<em>☀ ${it.d.temp}°</em><i>✓</i><b>${esc_(it.city)}</b></span><span class="mp">${eur(it.price)}</span>`;
+      el.innerHTML=`<span class="mk"></span><span class="mc">${u?`<img src="${u}" alt="" decoding="async" loading="lazy">`:""}<em>☀ ${it.d.temp}°</em><i>✓</i><b>${esc_(it.city)}</b></span><span class="mp">${eur(it.price)}</span>`;
       el.classList.toggle("off",!it.inS); el.classList.toggle("dv",disc.has(it.code)); it.el=el; pinsEl.appendChild(el)});
-    stale=false; fit(); prog();
+    stale=false; fit(); prog(); try{qApply(false)}catch(e){}
   }
   function fit(){
     const set=items.filter(i=>i.inS); const use=set.length?set:items;
@@ -4722,21 +4738,22 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
     const sg=c.createRadialGradient(W/2,cyOf(),20,W/2,cyOf(),W*.75);sg.addColorStop(0,"rgba(120,110,255,.14)");sg.addColorStop(1,"rgba(0,0,0,.35)");tilePath(c,0);c.fillStyle=sg;c.fill();c.restore();
     tilePath(c,0);c.strokeStyle="rgba(180,190,255,.55)";c.lineWidth=1.5;c.stroke();
     let i=0; items.forEach(it=>{if(!it.inS)return; i++; const prog=anim?Math.min(1,Math.max(0,(T-.2-i*.05)/1.0)):1; if(prog<=0)return;
-      const [r,gg,b]=col(it.price), on=it===sel, {pts}=arcPts(it,prog);
+      const [r,gg,b]=col(it.price), on=it===sel, {pts}=arcPts(it,prog), dm=qOn&&!it.hit&&!on;
       c.lineCap="round";c.lineJoin="round";c.beginPath();pts.forEach((p,k)=>k?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));
-      c.strokeStyle=`rgba(${r},${gg},${b},${on?.35:.16})`;c.lineWidth=on?9:5;c.stroke();
-      c.strokeStyle=`rgba(${r},${gg},${b},${on?1:.75})`;c.lineWidth=on?2.6:1.5;c.shadowColor=`rgb(${r},${gg},${b})`;c.shadowBlur=on?16:7;c.stroke();c.shadowBlur=0});
+      if(dm){c.strokeStyle=`rgba(${r},${gg},${b},.07)`;c.lineWidth=1;c.stroke();return}
+      const hl=on||(qOn&&it.hit); c.strokeStyle=`rgba(${r},${gg},${b},${hl?.35:.16})`;c.lineWidth=hl?9:5;c.stroke();
+      c.strokeStyle=`rgba(${r},${gg},${b},${hl?1:.75})`;c.lineWidth=hl?2.8:1.5;c.shadowColor=`rgb(${r},${gg},${b})`;c.shadowBlur=hl?16:7;c.stroke();c.shadowBlur=0});
   }
   frame.fz=0;
   function frame(now){
     if(!open){raf=0;return} if(root.classList.contains('introBack')){ if(frame.fz++>1){raf=0;return} } raf=requestAnimationFrame(frame);
     const w=innerWidth,h=innerHeight; if(w!==W||h!==H){W=w;H=h;DPR=Math.min(2,devicePixelRatio||1);cv.width=bc.width=W*DPR;cv.height=bc.height=H*DPR;dirty=true;fit(); if(root.classList.contains('intro')&&!cam) introView()}
     const T=(now-t0)/1000; if(anim&&T>2.6){anim=false;dirty=true}
-    if(root.classList.contains('intro')) introTick(now,T);
+    if(root.classList.contains('intro')) introTick(now,T); else if(fly) flyStep(now);
     if(dirty||anim){drawBase(T);dirty=false}
     cx.setTransform(DPR,0,0,DPR,0,0);cx.clearRect(0,0,W,H);cx.drawImage(bc,0,0,W,H);
     // sparks along arcs
-    let i=0; items.forEach(it=>{if(!it.inS||anim&&T<2)return; i++; const q=((T*.3+i*.13)%1),G=it.g,dist=Math.hypot((G[1]-O[1])*CL,G[0]-O[0]),hz=Math.max(1.2,dist*.42),p=P(O[1]+(G[1]-O[1])*q,O[0]+(G[0]-O[0])*q,hz*Math.sin(Math.PI*q));cx.fillStyle="#fff";cx.beginPath();cx.arc(p[0],p[1],it===sel?3:2,0,7);cx.fill()});
+    let i=0; items.forEach(it=>{if(!it.inS||anim&&T<2||(qOn&&!it.hit))return; i++; const q=((T*.3+i*.13)%1),G=it.g,dist=Math.hypot((G[1]-O[1])*CL,G[0]-O[0]),hz=Math.max(1.2,dist*.42),p=P(O[1]+(G[1]-O[1])*q,O[0]+(G[0]-O[0])*q,hz*Math.sin(Math.PI*q));cx.fillStyle="#fff";cx.beginPath();cx.arc(p[0],p[1],it===sel?3:2,0,7);cx.fill()});
     const op=P(O[1],O[0],0),pul=(T*1.2)%1;cx.strokeStyle=`rgba(47,214,192,${1-pul})`;cx.lineWidth=2;cx.beginPath();cx.ellipse(op[0],op[1],10+pul*26,(10+pul*26)*CT,0,0,7);cx.stroke();
     cx.fillStyle="#2fd6c0";cx.beginPath();cx.arc(op[0],op[1],6,0,7);cx.fill();cx.strokeStyle="#fff";cx.lineWidth=2;cx.stroke();
     {const t="📍 "+(()=>{try{return TX(oriName())}catch(e){return oriName()}})();cx.font="800 12px Inter,system-ui";const tw=cx.measureText(t).width+14;cx.fillStyle="#2fd6c0";cx.beginPath();cx.roundRect?cx.roundRect(op[0]-tw/2,op[1]+10,tw,22,11):cx.rect(op[0]-tw/2,op[1]+10,tw,22);cx.fill();cx.fillStyle="#06211d";cx.textAlign="center";cx.fillText(t,op[0],op[1]+25)}
@@ -4745,10 +4762,10 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
     // pins: position, scale, collisions
     const zr=V.K/V.Kf, base=Math.max(.5,Math.min(1.25,.58+.22*Math.log2(zr)));
     root.classList.toggle("zin",zr>3);
-    const order=items.slice().sort((a,b)=>(b===sel)-(a===sel)||(b.inS-a.inS)||(disc.has(a.code)-disc.has(b.code))||a.price-b.price), placed=[];
+    const order=items.slice().sort((a,b)=>(b===sel)-(a===sel)||(!!b.hit-!!a.hit)||(b.inS-a.inS)||(disc.has(a.code)-disc.has(b.code))||a.price-b.price), placed=[];
     order.forEach(it=>{const p=P(it.g[1],it.g[0],0), sc=base*Math.max(.8,Math.min(1.25,p[2])), bw=64*sc,bh=84*sc, bx0=p[0]-bw/2, by0=p[1]-bh-4;
       const off=p[0]<-60||p[0]>W+60||p[1]<-20||p[1]>H+100; let dot=false;
-      if(!off){ if(it!==sel&&placed.some(q=>bx0<q[0]+q[2]&&bx0+bw>q[0]&&by0<q[1]+q[3]&&by0+bh>q[1])) dot=true; else placed.push([bx0,by0,bw,bh]) }
+      if(!off){ if(it!==sel&&((qOn&&!it.hit)||placed.some(q=>bx0<q[0]+q[2]&&bx0+bw>q[0]&&by0<q[1]+q[3]&&by0+bh>q[1]))) dot=true; else placed.push([bx0,by0,bw,bh]) }
       const el=it.el; el.style.display=off?"none":""; if(off)return;
       if(el._dot!==dot){el._dot=dot;el.classList.toggle("dot",dot)}
       el.style.zIndex=Math.round(p[1])+(it===sel?100000:0);
@@ -4758,7 +4775,7 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
   }
   /* gestures */
   const ptr=new Map(); let moved=false, pd=0, lastC=null;
-  root.addEventListener("pointerdown",e=>{if(e.target.closest(".mapCard"))return; ptr.set(e.pointerId,[e.clientX,e.clientY]); moved=false; pd=ptr.size===2?dist2():0});
+  root.addEventListener("pointerdown",e=>{if(e.target.closest(".mapCard,.mapSearch,.mapChips"))return; ptr.set(e.pointerId,[e.clientX,e.clientY]); moved=false; pd=ptr.size===2?dist2():0});
   const dist2=()=>{const a=[...ptr.values()];return Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1])};
   addEventListener("pointermove",e=>{if(!open||!ptr.has(e.pointerId))return; const o=ptr.get(e.pointerId), dx=e.clientX-o[0], dy=e.clientY-o[1];
     if(ptr.size===1){ if(!moved&&Math.hypot(dx,dy)<6) return; moved=true; V.clon-=dx/(V.K*CL); V.clat+=dy/(V.K*CT); ptr.set(e.pointerId,[e.clientX,e.clientY]) }
@@ -4773,11 +4790,61 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
   function select(it){sel=it; if(!disc.has(it.code)){disc.add(it.code);saveD();it.el.classList.add("dv");const pr=$m("mapProg");pr.classList.remove("pulse");void pr.offsetWidth;pr.classList.add("pulse");prog()} card(); dirty=true; try{trk("map_pin",{c:it.code})}catch(e){}}
   function prog(){const tot=items.length, n=items.filter(i=>disc.has(i.code)).length; $m("mapPt").textContent="🧭 "+n+"/"+tot+" "+bpT("discovered","scoperte","descubiertos"); $m("mapPb").style.width=(tot?n/tot*100:0)+"%"}
   function card(){
-    const c=$m("mapCard"),h=$m("mapHint"); if(!sel){c.hidden=true;h.hidden=false;h.textContent=bpT("Drag and zoom · tap a place","Trascina e zooma · tocca una meta","Arrastra y haz zoom · toca un destino");return}
+    const c=$m("mapCard"),h=$m("mapHint"); if(!sel){c.hidden=true;h.hidden=false;hint();return}
     h.hidden=true;c.hidden=false; const u=(typeof PHOTO!=="undefined"&&PHOTO[sel.code])||"", ad=Math.max(1,+S.trip.adults||1);
-    c.innerHTML=`<div class="ph" ${u?`style="background-image:url('${u}')"`:""}></div><div class="t"><h3>${esc_(sel.city)}</h3><small ${sel.inS?"":'class="offn"'}>${sel.inS?esc_(pillDates())+" · "+ad+" "+(ad>1?bpT("adults","adulti","adultos"):bpT("adult","adulto","adulto")):bpT("Outside your search","Fuori dalla tua ricerca","Fuera de tu búsqueda")}</small><b>${bpT("from","da","desde")} ${eur(sel.price)}</b></div><button type="button">${bpT("Discover ›","Scopri ›","Descubrir ›")}</button>`;
+    c.innerHTML=`<div class="ph" ${u?`style="background-image:url('${u}')"`:""}></div><div class="t"><h3>${esc_(sel.city)}</h3><small ${sel.inS?"":'class="offn"'}>${sel.inS?esc_(pillDates())+" · "+ad+" "+(ad>1?bpT("adults","adulti","adultos"):bpT("adult","adulto","adulto")):bpT("Outside your search","Fuori dalla tua ricerca","Fuera de tu búsqueda")}</small>${sel.hit?`<small class="hitn">${sel.hit[0].a.e} ${esc_(sel.hit[0].cnt?sel.hit[0].n:lblA(sel.hit[0].a)+(sel.hit[0].p?" · "+sel.hit[0].p:""))}${sel.hit[0].n&&!sel.hit[0].cnt?" — "+esc_(sel.hit[0].n):""}</small>`:""}<b>${bpT("from","da","desde")} ${eur(sel.price)}</b></div><button type="button">${bpT("Discover ›","Scopri ›","Descubrir ›")}</button>`;
   }
   $m("mapCard").addEventListener("click",()=>{if(sel)go(sel)});
+  /* ===== search by activity: chips + free text; matching destinations light up, the rest fade ===== */
+  const TAGACTS=[{k:"t:sea",tag:"sea",it:"Mare",en:"Sea",es:"Mar",e:"🏖️",kw:"mare,spiaggia,spiagge,beach,sea,playa,mar"},{k:"t:food",tag:"food",it:"Cibo",en:"Food",es:"Comida",e:"🍝",kw:"cibo,mangiare,food,gastronomia,ristoranti,tapas,cucina,street food"},{k:"t:culture",tag:"culture",it:"Arte & cultura",en:"Art & culture",es:"Arte y cultura",e:"🏛️",kw:"arte,cultura,musei,museo,art,culture,storia,monumenti,museum"},{k:"t:nightlife",tag:"nightlife",it:"Vita notturna",en:"Nightlife",es:"Vida nocturna",e:"🪩",kw:"notte,locali,discoteca,party,nightlife,clubbing,movida,aperitivo"},{k:"t:relax",tag:"relax",it:"Relax",en:"Relax",es:"Relax",e:"🧘",kw:"relax,tranquillo,calmo,riposo,rilassarsi"}];
+  const STOP=new Set("voglio,vorrei,fare,fai,per,con,una,uno,del,della,delle,dei,che,sono,dove,posso,andare,weekend,week,end,the,and,for,want,quiero,hacer,donde,las,los".split(","));
+  const nrm=x=>String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  let DBJ=null, ALLACTS=TAGACTS, ACTBY={}, byCode={}, qKeys=new Set(), qText="", qOn=false, qCnt={tot:0,inS:0}, qT=0, fly=null;
+  TAGACTS.forEach(a=>{a.kw=a.kw.split(",")});
+  function prepActs(){ALLACTS.forEach(a=>{a.kwN=(a.kw||[]).map(nrm).concat([nrm(a.it),nrm(a.en),nrm(a.es)]);ACTBY[a.k]=a})}
+  prepActs();
+  function loadDB(){ if(DBJ!==null) return; DBJ=false; const draft=/[?&]db=all/.test(location.search);
+    fetch(draft?"data/activities-draft.json":"data/activities.json").then(r=>r.json()).then(j=>{DBJ=j;
+      ALLACTS=TAGACTS.concat(j.acts.map(a=>({k:a.k,it:a.it,en:a.en,es:a.es,e:a.e,kw:a.kw}))); prepActs(); byCode={}; j.rows.forEach(r=>{(byCode[r.c]=byCode[r.c]||[]).push(r)}); chipsBuild(); qApply(false)}).catch(e=>{DBJ=null;console.error("activities db",e&&e.message)}) }
+  const lblA=a=>a[bpL()]||a.it;
+  function chipCount(a){ if(a.tag) return items.filter(i=>i.d.tags.includes(a.tag)).length; return items.filter(i=>(byCode[i.code]||[]).some(r=>r.a===a.k)).length }
+  function chipsBuild(){ const el=$m("mapChips"); if(!el) return; const l=bpL();
+    const list=ALLACTS.map(a=>({a,n:chipCount(a)})).filter(x=>x.n>0);
+    const tags=list.filter(x=>x.a.tag), sp=list.filter(x=>!x.a.tag).sort((x,y)=>y.n-x.n);
+    el.innerHTML=tags.concat(sp).map(x=>`<button type="button" class="mchip" data-k="${x.a.k}" aria-pressed="${qKeys.has(x.a.k)}">${x.a.e} ${esc_(lblA(x.a))}</button>`).join("");
+    const inp=$m("mapQ"); if(inp) inp.placeholder=bpT("What do you want to do?","Cosa vuoi fare?","¿Qué quieres hacer?") }
+  function tokensOf(t){return nrm(t).split(/[^a-z0-9]+/).filter(x=>x.length>=3&&!STOP.has(x))}
+  const kwHit=(a,t)=>a.kwN.some(k=>k===t||(t.length>=4&&k.startsWith(t))||(k.length>=4&&t.startsWith(k)));
+  function qApply(fit){
+    const toks=tokensOf(qText), keys=new Set(qKeys), unm=[];
+    toks.forEach(t=>{let m=false; ALLACTS.forEach(a=>{if(kwHit(a,t)){keys.add(a.k);m=true}}); if(!m) unm.push(t)});
+    qOn=keys.size>0||unm.length>0; qCnt={tot:0,inS:0};
+    items.forEach(it=>{ const hits=[];
+      keys.forEach(k=>{const a=ACTBY[k]; if(!a) return; if(a.tag){ if(it.d.tags.includes(a.tag)) hits.push({a,l:1,n:"",p:""}) } else (byCode[it.code]||[]).filter(r=>r.a===k).forEach(r=>hits.push({a,l:r.l,n:r.n,p:r.p}))});
+      if(unm.length){ let j=null; try{j=vxNow(it.d)}catch(e){} if(j&&vxOk(j)){ const m=j.items.filter(x=>unm.every(t=>nrm(x.t).includes(t))); if(m.length) hits.push({a:{e:"🎟️",it:"Attività",en:"Activities",es:"Actividades"},l:2,n:m[0].t,p:"",cnt:m.length}) } }
+      hits.sort((x,y)=>y.l-x.l); it.hit=hits.length?hits:null;
+      if(it.hit){qCnt.tot++; if(it.inS) qCnt.inS++}
+      const el=it.el; if(!el) return; el.classList.toggle("hit",!!it.hit); el.classList.toggle("dim",qOn&&!it.hit);
+      const mk=el.querySelector(".mk"); if(mk) mk.textContent=it.hit?(it.hit[0].a.e+" "+(it.hit[0].cnt?it.hit[0].cnt+" "+bpT("activities","attività","actividades"):lblA(it.hit[0].a))+(it.hit.length>1&&!it.hit[0].cnt?" +"+(it.hit.length-1):"")):""; });
+    document.querySelectorAll("#mapChips .mchip").forEach(b=>b.setAttribute("aria-pressed",String(qKeys.has(b.dataset.k))));
+    const qn=$m("mapQn"), qx=$m("mapQx"); qn.hidden=!qOn; qx.hidden=!(qOn||qText); if(qOn) qn.textContent=qCnt.tot+" "+bpT(qCnt.tot===1?"place":"places",qCnt.tot===1?"meta":"mete",qCnt.tot===1?"destino":"destinos");
+    // text that matches no known activity: look through the Viator titles (load the ones we do not have yet, in the user's search)
+    if(unm.length){ items.filter(i=>i.inS&&!(()=>{try{return vxNow(i.d)}catch(e){return 1}})()).slice(0,24).forEach(i=>{try{vxGet(i.d).then(()=>{clearTimeout(qT);qT=setTimeout(()=>qApply(false),250)})}catch(e){}}) }
+    hint(); if(sel) card(); dirty=true;
+    if(fit&&qOn&&qCnt.tot) flyHits();
+    if(fit===true){try{trk("map_search",{k:[...keys].join(","),t:qText.slice(0,30),n:qCnt.tot})}catch(e){}}
+  }
+  function hint(){ const h=$m("mapHint"); if(sel){return} if(!qOn){h.textContent=bpT("Drag and zoom · tap a place","Trascina e zooma · tocca una meta","Arrastra y haz zoom · toca un destino");return}
+    h.textContent=qCnt.tot?(qCnt.tot+" "+bpT(qCnt.tot===1?"place for you":"places for you",qCnt.tot===1?"meta per te":"mete per te",qCnt.tot===1?"destino para ti":"destinos para ti")+(qCnt.inS<qCnt.tot?" · "+qCnt.inS+" "+bpT("in your search","nella tua ricerca","en tu búsqueda"):"")):bpT("Nothing yet for this · try another word","Ancora niente per questa ricerca · prova un'altra parola","Nada aún · prueba otra palabra")}
+  function flyHits(){ const hs=items.filter(i=>i.hit); if(!hs.length) return; const lons=hs.map(i=>i.g[1]).concat(O[1]), lats=hs.map(i=>i.g[0]).concat(O[0]);
+    let a=Math.min(...lons)-1.5,b=Math.max(...lons)+1.5,c=Math.min(...lats)-1.2,d=Math.max(...lats)+1.2; if(b-a<14){const m=(a+b)/2;a=m-7;b=m+7} if(d-c<8){const m=(c+d)/2;c=m-4;d=m+4}
+    const K=Math.max(V.Kf*.9,Math.min(V.Kmax,Math.min(W*.92/((b-a)*CL),viewH()*.62/((d-c)*CT)))); fly={t0:performance.now(),dur:900,from:{clon:V.clon,clat:V.clat,K:V.K},to:{clon:(a+b)/2,clat:(c+d)/2,K}} }
+  function flyStep(now){ const t=Math.min(1,(now-fly.t0)/fly.dur), e=1-Math.pow(1-t,3); V.clon=fly.from.clon+(fly.to.clon-fly.from.clon)*e; V.clat=fly.from.clat+(fly.to.clat-fly.from.clat)*e; V.K=fly.from.K*Math.pow(fly.to.K/fly.from.K,e); clamp(); dirty=true; if(t>=1) fly=null }
+  let qDeb=0; const qIn=$m("mapQ");
+  qIn.addEventListener("input",()=>{qText=qIn.value; clearTimeout(qDeb); qDeb=setTimeout(()=>qApply(true),220)});
+  qIn.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();qIn.blur()}});
+  $m("mapQx").addEventListener("click",()=>{qText="";qIn.value="";qKeys.clear();qApply(false)});
+  $m("mapChips").addEventListener("click",e=>{const b=e.target.closest(".mchip"); if(!b) return; const k=b.dataset.k; if(qKeys.has(k)) qKeys.delete(k); else qKeys.add(k); qApply(true)});
   /* first-visit intro: the map opens by itself, arcs fly out, the camera swoops to the best deal, then it hands over to the boarding pass */
   let cam=null, introEnd=null;
   function introView(){V.K=Math.max(V.Kf,(V.k0||V.K)*.95); if(V.fc){V.clon=V.fc[0];V.clat=V.fc[1]} clamp(); dirty=true}
@@ -4810,7 +4877,7 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
     lab();
     document.body.classList.toggle("mapOn",on);
     if(on){ if(!LAND){fetch("map-land.json").then(r=>r.json()).then(j=>{LAND=j;dirty=true}).catch(()=>{})}
-      if(stale||!items.length){W=0;build()} sel=null; card(); anim=true; t0=performance.now(); dirty=true; W=0; try{trk("map_on")}catch(e){} if(!raf) raf=requestAnimationFrame(frame) }
+      loadDB(); if(stale||!items.length){W=0;build()} sel=null; chipsBuild(); qApply(false); card(); anim=true; t0=performance.now(); dirty=true; W=0; try{trk("map_on")}catch(e){} if(!raf) raf=requestAnimationFrame(frame) }
   }
   [tog,togIn].forEach(t=>t.addEventListener("click",e=>{const b=e.target.closest("button"); if(b) setOpen(b.dataset.v==="map")}));
   const lab=()=>{[tog,togIn].forEach(t=>{t.children[0].textContent=bpT("Cards","Carte","Cartas");t.children[1].textContent=bpT("Map","Mappa","Mapa");t.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String((b.dataset.v==="map")===open)))})};
