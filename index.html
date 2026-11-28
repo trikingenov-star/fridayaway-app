@@ -4155,7 +4155,7 @@ function alertOpen(src){
 function alertClose(how){const o=$("alOv"); if(!o||o.hidden) return; o.hidden=true; trk("alert_close",{how});}
 function renderAlertBtn(){
   const w=$("alertBtnWrap"); if(!w) return;
-  w.innerHTML=alertDone()?`<button type="button" class="alOn" id="alertOn">🔔 You get the best weekends every Thursday <i aria-hidden="true">›</i></button>`:`<button class="alBtn" id="alertBtn"><span aria-hidden="true">🔔</span><span><b>Get the 3 best weekends every Thursday</b><small>Free, for your budget, one email a week</small></span><i aria-hidden="true">›</i></button>`;
+  w.innerHTML=alertDone()?"":`<button class="alBtn" id="alertBtn"><span aria-hidden="true">🔔</span><span><b>Get the 3 best weekends every Thursday</b><small>Free, for your budget, one email a week</small></span><i aria-hidden="true">›</i></button>`;
   const b=$("alertBtn"); if(b) b.onclick=()=>alertOpen("saved");
   const on=$("alertOn"); if(on) on.onclick=alertManage;
 }
