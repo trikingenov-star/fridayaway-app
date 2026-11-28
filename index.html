@@ -1245,6 +1245,15 @@ html.neg :is(.bt,.msRow button,.meImg) img{filter:none}
 .grpHint b{background:#FFD23F;color:#3b2a00;border-radius:999px;padding:1px 7px;font-size:12px}
 :root[data-neg] .grpHint{background:var(--surface);color:var(--ink)}
 /* booking: flight first */
+.fxRow{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:6px -2px 14px;padding:2px}
+.fxRow::-webkit-scrollbar{display:none}
+.fxC{flex:0 0 148px;scroll-snap-align:start;display:flex;flex-direction:column;gap:3px;text-decoration:none;color:var(--ink);background:var(--app);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.fxC.pskel{border:0}
+.fxI{position:relative;height:96px;background:linear-gradient(135deg,#E8417A,#FF9F45);display:grid;place-items:center;font-size:28px}
+.fxI img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.fxI em{position:absolute;left:6px;bottom:6px;font-style:normal;font-size:11px;font-weight:700;color:#fff;background:rgba(0,0,0,.55);border-radius:999px;padding:2px 7px}
+.fxC b{font-size:13px;line-height:1.25;padding:6px 9px 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.5em}
+.fxC small{font-size:12px;color:var(--muted);padding:0 9px 9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wzFlArt{position:relative;height:150px;border-radius:16px;overflow:hidden;flex:none}
 .wzFlArt .city{position:absolute;left:14px;bottom:12px;color:#fff;z-index:2}
 .wzFlArt .city h2{font-size:26px;letter-spacing:-.02em;margin:0;line-height:1}
@@ -2724,9 +2733,10 @@ function wzNoMcp(){ $("wzBody").innerHTML+=`<div class="errbox">${mcpMsg({code:"
 
 /* events of the weekend, right under the hotel: names first, tap for the full list */
 function wzEvents(){
+  if(WZ&&WZ.step===4){wzFlX();return}
   const box=$("wzEv"); if(!box||!WZ) return; const d=WZ.d;
   if(EVT[evKey(d)]===undefined&&mcp&&mcp.events) loadEvents(d);
-  if(!vxNow(d)){vxGet(d).then(()=>{try{if(WZ&&WZ.code===d.code&&WZ.step===0) wzEvents()}catch(e){}}); }
+  if(!vxNow(d)){vxGet(d).then(()=>{try{if(WZ&&WZ.code===d.code&&(WZ.step===0||WZ.step===4)) wzEvents()}catch(e){}}); }
   const c=xpCounts(d), it=xpIt(), n=planOf(d.code).length, v=planSum(d.code);
   if(!c.act&&!c.ev){box.innerHTML="";return}
   const parts=[c.act?`${c.act} ${it?"attività":"activities"}`:"", c.ev?`${c.ev} ${it?(c.ev>1?"eventi":"evento"):(c.ev>1?"events":"event")}`:""].filter(Boolean).join(" · ");
@@ -3099,7 +3109,7 @@ async function loadEvents(d){
   try{xpRefresh(d.code)}catch(e){}
   try{const o=$("xcOv"); if(o&&!o.hidden) renderXC(d); const p=$("xpOv"); if(p&&!p.hidden) renderXP(d)}catch(e){}
   try{if(S.saved.some(s=>s.code===d.code)) renderSavedEvents()}catch(e){}
-  try{if(WZ&&WZ.code===d.code&&WZ.step===0) wzEvents()}catch(e){}
+  try{if(WZ&&WZ.code===d.code&&(WZ.step===0||WZ.step===4)) wzEvents()}catch(e){}
   if(PANEL.code===d.code) renderPanels();
 }
 function evPillInner(d){
@@ -3463,7 +3473,7 @@ function planBadge(d,h){const n=planOf(d.code).length, v=planSum(d.code), it=xpI
 function xpRefresh(code){const d=DATA.find(x=>x.code===code); if(!d) return; const h=hotelFor(d);
   document.querySelectorAll(`[data-xp="${code}"]`).forEach(el=>{el.innerHTML=xpRowInner(d)});
   if(h) document.querySelectorAll(`[data-xs="${code}"]`).forEach(el=>{el.innerHTML=xpSumInner(d,h)});
-  try{if(WZ&&WZ.code===code&&WZ.step===0) wzEvents()}catch(e){}
+  try{if(WZ&&WZ.code===code&&(WZ.step===0||WZ.step===4)) wzEvents()}catch(e){}
   const P=document.getElementById("wzPlan"); if(P&&P.dataset.code===code) P.outerHTML=planHTML(d,+P.dataset.pr||0);
   try{if(S.saved.some(s=>s.code===code)) renderSaved()}catch(e){}}
 /* card popup: carousel of activities and events over the blurred app, browse only (adding happens inside the weekend sheet) */
@@ -4269,16 +4279,30 @@ function syncTasteRow(){
   const hide=()=>{w.style.display="none"}; if(lsGet("fa_instx",0)) hide(); x.onclick=e=>{e.stopPropagation(); lsSet("fa_instx",1); hide(); try{trk("install_close",{how:"setup_x"})}catch(x){}};})();
 
 /* booking: Flight → Hotel → Book. The first step shows the flights of the package before the hotel. */
+
+/* flight screen, under the city photo: activities carousel, then events carousel */
+function wzFlX(){
+  const box=$("wzFlX"); if(!box||!WZ) return; const d=WZ.d, it=xpIt();
+  if(EVT[evKey(d)]===undefined&&mcp&&mcp.events) loadEvents(d);
+  if(!vxNow(d)){vxGet(d).then(()=>{try{if(WZ&&WZ.code===d.code&&WZ.step===4) wzFlX()}catch(e){}})}
+  const acts=vxOk(vxNow(d))?vxNow(d).items:[], ev=Array.isArray(EVT[evKey(d)])?EVT[evKey(d)]:[];
+  const loading=!acts.length&&!ev.length&&(!vxNow(d)||EVT[evKey(d)]==="busy");
+  if(loading){box.innerHTML=`<div class="fxRow">${'<div class="fxC pskel" style="height:170px"></div>'.repeat(3)}</div>`;return}
+  const aC=acts.slice(0,10).map(x=>`<a class="fxC" href="${esc_(x.u)}" target="_blank" rel="noopener sponsored" data-fxk="act"><span class="fxI">🎟️<img src="${esc_(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">${x.r?`<em>★ ${x.r.toFixed(1)}</em>`:""}</span><b translate="no">${esc_(x.t)}</b><small>${x.p?`${it?"da":"from"} ${eur(x.p)}`:""}</small></a>`).join("");
+  const eC=ev.slice(0,10).map(e=>`<a class="fxC" href="${esc_(e.url)}" target="_blank" rel="noopener" data-fxk="ev"><span class="fxI">${EV_ICON[e.seg]||"🎫"}${e.img?`<img src="${esc_(e.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}<em>${esc_(evDay(e))}${e.time?" · "+esc_(e.time):""}</em></span><b translate="no">${esc_(e.name)}</b><small translate="no">${esc_(e.venue||e.genre||"")}</small></a>`).join("");
+  box.innerHTML=(aC?`<span class="eyebrow">🎟️ ${it?"Attività a":"Things to do in"} ${esc_(d.city)}</span><div class="fxRow">${aC}</div>`:"")+(eC?`<span class="eyebrow">🎫 ${it?"Eventi durante il viaggio":"Events during your trip"}</span><div class="fxRow">${eC}</div>`:"");
+  box.querySelectorAll(".fxC").forEach(a=>a.addEventListener("click",()=>{try{trk(a.dataset.fxk==="act"?"vx_click":"events_open",{c:d.city,src:"flight_step"})}catch(e){}}));
+}
 function wzFlight0(){
   const w=WZ, d=w.d, h=hotelFor(d), code=w.code;
   const F=FL[code], legs=fcLegs(code)?fcBlock(code):(F&&!S.trip.live&&!timeIssue(code))?`<div class="legs"><div class="leg"><span>${dayFrom()}</span><b>${F.o[0]} ${F.o[2]} → ${F.o[1]} ${F.o[3]}</b><span class="fn">${F.o[4]}</span></div><div class="leg"><span>${dayTo()}</span><b>${F.i[0]} ${F.i[2]} → ${F.i[1]} ${F.i[3]}</b><span class="fn">${F.i[4]}</span></div></div>`:"";
   $("wzBody").innerHTML=`<div class="wzFlArt">${art(d)}<div class="city"><h2>${esc_(d.city)}</h2><span>${esc_(d.country)}</span></div></div>
     <p class="muted wzMeta">${dfmt(S.trip.from)} → ${dfmt(S.trip.to)} · ${wzPeople()}</p>
-    <span class="eyebrow">Your flights</span>
-    ${legs||`<div class="leg exactNote" style="grid-template-columns:1fr"><span>Exact flights are shown when you book.</span></div>`}
-    ${F&&F.note?`<div class="warnline">${F.note}</div>`:""}
-    <p class="wzNote notr" translate="no">${L3("Times are confirmed with today's price at the last step, where you can also pick other flights.","Gli orari si confermano con il prezzo di oggi all'ultimo passo, dove puoi anche scegliere altri voli.","Los horarios se confirman con el precio de hoy en el último paso, donde también puedes elegir otros vuelos.")}</p>
+    ${legs?`<span class="eyebrow">Your flights</span>${legs}${F&&F.note?`<div class="warnline">${F.note}</div>`:""}`:""}
+    <div id="wzFlX"></div>
+    <p class="wzNote notr" translate="no">${L3("Exact flight times are confirmed with today's price at the last step, where you can also pick other flights.","Gli orari dei voli si confermano con il prezzo di oggi all'ultimo passo, dove puoi anche scegliere altri voli.","Los horarios de los vuelos se confirman con el precio de hoy en el último paso, donde también puedes elegir otros vuelos.")}</p>
     <div class="wzFrom"><span>Flight + hotel from</span><b>${eur(h.price)}</b></div>`;
+  try{wzFlX()}catch(e){}
   $("wzFoot").innerHTML=`<button class="btn ghost wzSave" id="sheetSave">Save</button><button class="btn" id="wzNext">Choose hotel ›</button>`;
   $("sheetSave").onclick=()=>{const j=hotelFor(d).j;const ex=S.saved.find(s=>s.code===code);if(ex)ex.j=j;else S.saved.push({code,j});S.seen.add(code);updateCount();bookCtl.n++;WZ=null;$("layer").innerHTML="";renderDeck();toast(`Saved ${d.city}`)};
   $("wzNext").onclick=()=>{try{trk("book_step",{c:d.city,s:"flight_ok"})}catch(e){} wzGo(0);};
