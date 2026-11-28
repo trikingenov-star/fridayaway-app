@@ -4792,44 +4792,59 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
   function card(){
     const c=$m("mapCard"),h=$m("mapHint"); if(!sel){c.hidden=true;h.hidden=false;hint();return}
     h.hidden=true;c.hidden=false; const u=(typeof PHOTO!=="undefined"&&PHOTO[sel.code])||"", ad=Math.max(1,+S.trip.adults||1);
-    c.innerHTML=`<div class="ph" ${u?`style="background-image:url('${u}')"`:""}></div><div class="t"><h3>${esc_(sel.city)}</h3><small ${sel.inS?"":'class="offn"'}>${sel.inS?esc_(pillDates())+" · "+ad+" "+(ad>1?bpT("adults","adulti","adultos"):bpT("adult","adulto","adulto")):bpT("Outside your search","Fuori dalla tua ricerca","Fuera de tu búsqueda")}</small>${sel.hit?`<small class="hitn">${sel.hit[0].a.e} ${esc_(sel.hit[0].cnt?sel.hit[0].n:lblA(sel.hit[0].a)+(sel.hit[0].p?" · "+sel.hit[0].p:""))}${sel.hit[0].n&&!sel.hit[0].cnt?" — "+esc_(sel.hit[0].n):""}</small>`:""}<b>${bpT("from","da","desde")} ${eur(sel.price)}</b></div><button type="button">${bpT("Discover ›","Scopri ›","Descubrir ›")}</button>`;
+    c.innerHTML=`<div class="ph" ${u?`style="background-image:url('${u}')"`:""}></div><div class="t"><h3>${esc_(sel.city)}</h3><small ${sel.inS?"":'class="offn"'}>${sel.inS?esc_(pillDates())+" · "+ad+" "+(ad>1?bpT("adults","adulti","adultos"):bpT("adult","adulto","adulto")):bpT("Outside your search","Fuori dalla tua ricerca","Fuera de tu búsqueda")}</small>${sel.hit?`<small class="hitn">${sel.hit[0].a.e} ${esc_(sel.hit[0].n?(sel.hit[0].n.length>44?sel.hit[0].n.slice(0,43)+"…":sel.hit[0].n)+(sel.hit[0].p?" · "+bpT("from","da","desde")+" "+eur(sel.hit[0].p):""):lblA(sel.hit[0].a))}${sel.hit[0].cnt>1?" (+"+(sel.hit[0].cnt-1)+")":""}</small>`:""}<b>${bpT("from","da","desde")} ${eur(sel.price)}</b></div><button type="button">${bpT("Discover ›","Scopri ›","Descubrir ›")}</button>`;
   }
   $m("mapCard").addEventListener("click",()=>{if(sel)go(sel)});
-  /* ===== search by activity: chips + free text; matching destinations light up, the rest fade ===== */
-  const TAGACTS=[{k:"t:sea",tag:"sea",it:"Mare",en:"Sea",es:"Mar",e:"🏖️",kw:"mare,spiaggia,spiagge,beach,sea,playa,mar"},{k:"t:food",tag:"food",it:"Cibo",en:"Food",es:"Comida",e:"🍝",kw:"cibo,mangiare,food,gastronomia,ristoranti,tapas,cucina,street food"},{k:"t:culture",tag:"culture",it:"Arte & cultura",en:"Art & culture",es:"Arte y cultura",e:"🏛️",kw:"arte,cultura,musei,museo,art,culture,storia,monumenti,museum"},{k:"t:nightlife",tag:"nightlife",it:"Vita notturna",en:"Nightlife",es:"Vida nocturna",e:"🪩",kw:"notte,locali,discoteca,party,nightlife,clubbing,movida,aperitivo"},{k:"t:relax",tag:"relax",it:"Relax",en:"Relax",es:"Relax",e:"🧘",kw:"relax,tranquillo,calmo,riposo,rilassarsi"}];
+  /* ===== search by activity: only what the app really offers (Viator experiences); chips are categories found in their titles ===== */
+  const TAGACTS=[{k:"t:sea",tag:"sea",it:"Mare",en:"Sea",es:"Mar",e:"🏖️",kw:"mare,spiaggia,spiagge,beach,sea,playa,mar"},{k:"t:food",tag:"food",it:"Cibo",en:"Food",es:"Comida",e:"🍝",kw:"cibo,mangiare,food,gastronomia,ristoranti,tapas,cucina"},{k:"t:culture",tag:"culture",it:"Arte & cultura",en:"Art & culture",es:"Arte y cultura",e:"🏛️",kw:"arte,cultura,musei,museo,art,culture,storia,monumenti,museum"},{k:"t:nightlife",tag:"nightlife",it:"Vita notturna",en:"Nightlife",es:"Vida nocturna",e:"🪩",kw:"notte,locali,discoteca,party,nightlife,clubbing,movida,aperitivo"},{k:"t:relax",tag:"relax",it:"Relax",en:"Relax",es:"Relax",e:"🧘",kw:"relax,tranquillo,calmo,riposo,rilassarsi"}];
+  const VCATS=[
+   {k:"x:surf",it:"Surf",en:"Surfing",es:"Surf",e:"🏄",rx:/\bsurf|kite ?surf|wind ?surf|\bwing\b|paddle ?board|\bsup\b/i,kw:"surf,surfare,onde,kite,kitesurf,windsurf,paddle"},
+   {k:"x:dive",it:"Immersioni",en:"Diving",es:"Buceo",e:"🤿",rx:/diving|\bdive\b|snorkel|scuba|immersion|buceo/i,kw:"immersioni,immersione,diving,snorkeling,snorkel,sub,scuba,buceo"},
+   {k:"x:boat",it:"Barca & mare",en:"Boats & sea",es:"Barco y mar",e:"⛵",rx:/boat|sail|cruise|catamaran|yacht|kayak|canoe|dolphin|whale|barca|crociera|vela\b|velier|delfin|balen|barco|crucero/i,kw:"barca,vela,sailing,boat,yacht,catamarano,crociera,veliero,kayak,delfini,balene,barco"},
+   {k:"x:ski",it:"Sci & neve",en:"Ski & snow",es:"Esquí y nieve",e:"⛷️",rx:/\bski|snowboard|snowmobile|husky|\bsci\b|\bneve\b|snow\b/i,kw:"sci,snowboard,neve,ski,snow,husky"},
+   {k:"x:nature",it:"Natura & trekking",en:"Nature & hiking",es:"Naturaleza y senderismo",e:"🥾",rx:/hik|trek|volcan|vulcan|national park|parco nazionale|canyon|waterfall|cascat|geyser|aurora|glacier|ghiacc|\bgolden circle|caldera|\bgola\b|gorge|lagoon naturale|natura|senderis/i,kw:"trekking,hiking,escursioni,escursione,sentieri,vulcano,vulcani,geyser,aurora,natura,cascate,hike,volcano,senderismo"},
+   {k:"x:spa",it:"Terme & spa",en:"Spas & baths",es:"Termas y spa",e:"♨️",rx:/\bspa\b|thermal|terme|hammam|\bbath|bagni|blue lagoon|sauna|massage|massagg|termas/i,kw:"terme,spa,benessere,thermal,sauna,hammam,massaggi,termas"},
+   {k:"x:wine",it:"Vino",en:"Wine",es:"Vino",e:"🍷",rx:/\bwine|vino\b|vini\b|winery|vineyard|cantin|bodega|sherry|port tasting|porto\b.*degust|cava\b/i,kw:"vino,wine,cantine,degustazione,vigneti,enoteca,bodega"},
+   {k:"x:food",it:"Cibo & cucina",en:"Food & cooking",es:"Comida y cocina",e:"🍽️",rx:/food|tasting|degustaz|cooking|cucina|tapas|gastronom|pasta|pizza|gelato|chocolate|cioccolat|market tour|mercato|brunch|dinner|cena\b|lunch|pranzo|cocina|comida|churros|street/i,kw:"cibo,mangiare,food,gastronomia,ristoranti,tapas,cucina,cena,pranzo,cooking,pizza,pasta"},
+   {k:"x:bike",it:"Bici & scooter",en:"Bikes & scooters",es:"Bici y scooter",e:"🚴",rx:/\bbike|bicycl|cycling|e-?bike|\bbici|scooter|vespa|segway|tuk|moto\b|quad|buggy/i,kw:"bici,bike,cycling,ciclismo,pedalare,scooter,vespa,bicicletta"},
+   {k:"x:night",it:"Serate & show",en:"Nights & shows",es:"Noche y espectáculos",e:"🎭",rx:/pub crawl|nightlife|party|\bclub\b|flamenco|\bshow\b|concert|opera|spettacol|cabaret|jazz|fado|tango|musical|espectác/i,kw:"serata,serate,show,spettacolo,concerto,opera,flamenco,fado,jazz,pub,cabaret"},
+   {k:"x:art",it:"Musei & monumenti",en:"Museums & sights",es:"Museos y monumentos",e:"🏛️",rx:/museum|museo|gallery|galleria|skip[- ]the[- ]line|\bticket|entrance|admission|biglietto|ingresso|palace|palazzo|castle|castello|cathedral|cattedrale|basilica|colosseum|colosseo|vatican|alhambra|sagrada|acropolis|acropoli|\bcatacomb|monument|monumento|abbey|abbazia|mosque|moschea|fort\b|palacio|catedral/i,kw:"musei,museo,monumenti,biglietti,ingresso,visita,castello,palazzo,cattedrale,museum,sights,ticket,skip"},
+   {k:"x:tour",it:"Tour guidati",en:"Guided tours",es:"Tours guiados",e:"🚶",rx:/walking tour|guided|tour a piedi|visita guidata|city tour|hop[- ]on|bus tour|free tour|tour guid|storytelling|ghost|haunted|photo ?walk|street art/i,kw:"tour,guidato,guidata,visita,walking,guided,citytour"},
+   {k:"x:trip",it:"Gite fuori città",en:"Day trips",es:"Excursiones",e:"🚌",rx:/day trip|excursion|escursione|gita|from [A-Z][a-z]+|\bda [A-Z][a-z]+|full[- ]day|\bexcursi/i,kw:"gita,gite,escursione,excursion,daytrip,fuori,dintorni"},
+   {k:"x:class",it:"Corsi & laboratori",en:"Classes & workshops",es:"Clases y talleres",e:"🎨",rx:/\bclass\b|workshop|corso|lezione|laborator|lesson|course|masterclass|taller|clase/i,kw:"corso,corsi,lezione,laboratorio,workshop,class,lesson,clase"},
+   {k:"x:golf",it:"Golf",en:"Golf",es:"Golf",e:"⛳",rx:/\bgolf\b/i,kw:"golf"}];
   const STOP=new Set("voglio,vorrei,fare,fai,per,con,una,uno,del,della,delle,dei,che,sono,dove,posso,andare,weekend,week,end,the,and,for,want,quiero,hacer,donde,las,los".split(","));
   const nrm=x=>String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-  let DBJ=null, ALLACTS=TAGACTS, ACTBY={}, byCode={}, qKeys=new Set(), qText="", qOn=false, qCnt={tot:0,inS:0}, qT=0, fly=null;
-  TAGACTS.forEach(a=>{a.kw=a.kw.split(",")});
-  function prepActs(){ALLACTS.forEach(a=>{a.kwN=(a.kw||[]).map(nrm).concat([nrm(a.it),nrm(a.en),nrm(a.es)]);ACTBY[a.k]=a})}
-  prepActs();
-  function loadDB(){ if(DBJ!==null) return; DBJ=false; const draft=/[?&]db=all/.test(location.search);
-    fetch(draft?"data/activities-draft.json":"data/activities.json").then(r=>r.json()).then(j=>{DBJ=j;
-      ALLACTS=TAGACTS.concat(j.acts.map(a=>({k:a.k,it:a.it,en:a.en,es:a.es,e:a.e,kw:a.kw}))); prepActs(); byCode={}; j.rows.forEach(r=>{(byCode[r.c]=byCode[r.c]||[]).push(r)}); chipsBuild(); qApply(false)}).catch(e=>{DBJ=null;console.error("activities db",e&&e.message)}) }
+  TAGACTS.forEach(a=>{a.kw=a.kw.split(",")}); VCATS.forEach(a=>{a.kw=a.kw.split(",")});
+  const ALLACTS=TAGACTS.concat(VCATS), ACTBY={}; ALLACTS.forEach(a=>{a.kwN=a.kw.map(nrm).concat([nrm(a.it),nrm(a.en),nrm(a.es)]);ACTBY[a.k]=a});
+  let qKeys=new Set(), qText="", qOn=false, qCnt={tot:0,inS:0}, qT=0, fly=null, vxQ=null, vxDone=0, vxTot=0;
   const lblA=a=>a[bpL()]||a.it;
-  function chipCount(a){ if(a.tag) return items.filter(i=>i.d.tags.includes(a.tag)).length; return items.filter(i=>(byCode[i.code]||[]).some(r=>r.a===a.k)).length }
-  function chipsBuild(){ const el=$m("mapChips"); if(!el) return; const l=bpL();
-    const list=ALLACTS.map(a=>({a,n:chipCount(a)})).filter(x=>x.n>0);
+  const vxItems=it=>{let j=null; try{j=vxNow(it.d)}catch(e){} return j&&vxOk(j)?j.items:[]};
+  const catItems=(it,a)=>vxItems(it).filter(x=>a.rx.test(x.t));
+  /* load the Viator experiences of every destination on the map (a few at a time, the ones in the user's search first) */
+  function vxLoadAll(){ if(vxQ) return; const pend=items.slice().sort((a,b)=>(b.inS-a.inS)||a.price-b.price).filter(it=>{try{return !vxNow(it.d)}catch(e){return false}}); vxTot=pend.length; vxDone=0; vxQ=true;
+    let idx=0, run=0; const next=()=>{ while(run<4&&idx<pend.length){ const it=pend[idx++]; run++; let pr; try{pr=vxGet(it.d)}catch(e){pr=Promise.resolve()} pr.catch(()=>{}).then(()=>{run--; vxDone++; clearTimeout(qT); qT=setTimeout(()=>{chipsBuild(); qApply(false)},350); if(idx<pend.length||run>0) next(); else vxQ=null}) } };
+    if(!pend.length){vxQ=null;return} next() }
+  function chipCount(a){ if(a.tag) return items.filter(i=>i.d.tags.includes(a.tag)).length; return items.filter(i=>catItems(i,a).length).length }
+  function chipsBuild(){ const el=$m("mapChips"); if(!el) return;
+    const list=ALLACTS.map(a=>({a,n:chipCount(a)})).filter(x=>x.n>0||qKeys.has(x.a.k));
     const tags=list.filter(x=>x.a.tag), sp=list.filter(x=>!x.a.tag).sort((x,y)=>y.n-x.n);
     el.innerHTML=tags.concat(sp).map(x=>`<button type="button" class="mchip" data-k="${x.a.k}" aria-pressed="${qKeys.has(x.a.k)}">${x.a.e} ${esc_(lblA(x.a))}</button>`).join("");
     const inp=$m("mapQ"); if(inp) inp.placeholder=bpT("What do you want to do?","Cosa vuoi fare?","¿Qué quieres hacer?") }
-  function tokensOf(t){return nrm(t).split(/[^a-z0-9]+/).filter(x=>x.length>=3&&!STOP.has(x))}
   const kwHit=(a,t)=>a.kwN.some(k=>k===t||(t.length>=4&&k.startsWith(t))||(k.length>=4&&t.startsWith(k)));
   function qApply(fit){
-    const toks=tokensOf(qText), keys=new Set(qKeys), unm=[];
+    const toks=nrm(qText).split(/[^a-z0-9]+/).filter(x=>x.length>=3&&!STOP.has(x)), keys=new Set(qKeys), unm=[];
     toks.forEach(t=>{let m=false; ALLACTS.forEach(a=>{if(kwHit(a,t)){keys.add(a.k);m=true}}); if(!m) unm.push(t)});
     qOn=keys.size>0||unm.length>0; qCnt={tot:0,inS:0};
     items.forEach(it=>{ const hits=[];
-      keys.forEach(k=>{const a=ACTBY[k]; if(!a) return; if(a.tag){ if(it.d.tags.includes(a.tag)) hits.push({a,l:1,n:"",p:""}) } else (byCode[it.code]||[]).filter(r=>r.a===k).forEach(r=>hits.push({a,l:r.l,n:r.n,p:r.p}))});
-      if(unm.length){ let j=null; try{j=vxNow(it.d)}catch(e){} if(j&&vxOk(j)){ const m=j.items.filter(x=>unm.every(t=>nrm(x.t).includes(t))); if(m.length) hits.push({a:{e:"🎟️",it:"Attività",en:"Activities",es:"Actividades"},l:2,n:m[0].t,p:"",cnt:m.length}) } }
-      hits.sort((x,y)=>y.l-x.l); it.hit=hits.length?hits:null;
+      keys.forEach(k=>{const a=ACTBY[k]; if(!a) return; if(a.tag){ if(it.d.tags.includes(a.tag)) hits.push({a,l:1,n:"",cnt:0}) } else { const m=catItems(it,a); if(m.length) hits.push({a,l:3,n:m[0].t,p:m[0].p,cnt:m.length}) } });
+      if(unm.length){ const m=vxItems(it).filter(x=>unm.every(t=>nrm(x.t).includes(t))); if(m.length) hits.push({a:{e:"🎟️",it:"Attività",en:"Activities",es:"Actividades"},l:2,n:m[0].t,p:m[0].p,cnt:m.length}) }
+      hits.sort((x,y)=>y.l-x.l||y.cnt-x.cnt); it.hit=hits.length?hits:null;
       if(it.hit){qCnt.tot++; if(it.inS) qCnt.inS++}
       const el=it.el; if(!el) return; el.classList.toggle("hit",!!it.hit); el.classList.toggle("dim",qOn&&!it.hit);
-      const mk=el.querySelector(".mk"); if(mk) mk.textContent=it.hit?(it.hit[0].a.e+" "+(it.hit[0].cnt?it.hit[0].cnt+" "+bpT("activities","attività","actividades"):lblA(it.hit[0].a))+(it.hit.length>1&&!it.hit[0].cnt?" +"+(it.hit.length-1):"")):""; });
+      const mk=el.querySelector(".mk"); if(mk){ const h0=it.hit&&it.hit[0]; mk.textContent=h0?(h0.a.e+" "+lblA(h0.a)+(h0.cnt>1?" · "+h0.cnt:"")):"" } });
     document.querySelectorAll("#mapChips .mchip").forEach(b=>b.setAttribute("aria-pressed",String(qKeys.has(b.dataset.k))));
     const qn=$m("mapQn"), qx=$m("mapQx"); qn.hidden=!qOn; qx.hidden=!(qOn||qText); if(qOn) qn.textContent=qCnt.tot+" "+bpT(qCnt.tot===1?"place":"places",qCnt.tot===1?"meta":"mete",qCnt.tot===1?"destino":"destinos");
-    // text that matches no known activity: look through the Viator titles (load the ones we do not have yet, in the user's search)
-    if(unm.length){ items.filter(i=>i.inS&&!(()=>{try{return vxNow(i.d)}catch(e){return 1}})()).slice(0,24).forEach(i=>{try{vxGet(i.d).then(()=>{clearTimeout(qT);qT=setTimeout(()=>qApply(false),250)})}catch(e){}}) }
     hint(); if(sel) card(); dirty=true;
     if(fit&&qOn&&qCnt.tot) flyHits();
     if(fit===true){try{trk("map_search",{k:[...keys].join(","),t:qText.slice(0,30),n:qCnt.tot})}catch(e){}}
@@ -4877,7 +4892,7 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
     lab();
     document.body.classList.toggle("mapOn",on);
     if(on){ if(!LAND){fetch("map-land.json").then(r=>r.json()).then(j=>{LAND=j;dirty=true}).catch(()=>{})}
-      loadDB(); if(stale||!items.length){W=0;build()} sel=null; chipsBuild(); qApply(false); card(); anim=true; t0=performance.now(); dirty=true; W=0; try{trk("map_on")}catch(e){} if(!raf) raf=requestAnimationFrame(frame) }
+      if(stale||!items.length){W=0;build()} sel=null; chipsBuild(); qApply(false); card(); vxLoadAll(); anim=true; t0=performance.now(); dirty=true; W=0; try{trk("map_on")}catch(e){} if(!raf) raf=requestAnimationFrame(frame) }
   }
   [tog,togIn].forEach(t=>t.addEventListener("click",e=>{const b=e.target.closest("button"); if(b) setOpen(b.dataset.v==="map")}));
   const lab=()=>{[tog,togIn].forEach(t=>{t.children[0].textContent=bpT("Cards","Carte","Cartas");t.children[1].textContent=bpT("Map","Mappa","Mapa");t.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String((b.dataset.v==="map")===open)))})};
