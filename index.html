@@ -1018,7 +1018,7 @@ body.v2{--r-card:28px}
 .alBtn>span:first-child{font-size:22px}
 .alBtn b{display:block;font-size:14px}.alBtn small{font-size:12px;opacity:.92}
 .alBtn i{margin-left:auto;font-style:normal;font-size:22px}
-.alOn{margin:10px 0 4px;padding:10px 12px;border-radius:12px;background:var(--mint);color:var(--mint-ink);font-weight:600;font-size:13.5px}
+.alOn{cursor:pointer;border:0;font:inherit;width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;margin:10px 0 4px;padding:10px 12px;border-radius:12px;background:var(--mint);color:var(--mint-ink);font-weight:600;font-size:13.5px}
 html.neg .alBtn{filter:invert(1) hue-rotate(180deg)}
 .evOv{position:fixed;inset:0;z-index:70;background:rgba(10,16,32,.55);display:flex;align-items:flex-end;justify-content:center;padding:12px;animation:fadeIn .2s ease}
 .evOv[hidden]{display:none}
@@ -4145,7 +4145,7 @@ function alertOpen(src){
     let uid=""; try{uid=localStorage.getItem("fa_uid")||""}catch(x){}
     try{ const r=await fetch("/api/subscribe",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({email:em,b:S.budgetOn?S.budget:0,o:ORI(),a:S.trip.adults,l:(document.documentElement.lang==="it"?"it":"en"),uid,g:CAMP,t:TRK_OFF===true})});
       if(!r.ok&&r.status!==204) throw 0;
-      try{localStorage.setItem("fa_alert","1")}catch(x){} trk("alert_signup",{src,b:S.budgetOn?S.budget:0}); trkFlush();
+      try{localStorage.setItem("fa_alert","1");localStorage.setItem("fa_alert_email",em)}catch(x){} trk("alert_signup",{src,b:S.budgetOn?S.budget:0}); trkFlush();
       o.hidden=true; toast("Done! Your first deals arrive on Thursday 🔔"); renderAlertBtn();
     }catch(x){ bt.disabled=false; bt.textContent="Notify me"; er.textContent="Something went wrong, try again."; er.hidden=false; }
   };
@@ -4155,8 +4155,20 @@ function alertOpen(src){
 function alertClose(how){const o=$("alOv"); if(!o||o.hidden) return; o.hidden=true; trk("alert_close",{how});}
 function renderAlertBtn(){
   const w=$("alertBtnWrap"); if(!w) return;
-  w.innerHTML=alertDone()?`<div class="alOn">🔔 You get the best weekends every Thursday</div>`:`<button class="alBtn" id="alertBtn"><span aria-hidden="true">🔔</span><span><b>Get the 3 best weekends every Thursday</b><small>Free, for your budget, one email a week</small></span><i aria-hidden="true">›</i></button>`;
+  w.innerHTML=alertDone()?`<button type="button" class="alOn" id="alertOn">🔔 You get the best weekends every Thursday <i aria-hidden="true">›</i></button>`:`<button class="alBtn" id="alertBtn"><span aria-hidden="true">🔔</span><span><b>Get the 3 best weekends every Thursday</b><small>Free, for your budget, one email a week</small></span><i aria-hidden="true">›</i></button>`;
   const b=$("alertBtn"); if(b) b.onclick=()=>alertOpen("saved");
+  const on=$("alertOn"); if(on) on.onclick=alertManage;
+}
+/* subscribed: show where the email goes, allow change or switch off */
+function alertManage(){
+  let em=""; try{em=localStorage.getItem("fa_alert_email")||""}catch(e){}
+  if(!em){ try{localStorage.removeItem("fa_alert")}catch(e){} renderAlertBtn(); alertOpen("saved"); return }
+  let o=$("alOv"); if(!o){o=document.createElement("div");o.id="alOv";o.className="instOv";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.addEventListener("click",e=>{if(e.target===o)alertClose("backdrop")});document.body.appendChild(o);}
+  o.innerHTML=`<div class="instCard alCard"><button class="instX" aria-label="Close">✕</button><div class="alIco" aria-hidden="true">🔔</div><h3 translate="no">${acT("Ricevi i 3 weekend migliori ogni giovedì","You get the 3 best weekends every Thursday")}</h3><p class="alSub" translate="no">${acT("Li mandiamo a","Sent to")} <b>${em.replace(/[<>&]/g,"")}</b></p><div class="alForm" style="flex-direction:column"><button class="btn" id="alChg" translate="no">${acT("Cambia email","Change email")}</button><button class="btn ghost" id="alOff" translate="no">${acT("Disattiva","Turn off")}</button></div><p class="alErr" id="alErr" hidden></p></div>`;
+  o.querySelector(".instX").onclick=()=>alertClose("x");
+  $("alChg").onclick=()=>alertOpen("saved");
+  $("alOff").onclick=async()=>{ const bt=$("alOff"); bt.disabled=true; try{ const r=await fetch("/api/subscribe",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({email:em,unsub:true})}); if(!r.ok&&r.status!==204) throw 0; try{localStorage.removeItem("fa_alert");localStorage.removeItem("fa_alert_email")}catch(x){} trk("alert_off",{}); o.hidden=true; toast(acT("Disattivato","Turned off")); renderAlertBtn(); }catch(x){ bt.disabled=false; const er=$("alErr"); er.textContent=acT("Qualcosa è andato storto, riprova.","Something went wrong, try again."); er.hidden=false } };
+  o.hidden=false; trk("alert_manage",{});
 }
 /* ===== profile: optional account (email + password) — keeps saved weekends across devices and manages the Thursday email ===== */
 const AC={tok:"",user:null,busy:false,pend:[],syncT:0};

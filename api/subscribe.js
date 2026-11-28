@@ -9,6 +9,7 @@ module.exports = async (req, res) => {
   if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) return res.status(400).json({ error: "invalid email" });
   const rec = { email, budget: Math.max(0, Math.min(5000, Number(b.b) || 0)), origin: String(b.o || "MIL").replace(/[^A-Z]/g, "").slice(0, 3), adults: Math.max(1, Math.min(4, Number(b.a) || 1)),
     lang: b.l === "it" ? "it" : "en", source: String(b.g || "").replace(/[^a-z0-9_-]/gi, "").slice(0, 40), uid: String(b.uid || "").replace(/[^a-z0-9]/gi, "").slice(0, 32), at: Date.now(), consent: true, test: b.t === true };
+  if (b.unsub === true) { try { await cmd(["HDEL", "subs", email]); return res.status(204).end(); } catch (e) { return res.status(500).json({ error: "save failed" }); } }
   try {
     await cmd(["HSET", "subs", email, JSON.stringify(rec)]);
     return res.status(204).end();
