@@ -164,6 +164,14 @@ textarea{flex:1;min-width:0;resize:none;height:62px;font:inherit;font-size:15px;
 @keyframes cvPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 @media (prefers-reduced-motion:reduce){.cover img,.cover .cvTap,.cover .cvQ,.cover .cvQ span,.cover .cvQ::after{animation:none}.card.rv{animation:none}}
 .card .evPill .evT{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+
+.qRead{font-size:12.5px;color:var(--muted);min-height:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.qRead:empty{display:none}
+.qRead i{font-style:normal;background:var(--app);border:1px solid var(--line);border-radius:999px;padding:3px 9px;color:var(--ink);font-weight:600}
+.qRead u{text-decoration:none;opacity:.85}
+.geoNote{display:flex;align-items:center;gap:8px;margin:8px 0;padding:9px 12px;border-radius:12px;background:var(--app);border:1px solid var(--line);font-size:13.5px;color:var(--muted);animation:rvIn .35s ease}
+.geoNote b{color:var(--ink)}.geoNote span{flex:1;min-width:0}
+.geoNote button{border:0;background:none;color:var(--primary);font:inherit;font-weight:700;cursor:pointer;padding:0 2px;white-space:nowrap}
 .card .leg .fn{display:none}
 .card .leg{grid-template-columns:auto 1fr}
 .price{font-family:var(--display);font-weight:700;font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
@@ -1310,6 +1318,7 @@ main[data-s="profile"]>.sec{max-width:720px;margin-left:auto;margin-right:auto}
         <textarea id="q" placeholder="Describe your weekend…">Somewhere warm by the sea, great food, nice hotel near the centre, max €450</textarea>
         <button class="go" id="go">Go</button>
       </div>
+      <div class="qRead" id="qRead" aria-live="polite"></div>
       <div class="chipSet"><span class="chipLbl">Mood</span><div class="chips" role="group" aria-label="Moods">
         <button class="chip" data-v="sea">Sea</button>
         <button class="chip" data-v="food">Food</button>
@@ -1993,7 +2002,14 @@ const photoLink=code=>REAL_PHOTOS&&PH[code]?`<span class="credit">Photo: <a href
 const MORE=[{"code": "MAD", "city": "Madrid", "country": "Spain", "temp": 19, "scene": "city", "tags": ["city", "food", "culture", "nightlife"]}, {"code": "SVQ", "city": "Seville", "country": "Spain", "temp": 25, "scene": "city", "tags": ["city", "food", "culture"]}, {"code": "PMI", "city": "Palma de Mallorca", "country": "Spain", "temp": 23, "scene": "sea", "tags": ["sea", "relax", "food"]}, {"code": "IBZ", "city": "Ibiza", "country": "Spain", "temp": 23, "scene": "sea", "tags": ["sea", "nightlife", "relax"]}, {"code": "MAH", "city": "Menorca", "country": "Spain", "temp": 22, "scene": "sea", "tags": ["sea", "relax"]}, {"code": "ALC", "city": "Alicante", "country": "Spain", "temp": 24, "scene": "sea", "tags": ["sea", "food", "relax"]}, {"code": "BIO", "city": "Bilbao", "country": "Spain", "temp": 19, "scene": "city", "tags": ["city", "food", "culture"]}, {"code": "GRX", "city": "Granada", "country": "Spain", "temp": 20, "scene": "city", "tags": ["culture", "food"]}, {"code": "LPA", "city": "Gran Canaria", "country": "Spain", "temp": 26, "scene": "sea", "tags": ["sea", "relax"]}, {"code": "ACE", "city": "Lanzarote", "country": "Spain", "temp": 26, "scene": "sea", "tags": ["sea", "relax"]}, {"code": "FUE", "city": "Fuerteventura", "country": "Spain", "temp": 26, "scene": "sea", "tags": ["sea", "relax"]}, {"code": "FAO", "city": "Faro & Algarve", "country": "Portugal", "temp": 23, "scene": "sea", "tags": ["sea", "relax"]}, {"code": "FNC", "city": "Madeira", "country": "Portugal", "temp": 23, "scene": "sea", "tags": ["sea", "relax", "food"]}, {"code": "LYS", "city": "Lyon", "country": "France", "temp": 16, "scene": "city", "tags": ["food", "city", "culture"]}, {"code": "MRS", "city": "Marseille", "country": "France", "temp": 20, "scene": "sea", "tags": ["sea", "food", "city"]}, {"code": "NCE", "city": "Nice", "country": "France", "temp": 20, "scene": "sea", "tags": ["sea", "city", "food"]}, {"code": "BOD", "city": "Bordeaux", "country": "France", "temp": 18, "scene": "city", "tags": ["food", "city"]}, {"code": "LON", "city": "London", "country": "United Kingdom", "temp": 15, "scene": "city", "tags": ["city", "culture", "nightlife", "food"]}, {"code": "EDI", "city": "Edinburgh", "country": "United Kingdom", "temp": 12, "scene": "city", "tags": ["city", "culture"]}, {"code": "DUB", "city": "Dublin", "country": "Ireland", "temp": 13, "scene": "city", "tags": ["city", "nightlife"]}, {"code": "BRU", "city": "Brussels", "country": "Belgium", "temp": 14, "scene": "city", "tags": ["city", "food", "culture"]}, {"code": "BER", "city": "Berlin", "country": "Germany", "temp": 13, "scene": "city", "tags": ["city", "nightlife", "culture"]}, {"code": "MUC", "city": "Munich", "country": "Germany", "temp": 14, "scene": "city", "tags": ["city", "food", "culture"]}, {"code": "HAM", "city": "Hamburg", "country": "Germany", "temp": 13, "scene": "city", "tags": ["city", "food"]}, {"code": "STO", "city": "Stockholm", "country": "Sweden", "temp": 10, "scene": "city", "tags": ["city", "culture"]}, {"code": "OSL", "city": "Oslo", "country": "Norway", "temp": 9, "scene": "city", "tags": ["city", "culture"]}, {"code": "HEL", "city": "Helsinki", "country": "Finland", "temp": 8, "scene": "city", "tags": ["city", "relax"]}, {"code": "REK", "city": "Reykjavik", "country": "Iceland", "temp": 6, "scene": "city", "tags": ["relax", "culture"]}, {"code": "RIX", "city": "Riga", "country": "Latvia", "temp": 10, "scene": "city", "tags": ["city", "culture", "nightlife"]}, {"code": "TLL", "city": "Tallinn", "country": "Estonia", "temp": 9, "scene": "city", "tags": ["city", "culture"]}, {"code": "WAW", "city": "Warsaw", "country": "Poland", "temp": 12, "scene": "city", "tags": ["city", "culture", "food"]}, {"code": "KRK", "city": "Krakow", "country": "Poland", "temp": 13, "scene": "city", "tags": ["culture", "food", "nightlife"]}, {"code": "GDN", "city": "Gdansk", "country": "Poland", "temp": 12, "scene": "city", "tags": ["city", "culture"]}, {"code": "DBV", "city": "Dubrovnik", "country": "Croatia", "temp": 20, "scene": "sea", "tags": ["sea", "culture"]}, {"code": "ZAD", "city": "Zadar", "country": "Croatia", "temp": 19, "scene": "sea", "tags": ["sea", "relax"]}, {"code": "ZAG", "city": "Zagreb", "country": "Croatia", "temp": 15, "scene": "city", "tags": ["city", "food"]}, {"code": "TIA", "city": "Tirana", "country": "Albania", "temp": 21, "scene": "city", "tags": ["city", "food"]}, {"code": "BEG", "city": "Belgrade", "country": "Serbia", "temp": 17, "scene": "city", "tags": ["city", "nightlife", "food"]}, {"code": "SOF", "city": "Sofia", "country": "Bulgaria", "temp": 16, "scene": "city", "tags": ["city", "culture"]}, {"code": "OTP", "city": "Bucharest", "country": "Romania", "temp": 16, "scene": "city", "tags": ["city", "nightlife"]}, {"code": "JTR", "city": "Santorini", "country": "Greece", "temp": 22, "scene": "sea", "tags": ["sea", "relax"]}, {"code": "JMK", "city": "Mykonos", "country": "Greece", "temp": 22, "scene": "sea", "tags": ["sea", "nightlife"]}, {"code": "HER", "city": "Crete", "country": "Greece", "temp": 23, "scene": "sea", "tags": ["sea", "food", "relax"]}, {"code": "RHO", "city": "Rhodes", "country": "Greece", "temp": 24, "scene": "sea", "tags": ["sea", "culture", "relax"]}, {"code": "CFU", "city": "Corfu", "country": "Greece", "temp": 21, "scene": "sea", "tags": ["sea", "relax", "food"]}, {"code": "SKG", "city": "Thessaloniki", "country": "Greece", "temp": 20, "scene": "sea", "tags": ["city", "food", "sea"]}, {"code": "MLA", "city": "Malta", "country": "Malta", "temp": 24, "scene": "sea", "tags": ["sea", "culture", "nightlife"]}, {"code": "LCA", "city": "Cyprus (Larnaca)", "country": "Cyprus", "temp": 27, "scene": "sea", "tags": ["sea", "relax"]}, {"code": "IST", "city": "Istanbul", "country": "Türkiye", "temp": 18, "scene": "city", "tags": ["city", "food", "culture", "nightlife"]}, {"code": "RAK", "city": "Marrakech", "country": "Morocco", "temp": 26, "scene": "city", "tags": ["culture", "food", "relax"]}, {"code": "ROM", "city": "Rome", "country": "Italy", "temp": 21, "scene": "city", "tags": ["city", "food", "culture"]}, {"code": "CTA", "city": "Catania", "country": "Italy", "temp": 23, "scene": "sea", "tags": ["sea", "food", "culture"]}, {"code": "BRI", "city": "Bari", "country": "Italy", "temp": 21, "scene": "sea", "tags": ["sea", "food"]}, {"code": "BDS", "city": "Salento (Brindisi)", "country": "Italy", "temp": 22, "scene": "sea", "tags": ["sea", "food", "relax"]}, {"code": "OLB", "city": "Olbia", "country": "Italy", "temp": 21, "scene": "sea", "tags": ["sea", "relax"]}, {"code": "AHO", "city": "Alghero", "country": "Italy", "temp": 21, "scene": "sea", "tags": ["sea", "food"]}, {"code": "SUF", "city": "Calabria (Lamezia)", "country": "Italy", "temp": 22, "scene": "sea", "tags": ["sea", "relax"]}];
 DATA.push(...MORE.map(m=>({fly:"",direct:false,carrier:"",h:[],more:true,...m})));
 DATA.forEach((d,i)=>{d.id=i;d.hotels=d.h.map((t,j)=>({j,name:t[0],stars:t[1],rating:t[2],reviews:t[3],km:t[4],fac:t[5],price:t[6],flex:t[7],hid:HID[t[0]]}));d.hrs=hoursThere(d.code);});
-const VIBE_WORDS={sea:["sea","beach","mare","spiaggia","warm","caldo","sun","sole","island"],city:["city","città","citta","urban"],food:["food","cibo","eat","mangiare","restaurant","wine","vino"],culture:["culture","cultura","art","arte","museum","musei","history"],nightlife:["nightlife","party","club","bar","movida"],relax:["relax","spa","calm","chill","terme","wellness","quiet"]};
+const VIBE_RX={
+sea:/\b(?:sea\b|beach|mare\b|marin|spiagg|warm|cald|sun\b|sunny|sole\b|solegg|island|isol[ae]|coast|costiera|snorkel|swim|nuot|lido\b|calette?|tropic|riviera|surf|vacanza al mare)/i,
+city:/\b(?:city\b|cities|citt[aà]\b|urban|shopping|skyline|metropol|capital|capitale)/i,
+food:/\b(?:food|cibo|eat\b|eating|mangi|restaurant|ristorant|wine|vino|vini|tapas|pizza|pasta|gastro|cucina|cuisine|brunch|degust|trattori|chef|dinner|cena\b|foodie|aperitiv|street ?food|delicios)/i,
+culture:/\b(?:cultur|art\b|arts\b|arte\b|artist|museum|muse[io]|histor|stori[ac]|monument|church|chies[ae]|architect|galler|mostr[ae]|exhibit|unesco|antic|ancient|castl|castell|palazz)/i,
+nightlife:/\b(?:nightlife|party|parties|club|bar\b|bars\b|movida|disco|cocktail|serata|notte\b|night ?out|festa\b|drinks?\b|divertim|fun\b)/i,
+relax:/\b(?:relax|spa\b|calm|chill|terme\b|wellness|quiet|tranquill|pace\b|peace|massag|slow\b|riposo|rest\b|hot ?spring|pool\b|piscina|benessere|staccare|disconnect)/i};
+const VIBE_WORDS={sea:["sea"],city:["city"],food:["food"],culture:["culture"],nightlife:["nightlife"],relax:["relax"]};
 const VLABEL={sea:"sea",city:"city",food:"food",culture:"culture",nightlife:"nightlife",relax:"relax & spa"};
 
 /* ===== state ===== */
@@ -3863,10 +3879,10 @@ function applyIntent(o,src){
 }
 function parseRules(t){
   const s=t.toLowerCase(),o={vibes:[]};
-  const m=s.match(/(?:€|eur\s*)\s*(\d{3,4})/)||s.match(/(\d{3,4})\s*(?:€|eur|euro)/)||s.match(/(?:budget|max|under|sotto|massimo)\s*(\d{3,4})/);
+  const m=s.match(/(?:€|eur\s*)\s*(\d{3,4})/)||s.match(/(\d{3,4})\s*(?:€|eur|euro)/)||s.match(/(?:budget|max|under|sotto|massimo|meno di|up to|fino a|al massimo|entro|within)\s*(?:di\s*)?(\d{3,4})/);
   if(m) o.budget=+m[1];
-  for(const [k,w] of Object.entries(VIBE_WORDS)) if(w.some(x=>s.includes(x))) o.vibes.push(k);
-  o.flexible=/(flexib|flessib|cancel)/.test(s); o.direct=/(direct|diretto)/.test(s);
+  for(const k in VIBE_RX) if(VIBE_RX[k].test(s)) o.vibes.push(k);
+  o.flexible=/(flexib|flessib|cancel|annull)/.test(s); o.direct=/(direct|diretto|senza scal|non-?stop)/.test(s);
   o.nice_hotel=/(nice hotel|4 ?star|4★|bel hotel|4 stelle|luxury|lusso|good hotel)/.test(s);
   o.central=/(central|centre|center|centro)/.test(s);
   return o;
@@ -4291,6 +4307,53 @@ function syncGroupHints(p){
 window.addEventListener("fa-lang",()=>{try{renderTgPromo()}catch(e){} try{syncTasteRow()}catch(e){} try{const pp=document.querySelector('main[data-s="profile"]'); if(pp&&!pp.hidden) renderProfile()}catch(e){}});
 I18N.start();
 syncTasteRow(); syncUserBtns(); resortTaste();
+/* ===== free text: show what was understood (moods / budget / filters) ===== */
+function qReadRender(){
+  const el=$("qRead"), q=$("q"); if(!el||!q) return; const t=q.value.trim(); if(!t){el.innerHTML="";return}
+  const o=parseRules(t), it=isIT(), tags=[];
+  o.vibes.forEach(v=>tags.push(it?({sea:"Mare",city:"Città",food:"Cibo",culture:"Cultura",nightlife:"Vita notturna",relax:"Relax"})[v]:({sea:"Sea",city:"City",food:"Food",culture:"Culture",nightlife:"Nightlife",relax:"Relax & spa"})[v]));
+  if(o.budget) tags.push((it?"max ":"max ")+"€"+o.budget);
+  if(o.flexible) tags.push(it?"Cancellazione gratuita":"Free cancel");
+  if(o.direct) tags.push(it?"Diretto":"Direct");
+  if(o.nice_hotel) tags.push(it?"Hotel curato":"Nice hotel");
+  if(o.central) tags.push(it?"Centrale":"Central");
+  el.innerHTML=tags.length?`<u>${it?"Ho capito":"Understood"}:</u> ${tags.map(x=>`<i>${x}</i>`).join("")}<u>${it?"· correggi con i chip qui sotto":"· fix with the chips below"}</u>`
+    :`<u>${it?"Non ho riconosciuto parole chiave. Prova: mare, cibo, cultura, relax, max 400 €. Oppure usa i chip qui sotto.":"No keywords recognised. Try: sea, food, culture, relax, max €400. Or use the chips below."}</u>`;
+}
+$("q").addEventListener("input",qReadRender); window.addEventListener("fa-lang",qReadRender); qReadRender();
+
+/* ===== wow on first open: departure airport from the phone's position ===== */
+const AIRP={MIL:[45.46,9.19,"Milano","Milan"],TRN:[45.07,7.69,"Torino","Turin"],GOA:[44.41,8.93,"Genova","Genoa"],VRN:[45.44,10.99,"Verona","Verona"],VCE:[45.44,12.32,"Venezia","Venice"],BLQ:[44.49,11.34,"Bologna","Bologna"],PSA:[43.72,10.4,"Pisa","Pisa"],FLR:[43.77,11.26,"Firenze","Florence"],ROM:[41.9,12.5,"Roma","Rome"],NAP:[40.85,14.27,"Napoli","Naples"],BRI:[41.12,16.87,"Bari","Bari"],CTA:[37.5,15.09,"Catania","Catania"],PMO:[38.12,13.36,"Palermo","Palermo"],CAG:[39.22,9.12,"Cagliari","Cagliari"],ZRH:[47.37,8.54,"Zurigo","Zurich"],GVA:[46.2,6.14,"Ginevra","Geneva"]};
+function nearestAirport(lat,lon){let best=null,bd=1e9;for(const c in AIRP){const a=AIRP[c],dx=(a[0]-lat)*Math.PI/180,dy=(a[1]-lon)*Math.PI/180*Math.cos(lat*Math.PI/180),d=Math.sqrt(dx*dx+dy*dy)*6371;if(d<bd){bd=d;best=c}}return bd<250?best:null}
+function geoNote(code,auto){
+  const old=$("geoNote"); if(old) old.remove(); const vb=$("vibeBar"); if(!vb) return;
+  const n=document.createElement("div"); n.id="geoNote"; n.className="geoNote notr"; n.setAttribute("translate","no"); const it=isIT(), c=AIRP[code][it?2:3];
+  n.innerHTML=`<span>📍 ${it?`Partenza da <b>${c}</b>, trovata per te`:`Departing from <b>${c}</b>, found for you`}</span><button type="button" data-ch>${it?"Cambia":"Change"}</button><button type="button" data-x aria-label="OK">✕</button>`;
+  vb.insertAdjacentElement("beforebegin",n);
+  n.querySelector("[data-x]").onclick=()=>n.remove(); n.querySelector("[data-ch]").onclick=()=>{n.remove();openSetup();setTimeout(()=>{const m=$("more"); if(m) m.open=true;$("orig").focus()},150)};
+  setTimeout(()=>{if(n.isConnected) n.remove()},9000);
+}
+async function setOriginAuto(code,announce){
+  if(!AIRP[code]||code===ORI()){ if(announce&&AIRP[code]) geoNote(code); return }
+  $("orig").value=code;
+  for(let i=0;i<20&&!mcp;i++) await new Promise(r=>setTimeout(r,400));
+  if(!mcp) return;
+  try{ await applyTrip(); }catch(e){}
+  if(ORI()===code&&announce) geoNote(code);
+}
+(function geoStart(){
+  let saved=null,manual=false; try{saved=localStorage.getItem("fa_orig");manual=localStorage.getItem("fa_orig_manual")==="1"}catch(e){}
+  $("orig").addEventListener("change",()=>{try{localStorage.setItem("fa_orig_manual","1");localStorage.setItem("fa_orig",$("orig").value)}catch(e){}});
+  if(manual&&saved) return;                       // the visitor chose the city: respect it
+  if(saved&&AIRP[saved]){ setTimeout(()=>setOriginAuto(saved,false),600); return }  // found earlier: apply silently
+  const go=async()=>{
+    const done=code=>{ if(!code) return; try{localStorage.setItem("fa_orig",code)}catch(e){} setOriginAuto(code,true); };
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(p=>done(nearestAirport(p.coords.latitude,p.coords.longitude)),()=>{ let tz="";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone}catch(e){} done(tz==="Europe/Zurich"?"ZRH":null)},{timeout:8000,maximumAge:6e5});
+    }
+  };
+  let tries=0; const wait=()=>{ if(S.cover==="on"&&tries++<40) return setTimeout(wait,700); go(); }; setTimeout(wait,1200);
+})();
 </script>
 
 <script>if("serviceWorker" in navigator&&location.protocol==="https:")addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));</script>
