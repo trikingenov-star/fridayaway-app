@@ -3711,7 +3711,7 @@ function sbqRender(){
 }
 setInterval(()=>{if(document.visibilityState==="visible"&&$("setup").hidden){sbqI++;sbqRender()}},3500);
 
-function isV2(){if(document.body.classList.contains("v2")) return true; try{const m=location.search.match(/[?&]v2=([01])/); return m?m[1]==="1":localStorage.getItem("fa_v2")==="1"}catch(e){return false}}
+function isV2(){if(document.body.classList.contains("v2")) return true; try{const m=location.search.match(/[?&]v2=([01])/); return m?m[1]==="1":localStorage.getItem("fa_v2")!=="0"}catch(e){return true}}
 function renderSum(){
   const a=$("sumA"), b=$("sumB"); if(!a) return;
   const v=[...S.vibes].map(x=>VLABEL[x]); const t=S.trip;
@@ -4011,7 +4011,7 @@ function showTab(t){
 }
 document.querySelectorAll(".tabbar button").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
 /* v2 look flag: ?v2=1 turns it on (remembered), ?v2=0 turns it off */
-(function(){try{const m=location.search.match(/[?&]v2=([01])/); if(m) localStorage.setItem("fa_v2",m[1]); if(localStorage.getItem("fa_v2")==="1") document.body.classList.add("v2")}catch(e){}})();
+(function(){try{const m=location.search.match(/[?&]v2=([01])/); if(m) localStorage.setItem("fa_v2",m[1]); if(localStorage.getItem("fa_v2")!=="0") document.body.classList.add("v2")}catch(e){document.body.classList.add("v2")}})();
 $("t3Btn").onclick=()=>showTab("drop");
 $("openCase").onclick=()=>showTab("case"); $("backDrop").onclick=()=>showTab("drop");
 
