@@ -178,6 +178,12 @@ textarea{flex:1;min-width:0;resize:none;height:62px;font:inherit;font-size:15px;
 .bp .bpBrand{font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:-.02em}.bp .bpBrand b{color:#2fd6c0}
 .bp h1{font-family:var(--display);font-size:28px;line-height:1.1;margin:4px 0 0;letter-spacing:-.02em;text-wrap:balance}
 .bp p{margin:0;opacity:.8;font-size:15px;max-width:30ch;text-wrap:balance}
+.bp.bpOver{background:linear-gradient(rgba(6,10,43,.45),rgba(6,10,43,.78));-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.bpTip{font-size:13px;font-weight:700;opacity:.9;max-width:28ch;text-wrap:balance}
+.bpStp{position:absolute;top:56px;z-index:3;border:3px solid;border-radius:10px;padding:2px 10px;font-weight:900;font-size:20px;letter-spacing:.06em;opacity:0;pointer-events:none;background:rgba(255,255,255,.9)}
+.bpStp.y{left:14px;color:#10b981;border-color:#10b981;transform:rotate(-10deg)}
+.bpStp.n{right:14px;color:#ef4444;border-color:#ef4444;transform:rotate(10deg)}
+.bpHand{position:absolute;left:46%;top:44%;z-index:4;font-size:44px;line-height:1;pointer-events:none;filter:drop-shadow(0 4px 6px rgba(0,0,0,.35));opacity:0}
 .bp .bpBtn{border:0;border-radius:16px;background:linear-gradient(100deg,#FF5A7A,#FF9F45);color:#fff;font:inherit;font-weight:800;font-size:17px;padding:14px 26px;cursor:pointer;box-shadow:0 10px 26px rgba(255,90,122,.4);width:min(320px,100%)}
 .bp .bpLink{border:0;background:none;color:#fff;opacity:.7;font:inherit;font-size:14px;cursor:pointer;text-decoration:underline;padding:6px}
 .bp .bpSpin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.25);border-top-color:#2fd6c0;animation:bpR .8s linear infinite}
@@ -2551,10 +2557,32 @@ async function bpFetchWx(lat,lon,day){
   }catch(e){return null}
 }
 function bpDone(el,openCode){
+  try{window.faMapIntroEnd&&window.faMapIntroEnd()}catch(e){}
   S.cover="done"; clearTimeout(S.coverT); try{sessionStorage.setItem("fa_cover","1");localStorage.setItem("fa_intro","1");localStorage.setItem("fa_geo_asked","1")}catch(e){}
   const cv=document.querySelector("#deck .cover"); if(cv) cv.remove();
   if(openCode){S.pin=openCode;S.seen.clear();try{renderDeck()}catch(e){}}
   el.animate([{opacity:1},{opacity:0}],{duration:220}).onfinish=()=>{el.remove(); FS.done=true; if(openCode) setTimeout(()=>{try{openSheet(openCode)}catch(e){}},150); else {try{renderDeck()}catch(e){}}};
+}
+/* the pass is the first real card: price counts up, a light buzz when it lands, a hand shows the swipe, and the user does it for real */
+function bpSwipe(el,best,price){
+  const card=el.querySelector(".bpCard"); if(!card) return;
+  const pb=card.querySelector(".bpFt b"); if(pb){const t0=performance.now(); const tk=n=>{const k=Math.min(1,(n-t0)/1000); pb.textContent=eur(price*(1-Math.pow(1-k,3))); if(k<1) requestAnimationFrame(tk); else pb.textContent=eur(price)}; requestAnimationFrame(tk)}
+  setTimeout(()=>{try{navigator.vibrate&&navigator.vibrate(18)}catch(e){}},480);
+  const yes=document.createElement("div"), no=document.createElement("div"); yes.className="bpStp y"; no.className="bpStp n"; yes.textContent=bpT("SAVE","SALVA","GUARDAR"); no.textContent=bpT("SKIP","SALTA","SALTAR");
+  card.style.position="relative"; card.appendChild(yes); card.appendChild(no);
+  const hand=document.createElement("div"); hand.className="bpHand"; hand.textContent="👆"; card.appendChild(hand);
+  const dm=[card.animate([{transform:"none"},{transform:"translateX(80px) rotate(6deg)"},{transform:"none"}],{duration:1600,delay:1500,iterations:3,easing:"ease-in-out"}),
+    hand.animate([{opacity:0,transform:"translate(0,0)"},{opacity:1,transform:"translate(0,0)",offset:.15},{opacity:1,transform:"translate(80px,0)",offset:.6},{opacity:0,transform:"translate(80px,0)"}],{duration:1600,delay:1500,iterations:3,easing:"ease-in-out",fill:"backwards"}),
+    yes.animate([{opacity:0},{opacity:0,offset:.3},{opacity:.9,offset:.6},{opacity:0}],{duration:1600,delay:1500,iterations:3})];
+  const stop=()=>{dm.forEach(a=>{try{a.cancel()}catch(e){}}); hand.remove()};
+  let x0=null,dx=0; card.style.touchAction="none"; card.style.cursor="grab"; card.style.userSelect="none"; card.style.webkitUserSelect="none"; card.querySelectorAll("img").forEach(i=>{i.draggable=false;i.style.pointerEvents="none"});
+  card.addEventListener("pointerdown",e=>{if(e.target.closest("button"))return; x0=e.clientX; dx=0; stop(); try{card.setPointerCapture(e.pointerId)}catch(x){}});
+  card.addEventListener("pointermove",e=>{if(x0==null)return; dx=e.clientX-x0; card.style.transform=`translateX(${dx}px) rotate(${dx/18}deg)`; yes.style.opacity=Math.max(0,Math.min(1,dx/90)); no.style.opacity=Math.max(0,Math.min(1,-dx/90))});
+  const up=()=>{if(x0==null)return; x0=null;
+    if(Math.abs(dx)>90){const r=dx>0; try{navigator.vibrate&&navigator.vibrate(14)}catch(e){} card.animate([{transform:card.style.transform},{transform:`translateX(${r?520:-520}px) rotate(${r?24:-24}deg)`,opacity:0}],{duration:260,fill:"forwards",easing:"ease-in"});
+      try{trk("bp_swipe",{like:r,c:best.city})}catch(e){} setTimeout(()=>{try{decide(best.code,r)}catch(e){} bpDone(el,null)},280)}
+    else{card.style.transition="transform .25s";card.style.transform="";yes.style.opacity=no.style.opacity=0;setTimeout(()=>{card.style.transition=""},260)}};
+  card.addEventListener("pointerup",up); card.addEventListener("pointercancel",up);
 }
 function bpStart(){
   if(FS.el) return; const el=document.createElement("div"); el.className="bp notr"; el.setAttribute("translate","no"); FS.el=el; FS.t0=Date.now();
@@ -2576,8 +2604,10 @@ function bpStart(){
     if(!best){bpDone(el,null);return}
     const h=hotelFor(best), a=AIRP[o]||AIRP.MIL, og=GEO[o]||GEO.MIL, dg=GEO[best.code];
     const sat=(()=>{try{const d=new Date(S.trip.from+"T12:00:00");d.setDate(d.getDate()+1);return d.toISOString().slice(0,10)}catch(e){return ""}})();
+    const mapP=new Promise(r=>{const t=setTimeout(r,9000); try{ if(window.faMapIntro) window.faMapIntro(best.code,()=>{clearTimeout(t);r()}); else {clearTimeout(t);r()} }catch(e){clearTimeout(t);r()} });
     const [w1,w2]=await Promise.all([bpFetchWx(og[0],og[1],""),dg?bpFetchWx(dg[0],dg[1],sat):null]);
-    if(!FS.el) return;
+    await mapP;
+    if(!FS.el) return; el.classList.add("bpOver");
     let city=best.city; try{if(bpL()==="it") city=I18N.tr(city)}catch(e){}
     const oc=bpL()==="it"?a[2]:a[3], ad=Math.max(1,+S.trip.adults||1);
     const wx=(w1&&w2)?`<div class="bpWx"><span>${oc} ${w1.t}° ${bpWx(w1.c)[0]}</span><span>→</span><span>${esc_(city)} ${w2.t}° ${bpWx(w2.c)[0]}</span></div>`:"";
@@ -2586,8 +2616,10 @@ function bpStart(){
       <div class="bpPh">${art(best)}<span class="bpStamp">${bpT("FOR YOU","PER TE","PARA TI")}</span></div>
       <div class="bpMeta">${dfmt(S.trip.from)} → ${dfmt(S.trip.to)} · ${ad} ${bpT(ad>1?"adults":"adult",ad>1?"adulti":"adulto",ad>1?"adultos":"adulto")}</div>${wx}
       <div class="bpFt"><span>${bpT("Flight + hotel from","Volo + hotel da","Vuelo + hotel desde")}</span><b>${eur(h.price/(S.split?ad:1))}</b></div></div>
+      <div class="bpTip">${bpT("Swipe right to save · left to skip","Scorri a destra per salvare · a sinistra per saltare","Desliza a la derecha para guardar · a la izquierda para saltar")}</div>
       <button class="bpBtn" data-open>${bpT("See this weekend ›","Scopri questo weekend ›","Ver este fin de semana ›")}</button><button class="bpLink" data-more>${bpT("See other destinations","Vedi altre mete","Ver otros destinos")}</button>`;
     try{trk("reveal",{board:0,bp:1,c:best.city,o:o})}catch(e){}
+    try{bpSwipe(el,best,h.price/(S.split?ad:1))}catch(e){console.error("bpSwipe",e.message)}
     el.querySelector("[data-open]").onclick=()=>{try{trk("bp_open",{c:best.city})}catch(e){} bpDone(el,best.code)};
     el.querySelector("[data-more]").onclick=()=>{try{trk("bp_more",{})}catch(e){} bpDone(el,best.code&&null)};
   };
@@ -4581,6 +4613,13 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
 #mapTog button[aria-pressed="true"],#mapTogIn button[aria-pressed="true"]{background:#fff;color:#1b1d3a}
 #mapView{display:block;position:fixed;inset:0;z-index:37;background:radial-gradient(120% 70% at 50% 0%,#2b2f8f 0%,#0c1247 55%,#060a2b 100%);overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;color:#fff}
 #mapView[hidden]{display:none}
+#mapView .mapSkip{display:none}
+#mapView.intro{z-index:230;pointer-events:none}
+#mapView.intro .mapHud,#mapView.intro .mapLeg,#mapView.intro .mapHint,#mapView.intro .mapCard,#mapView.intro #mapTog{display:none!important}
+#mapView.intro .mpin{pointer-events:none;animation:mfade .6s both}
+@keyframes mfade{from{opacity:0}}
+#mapView.intro:not(.introBack) .mapSkip{display:block;position:absolute;left:50%;bottom:calc(34px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);pointer-events:auto;border:0;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-weight:700;font-size:14px;border-radius:999px;padding:9px 20px;z-index:6;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+#mapView.introBack{z-index:219}
 #mapC{position:absolute;inset:0;width:100%;height:100%}
 #mapPins{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
 .mpin{position:absolute;left:0;top:0;border:0;background:none;padding:0;margin:0;font:inherit;color:inherit;pointer-events:auto;touch-action:none;transform-origin:50% 100%;will-change:transform;cursor:pointer}
@@ -4631,13 +4670,13 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
   let disc=new Set(); try{disc=new Set(JSON.parse(localStorage.getItem("fa_disc")||"[]"))}catch(e){}
   const saveD=()=>{try{localStorage.setItem("fa_disc",JSON.stringify([...disc]))}catch(e){}};
   const root=document.createElement("div"); root.id="mapView"; root.hidden=true;
-  root.innerHTML='<canvas id="mapC"></canvas><div id="mapPins"></div><div class="mapHud"><div class="mapProg" id="mapProg"><span id="mapPt"></span><i><u id="mapPb"></u></i></div></div><div class="mapLeg"><span>€</span><u></u><span>€€€</span></div><div class="mapHint" id="mapHint"></div><div class="mapCard" id="mapCard" hidden></div>';
+  root.innerHTML='<canvas id="mapC"></canvas><div id="mapPins"></div><div class="mapHud"><div class="mapProg" id="mapProg"><span id="mapPt"></span><i><u id="mapPb"></u></i></div></div><div class="mapLeg"><span>€</span><u></u><span>€€€</span></div><div class="mapHint" id="mapHint"></div><div class="mapCard" id="mapCard" hidden></div><button type="button" class="mapSkip"></button>';
   document.body.appendChild(root);
   const TGH='<button type="button" data-v="cards"></button><button type="button" data-v="map"></button>';
   const tog=document.createElement("div"); tog.id="mapTog"; tog.setAttribute("role","group"); tog.innerHTML=TGH; root.appendChild(tog);
   const togIn=document.createElement("div"); togIn.id="mapTogIn"; togIn.setAttribute("role","group"); togIn.innerHTML=TGH; const mt=$m("matches"); if(mt&&mt.parentNode) mt.parentNode.insertBefore(togIn,mt); else document.body.appendChild(togIn);
   const cv=$m("mapC"), cx=cv.getContext("2d"), bc=document.createElement("canvas"), bx=bc.getContext("2d"), pinsEl=$m("mapPins");
-  let open=false, W=0,H=0,DPR=1, LAND=null, items=[], sel=null, dirty=true, t0=0, anim=true, raf=0, stale=true;
+  let introAll=false, open=false, W=0,H=0,DPR=1, LAND=null, items=[], sel=null, dirty=true, t0=0, anim=true, raf=0, stale=true;
   const V={clon:10,clat:45,K:100,Kf:60,Kmax:900}; let TB=[-20,40,30,62], O=[45.46,9.19];
   const F=2600,TILT=.78,CL=Math.cos(46*Math.PI/180),CT=Math.cos(TILT),ST=Math.sin(TILT);
   let pmin=0,pmax=1;
@@ -4646,7 +4685,7 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
   function col(p){const t=Math.max(0,Math.min(1,(p-pmin)/((pmax-pmin)||1)));const a=[47,214,192],b=[143,123,255],e=[255,90,122];const m=t<.5?[a,b,t*2]:[b,e,(t-.5)*2];return m[0].map((v,i)=>Math.round(v+(m[1][i]-v)*m[2]))}
   function build(){
     const inS=new Set(pool().map(d=>d.code)); O=GEO[ORI()]||GEO.MIL; items=[];
-    DATA.forEach(d=>{const g=GEO[d.code]; if(!g||!d.hotels||!d.hotels.length||d.code===ORI()) return; const h=hotelFor(d); items.push({d,code:d.code,g,price:Math.round(h.price),inS:inS.has(d.code),city:(function(){try{return fbCity({d})}catch(e){return d.city}})()})});
+    DATA.forEach(d=>{const g=GEO[d.code]; if(!g||!d.hotels||!d.hotels.length||d.code===ORI()) return; const h=hotelFor(d); items.push({d,code:d.code,g,price:Math.round(h.price),inS:introAll||inS.has(d.code),city:(function(){try{return fbCity({d})}catch(e){return d.city}})()})});
     const ps=items.filter(i=>i.inS).map(i=>i.price); pmin=ps.length?Math.min(...ps):0; pmax=ps.length?Math.max(...ps):1;
     const lons=items.map(i=>i.g[1]).concat(O[1]), lats=items.map(i=>i.g[0]).concat(O[0]);
     TB=[Math.max(-30,Math.min(...lons)-3.5),Math.min(52,Math.max(...lons)+3.5),Math.max(22,Math.min(...lats)-3),Math.min(75,Math.max(...lats)+3)];
@@ -4662,7 +4701,7 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
     const lons=use.map(i=>i.g[1]).concat(O[1]), lats=use.map(i=>i.g[0]).concat(O[0]);
     let a=Math.min(...lons)-1.5,b=Math.max(...lons)+1.5,c=Math.min(...lats)-1.2,d=Math.max(...lats)+1.2; if(b-a<16){const m=(a+b)/2;a=m-8;b=m+8} if(d-c<9){const m=(c+d)/2;c=m-4.5;d=m+4.5}
     const fitK=(sw,sh)=>Math.min(W*.92/(sw*CL),viewH()*.7/(sh*CT));
-    const k0=fitK(b-a,d-c); V.clon=O[1]+((a+b)/2-O[1])*.45; V.clat=O[0]+((c+d)/2-O[0])*.45; V.K=k0*1.75;
+    const k0=fitK(b-a,d-c); V.k0=k0; V.fc=[(a+b)/2,(c+d)/2]; V.clon=O[1]+((a+b)/2-O[1])*.45; V.clat=O[0]+((c+d)/2-O[0])*.45; V.K=k0*1.75;
     V.Kf=Math.min(fitK(TB[1]-TB[0],TB[3]-TB[2]),k0); V.Kmax=Math.max(V.K*5,V.Kf*10); dirty=true;
   }
   function clamp(){V.K=Math.max(V.Kf*.9,Math.min(V.Kmax,V.K)); V.clon=Math.max(TB[0],Math.min(TB[1],V.clon)); V.clat=Math.max(TB[2],Math.min(TB[3],V.clat))}
@@ -4686,8 +4725,9 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
   }
   function frame(now){
     if(!open){raf=0;return} raf=requestAnimationFrame(frame);
-    const w=innerWidth,h=innerHeight; if(w!==W||h!==H){W=w;H=h;DPR=Math.min(2,devicePixelRatio||1);cv.width=bc.width=W*DPR;cv.height=bc.height=H*DPR;dirty=true;fit()}
+    const w=innerWidth,h=innerHeight; if(w!==W||h!==H){W=w;H=h;DPR=Math.min(2,devicePixelRatio||1);cv.width=bc.width=W*DPR;cv.height=bc.height=H*DPR;dirty=true;fit(); if(root.classList.contains('intro')&&!cam) introView()}
     const T=(now-t0)/1000; if(anim&&T>2.6){anim=false;dirty=true}
+    if(root.classList.contains('intro')) introTick(now,T);
     if(dirty||anim){drawBase(T);dirty=false}
     cx.setTransform(DPR,0,0,DPR,0,0);cx.clearRect(0,0,W,H);cx.drawImage(bc,0,0,W,H);
     // sparks along arcs
@@ -4733,6 +4773,32 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
     c.innerHTML=`<div class="ph" ${u?`style="background-image:url('${u}')"`:""}></div><div class="t"><h3>${esc_(sel.city)}</h3><small ${sel.inS?"":'class="offn"'}>${sel.inS?esc_(pillDates())+" · "+ad+" "+(ad>1?bpT("adults","adulti","adultos"):bpT("adult","adulto","adulto")):bpT("Outside your search","Fuori dalla tua ricerca","Fuera de tu búsqueda")}</small><b>${bpT("from","da","desde")} ${eur(sel.price)}</b></div><button type="button">${bpT("Discover ›","Scopri ›","Descubrir ›")}</button>`;
   }
   $m("mapCard").addEventListener("click",()=>{if(sel)go(sel)});
+  /* first-visit intro: the map opens by itself, arcs fly out, the camera swoops to the best deal, then it hands over to the boarding pass */
+  let cam=null, introEnd=null;
+  function introView(){V.K=Math.max(V.Kf,(V.k0||V.K)*.95); if(V.fc){V.clon=V.fc[0];V.clat=V.fc[1]} clamp(); dirty=true}
+  function introTick(now,T){
+    if(!cam&&T>2.3&&!introTick.started){introTick.started=true; const it=sel; if(it){
+      const lo=Math.abs(it.g[1]-O[1])+4, la=Math.abs(it.g[0]-O[0])+3, sw=Math.max(lo,7), sh=Math.max(la,5);
+      const K=Math.min(W*.86/(sw*CL),viewH()*.55/(sh*CT));
+      cam={t0:now,dur:1900,from:{clon:V.clon,clat:V.clat,K:V.K},to:{clon:(it.g[1]+O[1])/2,clat:(it.g[0]+O[0])/2,K:Math.max(K,V.K)}}}}
+    if(cam){const t=Math.min(1,(now-cam.t0)/cam.dur), e=1-Math.pow(1-t,3);
+      V.clon=cam.from.clon+(cam.to.clon-cam.from.clon)*e; V.clat=cam.from.clat+(cam.to.clat-cam.from.clat)*e; V.K=cam.from.K*Math.pow(cam.to.K/cam.from.K,e); dirty=true;
+      if(t>=1&&!cam.fin){cam.fin=now}}
+    if((cam&&cam.fin&&now-cam.fin>450)||(!sel&&T>3)) introEnd&&introEnd();
+  }
+  window.faMapIntro=function(code,done){
+    let reduce=false; try{reduce=matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){}
+    if(!MQ.matches||reduce){done();return}
+    let fin=false; introEnd=()=>{if(fin)return;fin=true;root.classList.add("introBack");done()};
+    try{
+      introAll=true; build(); sel=items.find(i=>i.code===code)||null; items.forEach((p,i)=>{p.el.style.animationDelay=(.35+i*.05)+"s"});
+      cam=null; introTick.started=false; root.querySelector(".mapSkip").textContent=bpT("Skip","Salta","Saltar"); root.querySelector(".mapSkip").onclick=()=>introEnd();
+      root.classList.remove("introBack"); root.classList.add("intro"); root.hidden=false; open=true; document.body.classList.add("mapOn");
+      if(!LAND){fetch("map-land.json").then(r=>r.json()).then(j=>{LAND=j;dirty=true}).catch(()=>{})}
+      W=0; anim=true; t0=performance.now(); dirty=true; if(!raf) raf=requestAnimationFrame(frame);
+    }catch(e){introEnd&&introEnd()}
+  };
+  window.faMapIntroEnd=function(){ if(!root.classList.contains("intro")) return; root.classList.remove("intro","introBack"); cam=null; introAll=false; stale=true; root.querySelectorAll(".mpin").forEach(p=>{p.style.animationDelay=""}); sel=null; setOpen(false) };
   /* open / close */
   function setOpen(on){
     on=!!on&&MQ.matches; if(on===open) return; open=on; root.hidden=!on;
