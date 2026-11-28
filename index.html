@@ -1604,7 +1604,7 @@ const I18N=(()=>{
   "A strong all-round weekend":"Un weekend forte su tutto","Almost there…":"Quasi fatto…","Arrives at Tenerife North, leaves from Tenerife South":"Arrivo a Tenerife Nord, ripartenza da Tenerife Sud",
   "Cancellation":"Cancellazione","Checking flights":"Controllo i voli","Checking flights from your city…":"Controllo i voli dalla tua città…","Checking real flight times":"Controllo gli orari reali dei voli",
   "Checking today's price for this weekend…":"Controllo il prezzo di oggi per questo weekend…","Clear times":"Cancella orari","Comparing hotels for your dates…":"Confronto gli hotel per le tue date…",
-  "Flight":"Volo","Flight change failed":"Cambio volo non riuscito","Flights in your package after your times · live":"Voli del pacchetto dopo i tuoi orari · live","Flights that match your times":"Voli in linea con i tuoi orari",
+  "Explore":"Esplora","Summary":"Riassunto","Flight":"Volo","Flight change failed":"Cambio volo non riuscito","Flights in your package after your times · live":"Voli del pacchetto dopo i tuoi orari · live","Flights that match your times":"Voli in linea con i tuoi orari",
   "Free":"Gratis","Fridayaway is built for short breaks: up to 7 nights.":"Fridayaway è pensata per brevi fughe: massimo 7 notti.","Getting the exact flights and rooms…":"Recupero voli e camere esatti…",
   "Here they are! Tap one to book":"Eccoli! Toccane uno per prenotare","Keep swiping":"Continua a scorrere","Liked by all":"Piace a tutti",
   "Live booking needs the lastminute.com connector. Add it in claude.ai Settings → Connectors, then try again.":"La prenotazione live richiede il connettore lastminute.com. Aggiungilo in claude.ai Impostazioni → Connettori e riprova.",
@@ -1752,7 +1752,7 @@ const I18N=(()=>{
   "⭐ Guest rating":"⭐ Valoración","Guest rating":"Valoración","📍 Hotel to centre":"📍 Hotel al centro","To centre":"Al centro","🔒 Waiting":"🔒 Esperando","🕑 Time there":"🕑 Tiempo allí","☀️ Typical high":"☀️ Máxima típica","Typical high":"Máxima típica",
   "A strong all-round weekend":"Un fin de semana completo","Almost there…":"Casi listo…","Cancellation":"Cancelación","Checking flights":"Comprobando vuelos","Checking flights from your city…":"Comprobando vuelos desde tu ciudad…",
   "Checking real flight times":"Comprobando horarios reales","Checking today's price for this weekend…":"Comprobando el precio de hoy para este fin de semana…","Clear times":"Borrar horarios","Comparing hotels for your dates…":"Comparando hoteles para tus fechas…",
-  "Flight":"Vuelo","Flight change failed":"No se pudo cambiar el vuelo","Flights in your package after your times · live":"Vuelos de tu paquete después de tus horarios · en vivo","Free":"Gratis",
+  "Explore":"Explorar","Summary":"Resumen","Flight":"Vuelo","Flight change failed":"No se pudo cambiar el vuelo","Flights in your package after your times · live":"Vuelos de tu paquete después de tus horarios · en vivo","Free":"Gratis",
   "Fridayaway is built for short breaks: up to 7 nights.":"Fridayaway está pensado para escapadas cortas: hasta 7 noches.","Getting the exact flights and rooms…":"Obteniendo vuelos y habitaciones exactos…",
   "Here they are! Tap one to book":"¡Aquí están! Toca uno para reservar","Keep swiping":"Sigue deslizando","Liked by all":"Gusta a todos",
   "Live prices are not available right now. Try again in a minute.":"Los precios en vivo no están disponibles ahora. Inténtalo en un minuto.","Loading flight options…":"Cargando opciones de vuelo…",
@@ -2776,7 +2776,7 @@ function goHotel(){
 /* ===== detail sheet ===== */
 function legHTML(day,l){return `<div class="leg"><span>${day}</span><b>${l[0]} ${l[2]} → ${l[1]} ${l[3]}</b><span class="fn">${l[4]}</span></div>`}
 /* ===== guided booking: 1 hotel → 2 room → 3 flights → 4 review & book (one screen at a time) ===== */
-const WZ_STEPS=["Flight","Hotel","Book"];
+const WZ_STEPS=["Explore","Hotel","Summary"];
 let WZ=null;
 const uiLang=()=>document.documentElement.lang==="it"?"it":"en";
 const wzCanc=c=>{const m=/^(.*?)(?:until|fino al?|entro il)\s*(\d{4}-\d{2}-\d{2})\s*$/i.exec(String(c||"").trim()); return m?`${/gratu|free/i.test(m[1])?"Free cancellation":m[1].trim()} until ${dfmt(m[2])}`:String(c||"");};
