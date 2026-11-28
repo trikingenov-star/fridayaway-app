@@ -4651,13 +4651,13 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
 .mapProg u{display:block;height:100%;width:0;border-radius:3px;background:linear-gradient(90deg,#2fd6c0,#8F7BFF,#FF5A7A);transition:width .5s}
 .mapProg.pulse span{animation:mpp .6s}
 @keyframes mpp{40%{transform:scale(1.18);color:#2fd6c0}}
-.mapSearch{position:absolute;left:12px;right:12px;top:calc(60px + env(safe-area-inset-top,0px));z-index:5;display:flex;align-items:center;gap:8px;background:rgba(20,24,90,.88);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:0 10px;height:42px;color:#cfd2ff}
+.mapSearch{display:none!important;position:absolute;left:12px;right:12px;top:calc(60px + env(safe-area-inset-top,0px));z-index:5;display:flex;align-items:center;gap:8px;background:rgba(20,24,90,.88);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:0 10px;height:42px;color:#cfd2ff}
 .mapSearch input{flex:1;min-width:0;background:none;border:0;outline:0;color:#fff;font:inherit;font-size:16px;-webkit-appearance:none;appearance:none}
 .mapSearch input::placeholder{color:#a9aef0}
 .mapSearch input::-webkit-search-cancel-button{display:none}
 .mapQn{flex:none;background:#2fd6c0;color:#06211d;font-size:12px;font-weight:800;border-radius:999px;padding:3px 9px}
 .mapQx{flex:none;border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:50%;width:24px;height:24px;font-size:12px;cursor:pointer;line-height:24px;padding:0}
-.mapChips{position:absolute;left:0;right:0;top:calc(108px + env(safe-area-inset-top,0px));z-index:5;display:flex;gap:7px;overflow-x:auto;padding:0 12px 4px;scrollbar-width:none;touch-action:pan-x}
+.mapChips{position:absolute;left:0;right:0;top:calc(62px + env(safe-area-inset-top,0px));z-index:5;display:flex;gap:7px;overflow-x:auto;padding:0 12px 4px;scrollbar-width:none;touch-action:pan-x}
 .mapChips::-webkit-scrollbar{display:none}
 .mchip{flex:none;border:1px solid rgba(255,255,255,.22);background:rgba(20,24,90,.88);color:#fff;font:inherit;font-weight:700;font-size:13px;border-radius:999px;padding:7px 12px;cursor:pointer;white-space:nowrap}
 .mchip[aria-pressed="true"]{background:#fff;color:#1b1d3a;border-color:#fff}
