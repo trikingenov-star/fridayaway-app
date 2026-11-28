@@ -940,6 +940,10 @@ body.v2{--r-card:28px}
 .xpIt .evImg{width:72px;height:52px;border-radius:8px;overflow:hidden;background:var(--bg);display:grid;place-items:center;font-size:20px}
 .xpIt .evImg img{width:100%;height:100%;object-fit:cover;display:block}
 .xpIt a{color:inherit;text-decoration:none;min-width:0}
+.xpMid{min-width:0}
+.xpMap{display:block;margin-top:3px;border:0;background:none;padding:2px 0;color:var(--primary);font:inherit;font-size:11.5px;font-weight:700;cursor:pointer;text-align:left}
+.svMap,.tgMap{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin:0 0 10px;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--primary);font:inherit;font-weight:700;font-size:13.5px;cursor:pointer}
+.tgMap{margin:8px 0 4px}
 .xpIt b{font-size:13.5px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .xpIt small{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
 .xpAdd{border:0;border-radius:10px;padding:8px 11px;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;background:linear-gradient(90deg,#E8417A,#FF5A7A);color:#fff;white-space:nowrap}
@@ -1499,6 +1503,7 @@ main[data-s="profile"]>.sec{max-width:720px;margin-left:auto;margin-right:auto}
         <button class="btn big" id="tgStart">Start: Player 1 swipes first</button>
         <button class="linkbtn" id="tgReset">↻ Start over</button>
       </div>
+      <button type="button" class="tgMap" id="tgMap" hidden></button>
       <h3>Your matches</h3>
       <div id="matchList" class="sec" style="margin-top:0"></div>
     </div>
@@ -3701,9 +3706,10 @@ function renderXP(d){
   const inPlan=id=>planOf(d.code).some(x=>x.id===id);
   const tabs=acts.length&&ev.length?`<div class="xpTabs"><button data-xpt="act" aria-pressed="${XPT==="act"}">🎟️ ${it?"Attività":"Activities"}</button><button data-xpt="ev" aria-pressed="${XPT==="ev"}">🎫 ${it?"Eventi":"Events"}</button></div>`:"";
   const xl=xpLeft(d), ad0=planAdults();
+  const mapLink=t=>{const c=window.faMapCat&&window.faMapCat(t); return c?`<button type="button" class="xpMap" data-mc="${c.k}">🗺️ ${it?"Vedi dove altro puoi farlo":"See where else you can do it"} · ${c.e} ${esc_(c.l)}</button>`:""};
   const btn=on=>`<button class="xpAdd">${on?(it?"✓ Aggiunta":"✓ Added"):(it?"+ Aggiungi":"+ Add")}</button>`;
   const rows=XPT==="act"
-    ?acts.map((x,i)=>{const id="a:"+(x.id||x.u),on=inPlan(id); if(!on&&!xpFits(d,x,xl)) return ""; return `<div class="xpIt${on?" on":""}" data-xi="${i}"><span class="evImg"><img src="${esc_(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span><a href="${esc_(x.u)}" target="_blank" rel="noopener sponsored"><b translate="no">${esc_(x.t)}</b><small>${x.r?`★ ${x.r.toFixed(1)} (${x.n.toLocaleString(it?"it-IT":"en-GB")}) · `:""}${x.p?`${it?"da":"from"} ${eur(x.p)} ${it?"a persona":"pp"}${planAdults()>1?` · ${eur(x.p*planAdults())} ${it?"per":"for"} ${planAdults()}`:""}`:""}</small></a>${btn(on)}</div>`}).join("")
+    ?acts.map((x,i)=>{const id="a:"+(x.id||x.u),on=inPlan(id); if(!on&&!xpFits(d,x,xl)) return ""; return `<div class="xpIt${on?" on":""}" data-xi="${i}"><span class="evImg"><img src="${esc_(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span><div class="xpMid"><a href="${esc_(x.u)}" target="_blank" rel="noopener sponsored"><b translate="no">${esc_(x.t)}</b><small>${x.r?`★ ${x.r.toFixed(1)} (${x.n.toLocaleString(it?"it-IT":"en-GB")}) · `:""}${x.p?`${it?"da":"from"} ${eur(x.p)} ${it?"a persona":"pp"}${planAdults()>1?` · ${eur(x.p*planAdults())} ${it?"per":"for"} ${planAdults()}`:""}`:""}</small></a>${mapLink(x.t)}</div>${btn(on)}</div>`}).join("")
     :ev.map((e,i)=>{const id="e:"+(e.url||e.name),on=inPlan(id);return `<div class="xpIt${on?" on":""}" data-xi="${i}"><span class="evImg">${e.img?`<img src="${esc_(e.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:(EV_ICON[e.seg]||"🎫")}</span><a href="${esc_(e.url)}" target="_blank" rel="noopener"><b translate="no">${esc_(e.name)}</b><small>${esc_(evDay(e))}${e.time?" · "+esc_(e.time):""}${e.venue?" · "+esc_(e.venue):""}</small></a>${btn(on)}</div>`}).join("");
   const n=planOf(d.code).length, v=planSum(d.code);
   const noFit=XPT==="act"&&acts.length&&!rows.trim();
@@ -3713,6 +3719,7 @@ function renderXP(d){
   o.querySelector(".evX").onclick=o.querySelector(".xpDone").onclick=()=>{o.hidden=true};
   o.querySelectorAll("[data-xpt]").forEach(b=>b.onclick=()=>{XPT=b.dataset.xpt;renderXP(d)});
   const xa=o.querySelector("#xpAll"); if(xa) xa.onclick=()=>{XPALL=!XPALL;renderXP(d)};
+  o.querySelectorAll(".xpMap").forEach(b=>b.onclick=e=>{e.stopPropagation(); window.faMapShow&&window.faMapShow({cat:b.dataset.mc,from:"activity"})});
   o.querySelectorAll(".xpAdd").forEach(b=>b.onclick=()=>{const i=+b.closest(".xpIt").dataset.xi;
     if(XPT==="act"){const x=acts[i]; planToggle(d.code,{k:"act",id:"a:"+(x.id||x.u),t:x.t,p:x.p||0,u:x.u,img:x.img});}
     else {const e=ev[i]; planToggle(d.code,{k:"ev",id:"e:"+(e.url||e.name),t:e.name,u:e.url,when:evDay(e)+(e.time?" · "+e.time:"")});}
@@ -3776,7 +3783,8 @@ function renderSaved(){
   const L=$("savedList");
   if(!S.saved.length){L.innerHTML=`<div class="box"><p>Nothing saved yet. Swipe right on a weekend you like.</p></div>`;$("cmpWrap").hidden=true;return}
   const items=S.saved.map(s=>{const d=DATA.find(x=>x.code===s.code);const h=d.hotels[s.j];return {d,h}});
-  L.innerHTML=items.map(({d,h})=>`<div class="item open" role="button" tabindex="0" data-open="${d.code}" aria-label="Open ${d.city}"><div class="thumb">${art(d,true)}</div><div><h3>${d.city}</h3><div class="sub">${starStr(h.stars)} ${h.name}</div>${planBadge(d,h)}${leftBadge(d,h)}<div class="vlink">View & book ›</div></div><div><div class="p">${S.split?eur(h.price/2)+" pp":eur(h.price)}</div><button class="rm" data-rm="${d.code}">Remove</button></div></div>`).join("");
+  L.innerHTML=(window.faMapOk&&window.faMapOk()?`<button type="button" class="svMap" id="svMap">🗺️ ${bpT("See them on the map","Vedile sulla mappa","Verlos en el mapa")}</button>`:"")+items.map(({d,h})=>`<div class="item open" role="button" tabindex="0" data-open="${d.code}" aria-label="Open ${d.city}"><div class="thumb">${art(d,true)}</div><div><h3>${d.city}</h3><div class="sub">${starStr(h.stars)} ${h.name}</div>${planBadge(d,h)}${leftBadge(d,h)}<div class="vlink">View & book ›</div></div><div><div class="p">${S.split?eur(h.price/2)+" pp":eur(h.price)}</div><button class="rm" data-rm="${d.code}">Remove</button></div></div>`).join("");
+  const sm=$("svMap"); if(sm) sm.onclick=()=>{const m={}; S.saved.forEach(x=>m[x.code]=bpT("Saved","Salvata","Guardada")); window.faMapShow({marks:m,e:"❤️",label:bpT("Your saved places","Le tue mete salvate","Tus destinos guardados")+" · "+S.saved.length,from:"saved"})};
   L.querySelectorAll("[data-rm]").forEach(b=>b.onclick=e=>{e.stopPropagation();S.saved=S.saved.filter(s=>s.code!==b.dataset.rm);updateCount();renderSaved()});
   L.querySelectorAll("[data-open]").forEach(el=>{const go=()=>{const c=el.dataset.open,s=S.saved.find(x=>x.code===c);if(s)S.choice[c]=s.j;openSheet(c)};el.onclick=go;el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}}});
   if(items.length>=2){
@@ -3910,6 +3918,8 @@ function renderTogether(){
   const almost=N>2?[...new Set(T.likes.flatMap(s=>[...s]))].filter(c=>!all.includes(c)&&T.likes.filter(s=>s.has(c)).length===N-1):[];
   const item=(c,tag)=>{const d=DATA.find(x=>x.code===c),h=hotelFor(d);return `<div class="item open" role="button" tabindex="0" data-open="${c}"><div class="thumb">${art(d,true)}</div><div><h3>${d.city}</h3><div class="sub">${starStr(h.stars)} ${h.name}</div>${tag?`<div class="almost">${tag}</div>`:""}</div><div class="p">${eur(h.price)}</div></div>`};
   renderMatchList(all,almost,N,item);
+  const tm=$("tgMap"); if(tm){ const any=[...new Set(T.likes.flatMap(s=>[...s]))]; tm.hidden=!(any.length&&window.faMapOk&&window.faMapOk()); tm.textContent="🗺️ "+bpT("See your picks on the map","Vedi le vostre scelte sulla mappa","Mira vuestras elecciones en el mapa");
+    tm.onclick=()=>{const m={}; any.forEach(c=>{const who=T.names.map((n,i)=>T.likes[i].has(c)?(String(n).trim()[0]||"?").toUpperCase():"").filter(Boolean); m[c]=who.length===N?"👥 "+bpT("All","Tutti","Todos"):who.join(" ")}); window.faMapShow({marks:m,e:"✨",label:bpT("Your group's picks","Le scelte del gruppo","Las elecciones del grupo")+" · "+any.length,from:"together"})} }
 }
 $("tgStart").onclick=()=>{const T=S.together;T.fresh=false;T.on=!T.on;if(T.on)trk("together_start",{n:T.names.length});T.who=0;S.seen.clear();renderTogether();if(T.on){showTab("discover");toast(`${T.names[0]} swipes first. Then pass the phone.`)}renderDeck()};
 $("tgReset").onclick=()=>{S.together.fresh=false;S.together.likes=S.together.names.map(()=>new Set());S.together.on=false;S.together.who=0;S.seen.clear();renderTogether();renderDeck();toast("New game: swipes cleared.")};
@@ -4619,7 +4629,7 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
 #mapView[hidden]{display:none}
 #mapView .mapSkip{display:none}
 #mapView.intro{z-index:230;pointer-events:none}
-#mapView.intro .mapSearch,#mapView.intro .mapChips,#mapView.intro .mapHud,#mapView.intro .mapLeg,#mapView.intro .mapHint,#mapView.intro .mapCard,#mapView.intro #mapTog{display:none!important}
+#mapView.intro .mapSub,#mapView.intro .mapSearch,#mapView.intro .mapChips,#mapView.intro .mapHud,#mapView.intro .mapLeg,#mapView.intro .mapHint,#mapView.intro .mapCard,#mapView.intro #mapTog{display:none!important}
 #mapView.intro .mpin{pointer-events:none;animation:mfade .6s both}
 @keyframes mfade{from{opacity:0}}
 #mapView.intro:not(.introBack) .mapSkip{display:block;position:absolute;left:50%;bottom:calc(34px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);pointer-events:auto;border:0;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-weight:700;font-size:14px;border-radius:999px;padding:9px 20px;z-index:6;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
@@ -4659,6 +4669,11 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
 .mapQx{flex:none;border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:50%;width:24px;height:24px;font-size:12px;cursor:pointer;line-height:24px;padding:0}
 .mapChips{position:absolute;left:0;right:0;top:calc(62px + env(safe-area-inset-top,0px));z-index:5;display:flex;gap:7px;overflow-x:auto;padding:0 12px 4px;scrollbar-width:none;touch-action:pan-x}
 .mapChips::-webkit-scrollbar{display:none}
+.mapSub{position:absolute;left:12px;right:12px;top:calc(62px + env(safe-area-inset-top,0px));z-index:5;display:flex;align-items:center;gap:8px;background:rgba(20,24,90,.9);border:1px solid #2fd6c0;border-radius:14px;padding:6px 6px 6px 12px;color:#fff;font-weight:700;font-size:14px}
+.mapSub span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mapSub button{flex:none;border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:999px;padding:6px 12px;font:inherit;font-size:12.5px;cursor:pointer}
+#mapView.sub .mapChips{display:none}
+#mapView:not(.sub) .mapSub{display:none}
 .mchip{flex:none;border:1px solid rgba(255,255,255,.22);background:rgba(20,24,90,.88);color:#fff;font:inherit;font-weight:700;font-size:13px;border-radius:999px;padding:7px 12px;cursor:pointer;white-space:nowrap}
 .mchip[aria-pressed="true"]{background:#fff;color:#1b1d3a;border-color:#fff}
 .mpin .mk{position:absolute;left:50%;top:-20px;transform:translateX(-50%);white-space:nowrap;background:#fff;color:#1b1d3a;font-size:11px;font-weight:800;border-radius:999px;padding:2px 8px;display:none;z-index:3;box-shadow:0 3px 8px rgba(0,0,0,.4)}
@@ -4690,7 +4705,7 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
   let disc=new Set(); try{disc=new Set(JSON.parse(localStorage.getItem("fa_disc")||"[]"))}catch(e){}
   const saveD=()=>{try{localStorage.setItem("fa_disc",JSON.stringify([...disc]))}catch(e){}};
   const root=document.createElement("div"); root.id="mapView"; root.hidden=true;
-  root.innerHTML='<canvas id="mapC"></canvas><div id="mapPins"></div><div class="mapHud"><div class="mapProg" id="mapProg"><span id="mapPt"></span><i><u id="mapPb"></u></i></div></div><div class="mapSearch" id="mapSearch"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mapQ" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false"><span class="mapQn" id="mapQn" hidden></span><button type="button" class="mapQx" id="mapQx" aria-label="Clear" hidden>✕</button></div><div class="mapChips" id="mapChips"></div><div class="mapLeg"><span>€</span><u></u><span>€€€</span></div><div class="mapHint" id="mapHint"></div><div class="mapCard" id="mapCard" hidden></div><button type="button" class="mapSkip"></button>';
+  root.innerHTML='<canvas id="mapC"></canvas><div id="mapPins"></div><div class="mapHud"><div class="mapProg" id="mapProg"><span id="mapPt"></span><i><u id="mapPb"></u></i></div></div><div class="mapSearch" id="mapSearch"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mapQ" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false"><span class="mapQn" id="mapQn" hidden></span><button type="button" class="mapQx" id="mapQx" aria-label="Clear" hidden>✕</button></div><div class="mapSub" id="mapSub"><span></span><button type="button">✕</button></div><div class="mapChips" id="mapChips"></div><div class="mapLeg"><span>€</span><u></u><span>€€€</span></div><div class="mapHint" id="mapHint"></div><div class="mapCard" id="mapCard" hidden></div><button type="button" class="mapSkip"></button>';
   document.body.appendChild(root);
   const TGH='<button type="button" data-v="cards"></button><button type="button" data-v="map"></button>';
   const tog=document.createElement("div"); tog.id="mapTog"; tog.setAttribute("role","group"); tog.innerHTML=TGH; root.appendChild(tog);
@@ -4817,14 +4832,14 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
   const nrm=x=>String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
   TAGACTS.forEach(a=>{a.kw=a.kw.split(",")}); VCATS.forEach(a=>{a.kw=a.kw.split(",")});
   const ALLACTS=VCATS.slice(), ACTBY={}; ALLACTS.forEach(a=>{a.kwN=a.kw.map(nrm).concat([nrm(a.it),nrm(a.en),nrm(a.es)]);ACTBY[a.k]=a});
-  let qKeys=new Set(), qText="", qOn=false, qCnt={tot:0,inS:0}, qT=0, fly=null, vxQ=null, vxDone=0, vxTot=0;
+  let sub=null, pendFit=false, qKeys=new Set(), qText="", qOn=false, qCnt={tot:0,inS:0}, qT=0, fly=null, vxQ=null, vxDone=0, vxTot=0;
   const lblA=a=>a[bpL()]||a.it;
   const vxItems=it=>{let j=null; try{j=vxNow(it.d)}catch(e){} return j&&vxOk(j)?j.items:[]};
   const catOk=(a,t)=>a.rx.test(t)&&!(a.ex&&a.ex.test(t));
   const catItems=(it,a)=>vxItems(it).filter(x=>catOk(a,x.t));
   /* load the Viator experiences of every destination on the map (a few at a time, the ones in the user's search first) */
   function vxLoadAll(){ if(vxQ) return; const pend=items.slice().sort((a,b)=>(b.inS-a.inS)||a.price-b.price).filter(it=>{try{return !vxNow(it.d)}catch(e){return false}}); vxTot=pend.length; vxDone=0; vxQ=true;
-    let idx=0, run=0; const next=()=>{ while(run<4&&idx<pend.length){ const it=pend[idx++]; run++; let pr; try{pr=vxGet(it.d)}catch(e){pr=Promise.resolve()} pr.catch(()=>{}).then(()=>{run--; vxDone++; clearTimeout(qT); qT=setTimeout(()=>{chipsBuild(); qApply(false)},350); if(idx<pend.length||run>0) next(); else vxQ=null}) } };
+    let idx=0, run=0; const next=()=>{ while(run<4&&idx<pend.length){ const it=pend[idx++]; run++; let pr; try{pr=vxGet(it.d)}catch(e){pr=Promise.resolve()} pr.catch(()=>{}).then(()=>{run--; vxDone++; clearTimeout(qT); qT=setTimeout(()=>{chipsBuild(); qApply(false)},350); if(idx<pend.length||run>0) next(); else {vxQ=null; if(pendFit){pendFit=false; setTimeout(()=>{chipsBuild(); qApply(false); flyHits()},450)}}}) } };
     if(!pend.length){vxQ=null;return} next() }
   function chipCount(a){ if(a.tag) return items.filter(i=>i.d.tags.includes(a.tag)).length; return items.filter(i=>catItems(i,a).length).length }
   function chipsBuild(){ const el=$m("mapChips"); if(!el) return;
@@ -4836,10 +4851,11 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
   function qApply(fit){
     const toks=nrm(qText).split(/[^a-z0-9]+/).filter(x=>x.length>=3&&!STOP.has(x)), keys=new Set(qKeys), unm=[];
     toks.forEach(t=>{let m=false; ALLACTS.forEach(a=>{if(kwHit(a,t)){keys.add(a.k);m=true}}); if(!m) unm.push(t)});
-    qOn=keys.size>0||unm.length>0; qCnt={tot:0,inS:0};
+    qOn=!!sub||keys.size>0||unm.length>0; qCnt={tot:0,inS:0};
     items.forEach(it=>{ const hits=[];
-      keys.forEach(k=>{const a=ACTBY[k]; if(!a) return; if(a.tag){ if(it.d.tags.includes(a.tag)) hits.push({a,l:1,n:"",cnt:0}) } else { const m=catItems(it,a); if(m.length) hits.push({a,l:3,n:m[0].t,p:m[0].p,cnt:m.length}) } });
-      if(unm.length){ const m=vxItems(it).filter(x=>{const nt=nrm(x.t); return unm.every(t=>new RegExp("\\b"+t.replace(/[^a-z0-9]/g,"")).test(nt))}); if(m.length) hits.push({a:{e:"🎟️",it:"Attività",en:"Activities",es:"Actividades"},l:2,n:m[0].t,p:m[0].p,cnt:m.length}) }
+      if(sub){ const m=sub.marks[it.code]; if(m!=null) hits.push({a:{e:sub.e,it:m,en:m,es:m},l:3,n:"",cnt:0}) }
+      else keys.forEach(k=>{const a=ACTBY[k]; if(!a) return; if(a.tag){ if(it.d.tags.includes(a.tag)) hits.push({a,l:1,n:"",cnt:0}) } else { const m=catItems(it,a); if(m.length) hits.push({a,l:3,n:m[0].t,p:m[0].p,cnt:m.length}) } });
+      if(unm.length&&!sub){ const m=vxItems(it).filter(x=>{const nt=nrm(x.t); return unm.every(t=>new RegExp("\\b"+t.replace(/[^a-z0-9]/g,"")).test(nt))}); if(m.length) hits.push({a:{e:"🎟️",it:"Attività",en:"Activities",es:"Actividades"},l:2,n:m[0].t,p:m[0].p,cnt:m.length}) }
       hits.sort((x,y)=>y.l-x.l||y.cnt-x.cnt); it.hit=hits.length?hits:null;
       if(it.hit){qCnt.tot++; if(it.inS) qCnt.inS++}
       const el=it.el; if(!el) return; el.classList.toggle("hit",!!it.hit); el.classList.toggle("dim",qOn&&!it.hit);
@@ -4860,7 +4876,7 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
   qIn.addEventListener("input",()=>{qText=qIn.value; clearTimeout(qDeb); qDeb=setTimeout(()=>qApply(true),220)});
   qIn.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();qIn.blur()}});
   $m("mapQx").addEventListener("click",()=>{qText="";qIn.value="";qKeys.clear();qApply(false)});
-  $m("mapChips").addEventListener("click",e=>{const b=e.target.closest(".mchip"); if(!b) return; const k=b.dataset.k; if(qKeys.has(k)) qKeys.clear(); else {qKeys.clear(); qKeys.add(k); qText="";$m("mapQ").value=""} qApply(true)});
+  $m("mapChips").addEventListener("click",e=>{const b=e.target.closest(".mchip"); if(!b) return; const k=b.dataset.k; if(sub){sub=null;root.classList.remove("sub")} if(qKeys.has(k)) qKeys.clear(); else {qKeys.clear(); qKeys.add(k); qText="";$m("mapQ").value=""} qApply(true)});
   /* first-visit intro: the map opens by itself, arcs fly out, the camera swoops to the best deal, then it hands over to the boarding pass */
   let cam=null, introEnd=null;
   function introView(){V.K=Math.max(V.Kf,(V.k0||V.K)*.95); if(V.fc){V.clon=V.fc[0];V.clat=V.fc[1]} clamp(); dirty=true}
@@ -4874,6 +4890,21 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
       if(t>=1&&!cam.fin){cam.fin=now}}
     if((cam&&cam.fin&&now-cam.fin>450)||(!sel&&T>3)) introEnd&&introEnd();
   }
+  const subLab=()=>{ const el=$m("mapSub"); if(!el) return; el.firstChild.textContent=sub?sub.label:""; el.querySelector("button").textContent=bpT("Show all","Mostra tutte","Ver todas") };
+  function subOff(){ if(!sub) return; sub=null; root.classList.remove("sub"); qApply(false) }
+  $m("mapSub").querySelector("button").addEventListener("click",subOff);
+  window.faMapOk=()=>MQ.matches;
+  window.faMapCat=t=>{ if(!MQ.matches) return null; const a=ALLACTS.find(x=>catOk(x,String(t||""))); return a?{k:a.k,l:lblA(a),e:a.e}:null };
+  window.faMapShow=function(o){ try{
+    if(!MQ.matches||root.classList.contains("intro")) return false; o=o||{};
+    try{$("xpOv")&&($("xpOv").hidden=true); bookCtl.n++; WZ=null; $("layer").innerHTML=""}catch(e){}
+    qKeys.clear(); qText=""; $m("mapQ").value=""; sub=null; pendFit=false;
+    if(o.marks){ sub={e:o.e||"📍",label:o.label||"",marks:o.marks} } else if(o.cat){ qKeys.add(o.cat); pendFit=true }
+    root.classList.toggle("sub",!!sub); subLab();
+    window.scrollTo(0,0); showTab("discover"); setOpen(true);
+    chipsBuild(); qApply(false); setTimeout(()=>{ qApply(true) },200);
+    try{trk("map_from",{s:o.from||"",k:o.cat||"",n:o.marks?Object.keys(o.marks).length:0})}catch(e){}
+    return true }catch(e){return false} };
   window.faMapIntro=function(code,done){
     let reduce=false; try{reduce=matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){}
     if(!MQ.matches||reduce){done();return}
@@ -4889,7 +4920,7 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
   window.faMapIntroEnd=function(){ if(!root.classList.contains("intro")) return; root.classList.remove("intro","introBack"); cam=null; introAll=false; stale=true; root.querySelectorAll(".mpin").forEach(p=>{p.style.animationDelay=""}); sel=null; setOpen(false) };
   /* open / close */
   function setOpen(on){
-    on=!!on&&MQ.matches; if(on===open) return; open=on; root.hidden=!on;
+    on=!!on&&MQ.matches; if(on===open) return; open=on; root.hidden=!on; if(!on&&sub){sub=null;root.classList.remove("sub")}
     lab();
     document.body.classList.toggle("mapOn",on);
     if(on){ if(!LAND){fetch("map-land.json").then(r=>r.json()).then(j=>{LAND=j;dirty=true}).catch(()=>{})}
