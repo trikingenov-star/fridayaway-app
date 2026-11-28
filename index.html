@@ -1260,12 +1260,24 @@ html.neg :is(.bt,.msRow button,.meImg) img{filter:none}
 .pillBar{display:none}
 @media (max-width:1023px){
   #sumBar,#vibeBar{display:none!important}
-  .pillBar{position:fixed;left:12px;right:12px;bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:41;display:flex;align-items:center;gap:8px;height:46px;padding:0 6px 0 14px;border-radius:23px;background:var(--surface);box-shadow:0 8px 26px rgba(20,20,60,.22);border:1px solid var(--line);font:inherit;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer;text-align:left;max-width:436px;margin:0 auto}
+  .pillBar{position:fixed;left:10px;right:10px;bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:41;display:flex;align-items:center;gap:6px;height:50px;padding:0 6px 0 6px;border-radius:25px;background:var(--surface);box-shadow:0 8px 26px rgba(20,20,60,.22);border:1px solid var(--line);color:var(--ink);max-width:440px;margin:0 auto}
   .pillBar[hidden]{display:none}
-  .pillBar span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .pillBar i{font-style:normal;background:#FF5A7A;color:#fff;border-radius:9px;font-size:11px;padding:1px 6px}
-  .pillBar i:empty{display:none}
-  .pillBar b{height:34px;padding:0 14px;border-radius:17px;background:var(--primary);color:#fff;font-size:13px;display:grid;place-items:center}
+  .pbSeg{flex:1;min-width:0;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+  .pbSeg::-webkit-scrollbar{display:none}
+  .pbSeg button{flex:none;border:0;border-radius:999px;background:var(--app);color:var(--ink);font:inherit;font-size:13px;font-weight:700;padding:8px 10px;cursor:pointer;white-space:nowrap}
+  .pbSeg button:first-child{background:var(--ink);color:var(--app)}
+  .pbF{position:relative;flex:none;height:36px;border:0;border-radius:18px;padding:0 14px;background:var(--primary);color:#fff;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+  .pbF i{position:absolute;right:-4px;top:-6px;font-style:normal;background:#FF5A7A;color:#fff;border-radius:9px;font-size:11px;padding:1px 6px}
+  .pbF i:empty{display:none}
+  /* one-field mode: only the tapped field + Done */
+  .setup[data-m]:not([data-m="full"]) .setupIn .ask>*{display:none!important}
+  .setup[data-m="orig"] .setupIn .ask>details.more,.setup[data-m="date"] .setupIn .ask>details.more,.setup[data-m="adults"] .setupIn .ask>details.more{display:block!important}
+  .setup[data-m="budget"] .setupIn .ask>.budget{display:flex!important}
+  .setup[data-m="orig"] .when label,.setup[data-m="date"] .when label,.setup[data-m="adults"] .when label{display:none!important}
+  .setup[data-m="orig"] .when label:nth-child(1),.setup[data-m="date"] .when label:nth-child(2),.setup[data-m="date"] .when label:nth-child(3),.setup[data-m="adults"] .when label:nth-child(6){display:grid!important;order:0!important}
+  .setup[data-m="orig"] .when,.setup[data-m="adults"] .when{grid-template-columns:1fr}
+  .setupIn .ask>.askrow{display:none!important}
+  .setupIn .ask>.moodSet .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
   .setup{background:rgba(10,12,40,.4);align-items:flex-end;overflow:hidden}
   .setupIn{background:var(--surface);border-radius:24px 24px 0 0;min-height:0;max-height:90dvh;overflow:auto;align-self:flex-end;padding:20px 16px calc(16px + env(safe-area-inset-bottom,0px));gap:10px;box-shadow:0 -10px 40px rgba(0,0,0,.25);position:relative}
   .setupIn:before{content:"";position:absolute;top:8px;left:50%;width:40px;height:4px;margin-left:-20px;border-radius:2px;background:#d4d7ee}
@@ -1416,7 +1428,7 @@ main[data-s="profile"]>.sec{max-width:720px;margin-left:auto;margin-right:auto}
       <span class="read" id="read"></span>
     </div>
 
-    <button class="pillBar" id="pillBar" type="button" aria-label="Edit trip"><span id="pillTxt"></span><i id="pillN"></i><b id="pillB">Edit</b></button>
+    <div class="pillBar" id="pillBar" role="group" aria-label="Trip"><div class="pbSeg"><button type="button" data-m="orig" id="pbO"></button><button type="button" data-m="date" id="pbD"></button><button type="button" data-m="adults" id="pbA"></button><button type="button" data-m="budget" id="pbB"></button></div><button type="button" class="pbF" data-m="full" id="pbF"><span id="pbFt">Filters</span><i id="pillN"></i></button></div>
     <div class="whoBar" id="whoBar" hidden><span id="whoTxt"></span><button id="whoSwitch">Pass the phone</button></div>
 
     <div class="chips vibeBar" id="vibeBar" role="group" aria-label="Weekend type">
@@ -3754,7 +3766,8 @@ function renderSum(){
   sbqRender();
   b.textContent=[v2?`${t.adults} adult${t.adults>1?"s":""} · ${oriName()}`:`${t.adults} adult${t.adults>1?"s":""}`, S.budgetOn?`max ${eur(S.budget)}`:"no budget limit", S.maxFly?`flights ≤ ${S.maxFly/60}h`:"", v.length?v.join(", "):"", t.tOut?`leave after ${t.tOut}`:"", t.tIn?`home after ${t.tIn}`:""].filter(Boolean).join(" · ");
 }
-function openSetup(){
+function openSetup(mode){
+  $("setup").dataset.m=mode||"full"; try{$("setupGo").textContent=($("setup").dataset.m==="full")?bpT("Show weekends","Mostra i weekend","Ver fines de semana"):bpT("Done","Fatto","Hecho");$("setupGo").setAttribute("translate","no")}catch(e){}
   $("dFrom").value=S.trip.from; $("dTo").value=S.trip.to; $("adults").value=String(S.trip.adults);
   $("orig").value=ORI(); $("tOut").value=S.trip.tOut||""; $("tIn").value=S.trip.tIn||"";
   const td=new Date().toISOString().slice(0,10);
@@ -3763,7 +3776,7 @@ function openSetup(){
   $("setup").hidden=false; document.body.style.overflow="hidden";
   setTimeout(()=>{try{$("setupGo").focus({preventScroll:true})}catch(e){}},50);
 }
-function closeSetup(){ $("setup").hidden=true; document.body.style.overflow=""; }
+function closeSetup(){ $("setup").hidden=true; delete $("setup").dataset.m; document.body.style.overflow=""; }
 async function applySetup(){
   const f=$("dFrom").value,t=$("dTo").value,ad=+$("adults").value,o=$("orig").value,tO=$("tOut").value,tI=$("tIn").value;
   const st=$("liveStatus"), today=new Date().toISOString().slice(0,10);
@@ -4513,12 +4526,12 @@ function pillSync(){
   const pb=$("pillBar"); if(!pb) return;
   const cur=document.querySelector(".tabbar button[aria-current='page']"); pb.hidden=!!cur&&cur.dataset.tab!=="discover";
   const ad=Math.max(1,+S.trip.adults||1), n=S.vibes.size+(S.flex?1:0)+(S.direct?1:0)+(S.maxFly?1:0);
-  $("pillTxt").textContent=`📍 ${oriName()} · ${pillDates()} · ${ad} ${bpT(ad>1?"adults":"adult",ad>1?"adulti":"adulto",ad>1?"adultos":"adulto")}`;
-  $("pillN").textContent=n?String(n):""; $("pillB").textContent=bpT("Edit","Modifica","Editar");
+  $("pbO").textContent="📍 "+oriName(); $("pbD").textContent=pillDates(); $("pbA").textContent="👤 "+ad; $("pbB").textContent=S.budgetOn?eur(S.budget):bpT("Budget","Budget","Presupuesto");
+  $("pbFt").textContent="⚙ "+bpT("Filters","Filtri","Filtros"); $("pillN").textContent=n?String(n):"";
 }
 window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
 (function(){
-  const pb=$("pillBar"); if(!pb) return; pb.onclick=()=>{try{trk("pill_open",{})}catch(e){}openSetup()};
+  const pb=$("pillBar"); if(!pb) return; pb.querySelectorAll("button").forEach(x=>x.onclick=()=>{try{trk("pill_open",{m:x.dataset.m})}catch(e){}openSetup(x.dataset.m)});
   const su=$("setup"); su.addEventListener("click",e=>{if(e.target===su){closeSetup();loadUI()}});
   const ask=document.querySelector("#setupSlot .ask"); if(ask&&!ask.querySelector(".detBtn")){
     const b=document.createElement("button"); b.type="button"; b.className="detBtn"; b.setAttribute("translate","no");
