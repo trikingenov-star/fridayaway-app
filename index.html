@@ -2359,7 +2359,7 @@ function cardHTML(o,pos){
       ${fcLegs(d.code)?"":S.trip.live||!FL[d.code]?`<div class="leg exactNote" style="grid-template-columns:1fr"><span>Exact flights are shown when you open this weekend</span></div>`:timeIssue(d.code)?`<div class="leg" style="grid-template-columns:1fr"><span>Flights to match your times (${timeTxt()}) are picked when you book</span></div>`:FL[d.code]&&FL[d.code].note?`<div class="warnline">${FL[d.code].note}</div>`:earlyReturn(d.code)?`<div class="warnline">Early flight home on Sunday (${FL[d.code].i[2]})</div>`:""}
       ${pos<2?`<div class="cardFacts" data-cf="${d.code}">${cardFactsInner(d,h)}</div>`:""}
       ${up?`<div class="upg"><span><b>+${eur(up.price-h.price)}</b> for ${starStr(up.stars)} ${up.name.length>26?up.name.slice(0,25)+"…":up.name}${up.rating?` · ${(up.rating/10).toFixed(1)}`:""}</span><button data-up="${d.code}|${up.j}">Step up</button></div>`:""}
-      <div class="priceRow"><div><div class="pfrom">Flight + hotel from</div><div class="price">${eur(h.price)}</div>${pp}<div class="xpSum" data-xs="${d.code}">${xpSumInner(d,h)}</div>${dealHTML(d)}<div class="pver" data-pv="${d.code}">${pverInner(h)}</div></div><div class="prR">${pos<2?`<button class="goTrip" data-go="${d.code}" aria-label="Book ${d.city}">Book ›</button>`:""}</div></div>
+      <div class="priceRow"><div><div class="pfrom">Flight + hotel from</div><div class="price">${eur(h.price)}</div>${pp}<div class="xpSum" data-xs="${d.code}">${xpSumInner(d,h)}</div>${dealHTML(d)}<div class="pver" data-pv="${d.code}">${pverInner(h)}</div></div><div class="prR"></div></div>
     </div></article>`;
 }
 /* Budget margin: what is left of the budget once flight + hotel are paid, and what that is per day there. */
@@ -3136,7 +3136,7 @@ function cardFactsInner(d,h){
   let fl="", dfl="";
   if(!fcLegs(d.code)){
     if(ok&&det.flights&&det.flights.out){
-      fl=`<span class="cfT">Flights in this package</span>`+[["out",dayFrom()],["back",dayTo()]].map(([k,lab])=>{const x=det.flights[k];return x?`<div class="pfl"><span>${lab}</span><b>${x.from} ${x.dep} → ${x.to} ${x.arr}</b><small>${[durTxt(x.min),x.direct?"direct":"1 stop"].filter(Boolean).join(" · ")}</small></div>`:""}).join("");
+      fl=`<span class="cfT">Flights in this package</span>`+[["out",dayFrom()],["back",dayTo()]].map(([k,lab])=>{const x=det.flights[k];return x?`<div class="pfl"><span>${lab}</span><b>${x.from} ${x.dep} → ${x.to} ${x.arr}</b><small>${[x.direct?"direct":"1 stop"].join(" · ")}</small></div>`:""}).join("");
       dfl=`<div class="cdRow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg><div><span class="cdH">Flights</span>`+[["out",dayFrom()],["back",dayTo()]].map(([k,lab])=>{const x=det.flights[k];return x?`<div class="cdL cdFl">${lab}&nbsp; <b>${x.from} ${x.dep} → ${x.to} ${x.arr}</b>, ${x.direct?"direct":"1 stop"}</div>`:""}).join("")+`</div></div>`;
     } else if(wait){
       fl=`<div class="pskel" style="height:26px"></div><div class="pskel" style="height:26px"></div>`;
@@ -4202,7 +4202,6 @@ function resortTaste(){ try{for(const k in EVT) if(Array.isArray(EVT[k])) EVT[k]
 /* card: say why it is shown */
 const _cardHTML=cardHTML;
 cardHTML=function(o,pos){ let h=_cardHTML(o,pos);
-  if(pos<2&&o.pm&&o.pm.length){ h=h.replace('<div class="body">',`<div class="body"><div class="forYou notr" translate="no"><i></i>${L3("For your tastes","Per i tuoi gusti","Para tus gustos")}: <b>${o.pm.slice(0,3).map(intLbl).join(" · ")}</b></div>`); }
   return h; };
 
 /* weekly streak: weeks in a row with at least one visit (Monday to Sunday, this device) */
