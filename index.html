@@ -4554,5 +4554,185 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
   pillSync();
 })();
 </script>
+<style id="mapCss">
+#mapTog,#mapTogIn,#mapView{display:none}
+@media (max-width:1023px){
+#mapTog,#mapTogIn{display:flex;background:rgba(27,29,58,.9);border-radius:999px;padding:3px;box-shadow:0 4px 16px rgba(10,10,40,.2)}
+#mapTog{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:12px;z-index:5}
+#mapTogIn{width:max-content;margin:2px 0 6px auto}
+#mapTog button,#mapTogIn button{border:0;background:transparent;color:#cfd2ff;font:inherit;font-weight:700;font-size:13px;padding:7px 13px;border-radius:999px;cursor:pointer}
+#mapTog button[aria-pressed="true"],#mapTogIn button[aria-pressed="true"]{background:#fff;color:#1b1d3a}
+#mapView{display:block;position:fixed;inset:0;z-index:37;background:radial-gradient(120% 70% at 50% 0%,#2b2f8f 0%,#0c1247 55%,#060a2b 100%);overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;color:#fff}
+#mapView[hidden]{display:none}
+#mapC{position:absolute;inset:0;width:100%;height:100%}
+#mapPins{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.mpin{position:absolute;left:0;top:0;border:0;background:none;padding:0;margin:0;font:inherit;color:inherit;pointer-events:auto;touch-action:none;transform-origin:50% 100%;will-change:transform;cursor:pointer}
+.mpin .mc{position:relative;display:block;width:64px;height:58px;border-radius:13px;overflow:hidden;border:2px solid var(--pc);background:linear-gradient(135deg,#E8417A,#FF9F45);box-shadow:0 6px 16px rgba(0,0,0,.45),0 0 14px var(--pg)}
+.mpin .mc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.mpin .mc:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(0,0,0,.7))}
+.mpin .mc b{position:absolute;left:5px;right:5px;bottom:12px;z-index:1;font-size:10.5px;line-height:1.1;font-weight:800;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.mpin .mc em{position:absolute;left:4px;top:3px;z-index:1;font-style:normal;font-size:9.5px;font-weight:800;background:rgba(0,0,0,.45);border-radius:8px;padding:1px 5px;display:none}
+.zin .mpin .mc em{display:block}
+.mpin .mc i{position:absolute;right:3px;top:3px;z-index:1;width:16px;height:16px;border-radius:50%;background:#2fd6c0;color:#06211d;font-style:normal;font-size:10px;font-weight:900;line-height:16px;text-align:center;display:none}
+.mpin.dv .mc i{display:block}
+.mpin .mp{display:block;margin:-9px auto 0;position:relative;z-index:2;width:max-content;background:var(--pc);color:#0c1247;font-size:11.5px;font-weight:800;border-radius:999px;padding:2px 8px;box-shadow:0 3px 8px rgba(0,0,0,.4)}
+.mpin:after{content:"";display:block;width:2px;height:10px;margin:0 auto;background:var(--pc);opacity:.9}
+.mpin.off{opacity:.42;filter:grayscale(.75)}
+.mpin.sel{z-index:99999!important}
+.mpin.sel .mc{border-color:#fff;box-shadow:0 8px 22px rgba(0,0,0,.55),0 0 22px #fff}
+.mpin.sel .mp{background:#fff}
+.mpin.dot .mc,.mpin.dot .mp{display:none}
+.mpin.dot{width:16px;height:16px}
+.mpin.dot:after{width:12px;height:12px;border-radius:50%;margin:2px;background:var(--pc);box-shadow:0 0 10px var(--pc);border:2px solid #fff;box-sizing:border-box;opacity:1}
+.mpin.dot.sel:after{background:#fff}
+.mapHud{position:absolute;left:14px;top:calc(14px + env(safe-area-inset-top,0px));z-index:3;pointer-events:none}
+.mapProg{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:800;color:#e6e8ff;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.mapProg i{display:block;width:110px;height:6px;border-radius:3px;background:rgba(255,255,255,.18);overflow:hidden}
+.mapProg u{display:block;height:100%;width:0;border-radius:3px;background:linear-gradient(90deg,#2fd6c0,#8F7BFF,#FF5A7A);transition:width .5s}
+.mapProg.pulse span{animation:mpp .6s}
+@keyframes mpp{40%{transform:scale(1.18);color:#2fd6c0}}
+.mapLeg{position:absolute;left:14px;top:calc(58px + env(safe-area-inset-top,0px));z-index:3;font-size:11px;color:#b8bcf0;display:flex;align-items:center;gap:6px;pointer-events:none}
+.mapLeg u{width:90px;height:6px;border-radius:3px;background:linear-gradient(90deg,#2fd6c0,#8F7BFF,#FF5A7A)}
+.mapHint{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(138px + env(safe-area-inset-bottom,0px));z-index:3;background:rgba(255,255,255,.14);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;border-radius:999px;padding:9px 16px;font-size:13px;font-weight:700;white-space:nowrap;pointer-events:none}
+.mapHint[hidden]{display:none}
+.mapCard{position:absolute;left:12px;right:12px;bottom:calc(130px + env(safe-area-inset-bottom,0px));z-index:4;max-width:440px;margin:0 auto;background:#fff;color:#1b1d3a;border-radius:20px;display:flex;gap:12px;padding:10px;box-shadow:0 14px 40px rgba(0,0,0,.45);cursor:pointer}
+.mapCard[hidden]{display:none}
+.mapCard .ph{width:80px;height:80px;border-radius:14px;background:linear-gradient(135deg,#E8417A,#FF9F45) center/cover;flex:none}
+.mapCard .t{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px}
+.mapCard .t h3{margin:0;font-size:19px;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mapCard .t small{color:#6b6f8f;font-size:12.5px}
+.mapCard .t small.offn{color:#c2410c;font-weight:700}
+.mapCard .t b{font-size:21px}
+.mapCard button{align-self:center;border:0;border-radius:14px;background:linear-gradient(100deg,#FF5A7A,#FF9F45);color:#fff;font:inherit;font-weight:800;padding:12px 14px;font-size:14px;cursor:pointer}
+}
+</style>
+<script>
+/* ===== Explore map: full-screen 3D map of every destination; drag, pinch to zoom, tap a pin to see its card, tap again to book ===== */
+(function(){
+  if(!window.matchMedia) return;
+  const MQ=matchMedia("(max-width:1023px)"), $m=id=>document.getElementById(id);
+  let disc=new Set(); try{disc=new Set(JSON.parse(localStorage.getItem("fa_disc")||"[]"))}catch(e){}
+  const saveD=()=>{try{localStorage.setItem("fa_disc",JSON.stringify([...disc]))}catch(e){}};
+  const root=document.createElement("div"); root.id="mapView"; root.hidden=true;
+  root.innerHTML='<canvas id="mapC"></canvas><div id="mapPins"></div><div class="mapHud"><div class="mapProg" id="mapProg"><span id="mapPt"></span><i><u id="mapPb"></u></i></div></div><div class="mapLeg"><span>€</span><u></u><span>€€€</span></div><div class="mapHint" id="mapHint"></div><div class="mapCard" id="mapCard" hidden></div>';
+  document.body.appendChild(root);
+  const TGH='<button type="button" data-v="cards"></button><button type="button" data-v="map"></button>';
+  const tog=document.createElement("div"); tog.id="mapTog"; tog.setAttribute("role","group"); tog.innerHTML=TGH; root.appendChild(tog);
+  const togIn=document.createElement("div"); togIn.id="mapTogIn"; togIn.setAttribute("role","group"); togIn.innerHTML=TGH; const mt=$m("matches"); if(mt&&mt.parentNode) mt.parentNode.insertBefore(togIn,mt); else document.body.appendChild(togIn);
+  const cv=$m("mapC"), cx=cv.getContext("2d"), bc=document.createElement("canvas"), bx=bc.getContext("2d"), pinsEl=$m("mapPins");
+  let open=false, W=0,H=0,DPR=1, LAND=null, items=[], sel=null, dirty=true, t0=0, anim=true, raf=0, stale=true;
+  const V={clon:10,clat:45,K:100,Kf:60,Kmax:900}; let TB=[-20,40,30,62], O=[45.46,9.19];
+  const F=2600,TILT=.78,CL=Math.cos(46*Math.PI/180),CT=Math.cos(TILT),ST=Math.sin(TILT);
+  let pmin=0,pmax=1;
+  const viewH=()=>Math.max(200,H-170), cyOf=()=>(H-170)*.5+(window.visualViewport?0:0)+34;
+  function P(lon,lat,z){const X=(lon-V.clon)*CL,Y=lat-V.clat,Z=z||0;const sy=-(Y*CT+Z*ST),d=Y*ST-Z*CT,s=F/(F+d*V.K);return[W/2+X*V.K*s,cyOf()+sy*V.K*s,s]}
+  function col(p){const t=Math.max(0,Math.min(1,(p-pmin)/((pmax-pmin)||1)));const a=[47,214,192],b=[143,123,255],e=[255,90,122];const m=t<.5?[a,b,t*2]:[b,e,(t-.5)*2];return m[0].map((v,i)=>Math.round(v+(m[1][i]-v)*m[2]))}
+  function build(){
+    const inS=new Set(pool().map(d=>d.code)); O=GEO[ORI()]||GEO.MIL; items=[];
+    DATA.forEach(d=>{const g=GEO[d.code]; if(!g||!d.hotels||!d.hotels.length||d.code===ORI()) return; const h=hotelFor(d); items.push({d,code:d.code,g,price:Math.round(h.price),inS:inS.has(d.code),city:(function(){try{return fbCity({d})}catch(e){return d.city}})()})});
+    const ps=items.filter(i=>i.inS).map(i=>i.price); pmin=ps.length?Math.min(...ps):0; pmax=ps.length?Math.max(...ps):1;
+    const lons=items.map(i=>i.g[1]).concat(O[1]), lats=items.map(i=>i.g[0]).concat(O[0]);
+    TB=[Math.max(-30,Math.min(...lons)-3.5),Math.min(52,Math.max(...lons)+3.5),Math.max(22,Math.min(...lats)-3),Math.min(75,Math.max(...lats)+3)];
+    pinsEl.innerHTML=""; items.forEach(it=>{const el=document.createElement("button"); el.type="button"; el.className="mpin"; el.dataset.c=it.code;
+      const [r,g,b]=it.inS?col(it.price):[150,155,190]; el.style.setProperty("--pc",`rgb(${r},${g},${b})`); el.style.setProperty("--pg",`rgba(${r},${g},${b},.55)`);
+      const u=(typeof PHOTO!=="undefined"&&PHOTO[it.code])||""; el.setAttribute("aria-label",it.city+" "+eur(it.price));
+      el.innerHTML=`<span class="mc">${u?`<img src="${u}" alt="" decoding="async" loading="lazy">`:""}<em>☀ ${it.d.temp}°</em><i>✓</i><b>${esc_(it.city)}</b></span><span class="mp">${eur(it.price)}</span>`;
+      el.classList.toggle("off",!it.inS); el.classList.toggle("dv",disc.has(it.code)); it.el=el; pinsEl.appendChild(el)});
+    stale=false; fit(); prog();
+  }
+  function fit(){
+    const set=items.filter(i=>i.inS); const use=set.length?set:items;
+    const lons=use.map(i=>i.g[1]).concat(O[1]), lats=use.map(i=>i.g[0]).concat(O[0]);
+    let a=Math.min(...lons)-1.5,b=Math.max(...lons)+1.5,c=Math.min(...lats)-1.2,d=Math.max(...lats)+1.2; if(b-a<16){const m=(a+b)/2;a=m-8;b=m+8} if(d-c<9){const m=(c+d)/2;c=m-4.5;d=m+4.5}
+    const fitK=(sw,sh)=>Math.min(W*.92/(sw*CL),viewH()*.7/(sh*CT));
+    V.clon=(a+b)/2; V.clat=(c+d)/2; V.K=fitK(b-a,d-c);
+    V.Kf=Math.min(fitK(TB[1]-TB[0],TB[3]-TB[2]),V.K); V.Kmax=Math.max(V.K*6,V.Kf*10); dirty=true;
+  }
+  function clamp(){V.K=Math.max(V.Kf*.9,Math.min(V.Kmax,V.K)); V.clon=Math.max(TB[0],Math.min(TB[1],V.clon)); V.clat=Math.max(TB[2],Math.min(TB[3],V.clat))}
+  function tilePath(c,z){c.beginPath();[[TB[0],TB[3]],[TB[1],TB[3]],[TB[1],TB[2]],[TB[0],TB[2]]].forEach(([lo,la],i)=>{const p=P(lo,la,z);i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1])});c.closePath()}
+  function landP(c,fill,stroke,lw){if(!LAND)return;c.beginPath();for(const r of LAND){for(let i=0;i<r.length;i+=2){const p=P(Math.max(-45,Math.min(65,r[i])),Math.max(15,Math.min(80,r[i+1])),0);i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1])}c.closePath()}
+    if(fill){c.fillStyle=fill;c.fill("evenodd")}if(stroke){c.strokeStyle=stroke;c.lineWidth=lw||1;c.stroke()}}
+  function arcPts(it,prog){const G=it.g,dist=Math.hypot((G[1]-O[1])*CL,G[0]-O[0]),hz=Math.max(1.2,dist*.42),N=36,pts=[];for(let k=0;k<=N*prog;k++){const t=k/N;pts.push(P(O[1]+(G[1]-O[1])*t,O[0]+(G[0]-O[0])*t,hz*Math.sin(Math.PI*t)))}return{pts,hz}}
+  function drawBase(T){
+    const c=bx; c.setTransform(DPR,0,0,DPR,0,0); c.clearRect(0,0,W,H);
+    const g=c.createRadialGradient(W/2,cyOf(),10,W/2,cyOf(),W*.8);g.addColorStop(0,"rgba(120,110,255,.18)");g.addColorStop(1,"rgba(0,0,0,0)");c.fillStyle=g;c.fillRect(0,0,W,H);
+    for(let z=-2.2;z<=-.1;z+=.25){tilePath(c,z);const k=(z+2.2)/2.1;c.fillStyle=`rgb(${10+k*8|0},${14+k*12|0},${62+k*30|0})`;c.fill()}
+    c.save();tilePath(c,0);c.fillStyle="#161c6e";c.fill();c.clip();
+    landP(c,"#2c3494","rgba(160,170,255,.6)",1);landP(c,null,"rgba(47,214,192,.16)",3);
+    const sg=c.createRadialGradient(W/2,cyOf(),20,W/2,cyOf(),W*.75);sg.addColorStop(0,"rgba(120,110,255,.14)");sg.addColorStop(1,"rgba(0,0,0,.35)");tilePath(c,0);c.fillStyle=sg;c.fill();c.restore();
+    tilePath(c,0);c.strokeStyle="rgba(180,190,255,.55)";c.lineWidth=1.5;c.stroke();
+    let i=0; items.forEach(it=>{if(!it.inS)return; i++; const prog=anim?Math.min(1,Math.max(0,(T-.2-i*.05)/1.0)):1; if(prog<=0)return;
+      const [r,gg,b]=col(it.price), on=it===sel, {pts}=arcPts(it,prog);
+      c.lineCap="round";c.lineJoin="round";c.beginPath();pts.forEach((p,k)=>k?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));
+      c.strokeStyle=`rgba(${r},${gg},${b},${on?.35:.16})`;c.lineWidth=on?9:5;c.stroke();
+      c.strokeStyle=`rgba(${r},${gg},${b},${on?1:.75})`;c.lineWidth=on?2.6:1.5;c.shadowColor=`rgb(${r},${gg},${b})`;c.shadowBlur=on?16:7;c.stroke();c.shadowBlur=0});
+  }
+  function frame(now){
+    if(!open){raf=0;return} raf=requestAnimationFrame(frame);
+    const w=innerWidth,h=innerHeight; if(w!==W||h!==H){W=w;H=h;DPR=Math.min(2,devicePixelRatio||1);cv.width=bc.width=W*DPR;cv.height=bc.height=H*DPR;dirty=true;fit()}
+    const T=(now-t0)/1000; if(anim&&T>2.6){anim=false;dirty=true}
+    if(dirty||anim){drawBase(T);dirty=false}
+    cx.setTransform(DPR,0,0,DPR,0,0);cx.clearRect(0,0,W,H);cx.drawImage(bc,0,0,W,H);
+    // sparks along arcs
+    let i=0; items.forEach(it=>{if(!it.inS||anim&&T<2)return; i++; const q=((T*.3+i*.13)%1),G=it.g,dist=Math.hypot((G[1]-O[1])*CL,G[0]-O[0]),hz=Math.max(1.2,dist*.42),p=P(O[1]+(G[1]-O[1])*q,O[0]+(G[0]-O[0])*q,hz*Math.sin(Math.PI*q));cx.fillStyle="#fff";cx.beginPath();cx.arc(p[0],p[1],it===sel?3:2,0,7);cx.fill()});
+    const op=P(O[1],O[0],0),pul=(T*1.2)%1;cx.strokeStyle=`rgba(47,214,192,${1-pul})`;cx.lineWidth=2;cx.beginPath();cx.ellipse(op[0],op[1],10+pul*26,(10+pul*26)*CT,0,0,7);cx.stroke();
+    cx.fillStyle="#2fd6c0";cx.beginPath();cx.arc(op[0],op[1],6,0,7);cx.fill();cx.strokeStyle="#fff";cx.lineWidth=2;cx.stroke();
+    {const t="📍 "+oriName();cx.font="800 12px Inter,system-ui";const tw=cx.measureText(t).width+14;cx.fillStyle="#2fd6c0";cx.beginPath();cx.roundRect?cx.roundRect(op[0]-tw/2,op[1]+10,tw,22,11):cx.rect(op[0]-tw/2,op[1]+10,tw,22);cx.fill();cx.fillStyle="#06211d";cx.textAlign="center";cx.fillText(t,op[0],op[1]+25)}
+    // ground dots
+    items.forEach(it=>{const b=P(it.g[1],it.g[0],0);cx.fillStyle=it.inS?"rgba(255,255,255,.35)":"rgba(255,255,255,.15)";cx.beginPath();cx.ellipse(b[0],b[1],5,2.5,0,0,7);cx.fill()});
+    // pins: position, scale, collisions
+    const zr=V.K/V.Kf, base=Math.max(.5,Math.min(1.25,.58+.22*Math.log2(zr)));
+    root.classList.toggle("zin",zr>3);
+    const order=items.slice().sort((a,b)=>(b===sel)-(a===sel)||(b.inS-a.inS)||(disc.has(a.code)-disc.has(b.code))||a.price-b.price), placed=[];
+    order.forEach(it=>{const p=P(it.g[1],it.g[0],0), sc=base*Math.max(.8,Math.min(1.25,p[2])), bw=64*sc,bh=84*sc, bx0=p[0]-bw/2, by0=p[1]-bh-4;
+      const off=p[0]<-60||p[0]>W+60||p[1]<-20||p[1]>H+100; let dot=false;
+      if(!off){ if(it!==sel&&placed.some(q=>bx0<q[0]+q[2]&&bx0+bw>q[0]&&by0<q[1]+q[3]&&by0+bh>q[1])) dot=true; else placed.push([bx0,by0,bw,bh]) }
+      const el=it.el; el.style.display=off?"none":""; if(off)return;
+      if(el._dot!==dot){el._dot=dot;el.classList.toggle("dot",dot)}
+      el.style.zIndex=Math.round(p[1])+(it===sel?100000:0);
+      el.style.transform=dot?`translate(${(p[0]-8).toFixed(1)}px,${(p[1]-14).toFixed(1)}px)`:`translate(${(p[0]-32).toFixed(1)}px,${(p[1]-80*sc-2).toFixed(1)}px) scale(${sc.toFixed(3)})`;
+      el.classList.toggle("sel",it===sel);
+    });
+  }
+  /* gestures */
+  const ptr=new Map(); let moved=false, pd=0, lastC=null;
+  root.addEventListener("pointerdown",e=>{if(e.target.closest(".mapCard"))return; ptr.set(e.pointerId,[e.clientX,e.clientY]); moved=false; pd=ptr.size===2?dist2():0});
+  const dist2=()=>{const a=[...ptr.values()];return Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1])};
+  addEventListener("pointermove",e=>{if(!open||!ptr.has(e.pointerId))return; const o=ptr.get(e.pointerId), dx=e.clientX-o[0], dy=e.clientY-o[1];
+    if(ptr.size===1){ if(!moved&&Math.hypot(dx,dy)<6) return; moved=true; V.clon-=dx/(V.K*CL); V.clat+=dy/(V.K*CT); ptr.set(e.pointerId,[e.clientX,e.clientY]) }
+    else if(ptr.size===2){ ptr.set(e.pointerId,[e.clientX,e.clientY]); const d=dist2(); if(pd){moved=true;V.K*=d/pd} pd=d }
+    clamp(); dirty=true; e.preventDefault()},{passive:false});
+  const up=e=>{ptr.delete(e.pointerId); pd=ptr.size===2?dist2():0; if(ptr.size===0) setTimeout(()=>{moved=false},0)};
+  addEventListener("pointerup",up); addEventListener("pointercancel",up);
+  root.addEventListener("wheel",e=>{e.preventDefault();V.K*=Math.exp(-e.deltaY*.0015);clamp();dirty=true},{passive:false});
+  pinsEl.addEventListener("click",e=>{if(moved)return; const b=e.target.closest(".mpin"); if(!b)return; const it=items.find(i=>i.code===b.dataset.c); if(!it)return;
+    if(sel===it){go(it)} else select(it)});
+  function go(it){try{trk("map_open",{c:it.code})}catch(e){} openSheet(it.code)}
+  function select(it){sel=it; if(!disc.has(it.code)){disc.add(it.code);saveD();it.el.classList.add("dv");const pr=$m("mapProg");pr.classList.remove("pulse");void pr.offsetWidth;pr.classList.add("pulse");prog()} card(); dirty=true; try{trk("map_pin",{c:it.code})}catch(e){}}
+  function prog(){const tot=items.length, n=items.filter(i=>disc.has(i.code)).length; $m("mapPt").textContent="🧭 "+n+"/"+tot+" "+bpT("discovered","scoperte","descubiertos"); $m("mapPb").style.width=(tot?n/tot*100:0)+"%"}
+  function card(){
+    const c=$m("mapCard"),h=$m("mapHint"); if(!sel){c.hidden=true;h.hidden=false;h.textContent=bpT("Drag and zoom · tap a place","Trascina e zooma · tocca una meta","Arrastra y haz zoom · toca un destino");return}
+    h.hidden=true;c.hidden=false; const u=(typeof PHOTO!=="undefined"&&PHOTO[sel.code])||"", ad=Math.max(1,+S.trip.adults||1);
+    c.innerHTML=`<div class="ph" ${u?`style="background-image:url('${u}')"`:""}></div><div class="t"><h3>${esc_(sel.city)}</h3><small ${sel.inS?"":'class="offn"'}>${sel.inS?esc_(pillDates())+" · "+ad+" "+(ad>1?bpT("adults","adulti","adultos"):bpT("adult","adulto","adulto")):bpT("Outside your search","Fuori dalla tua ricerca","Fuera de tu búsqueda")}</small><b>${bpT("from","da","desde")} ${eur(sel.price)}</b></div><button type="button">${bpT("Discover ›","Scopri ›","Descubrir ›")}</button>`;
+  }
+  $m("mapCard").addEventListener("click",()=>{if(sel)go(sel)});
+  /* open / close */
+  function setOpen(on){
+    on=!!on&&MQ.matches; if(on===open) return; open=on; root.hidden=!on;
+    lab();
+    document.body.classList.toggle("mapOn",on);
+    if(on){ if(!LAND){fetch("map-land.json").then(r=>r.json()).then(j=>{LAND=j;dirty=true}).catch(()=>{})}
+      if(stale||!items.length){W=0;build()} sel=null; card(); anim=true; t0=performance.now(); dirty=true; W=0; try{trk("map_on")}catch(e){} if(!raf) raf=requestAnimationFrame(frame) }
+  }
+  [tog,togIn].forEach(t=>t.addEventListener("click",e=>{const b=e.target.closest("button"); if(b) setOpen(b.dataset.v==="map")}));
+  const lab=()=>{[tog,togIn].forEach(t=>{t.children[0].textContent=bpT("Cards","Carte","Cartas");t.children[1].textContent=bpT("Map","Mappa","Mapa");t.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String((b.dataset.v==="map")===open)))})};
+  const tgSync=()=>{};
+  const _st=window.showTab; window.showTab=function(t){ if(t!=="discover") setOpen(false); const r=_st.apply(this,arguments); tgSync(); return r};
+  const _rd=window.renderDeck; window.renderDeck=function(){const r=_rd.apply(this,arguments); stale=true; if(open){try{const s=sel&&sel.code; build(); sel=s?items.find(i=>i.code===s)||null:null; card(); dirty=true; anim=false}catch(e){}} return r};
+  window.addEventListener("fa-lang",()=>{lab();stale=true;if(open){const s=sel&&sel.code;build();sel=s?items.find(i=>i.code===s)||null:null;card()}});
+  MQ.addEventListener&&MQ.addEventListener("change",()=>{if(!MQ.matches)setOpen(false);tgSync()});
+  lab(); tgSync(); window.__mapDbg={V,items:()=>items};
+})();
+</script>
 </body>
 </html>
