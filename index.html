@@ -4800,7 +4800,7 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
   const VCATS=[
    {k:"x:surf",it:"Surf",en:"Surfing",es:"Surf",e:"🏄",rx:/\bsurf|kite ?surf|wind ?surf|\bwing\b|paddle ?board|\bsup\b/i,kw:"surf,surfare,onde,kite,kitesurf,windsurf,paddle"},
    {k:"x:dive",it:"Immersioni",en:"Diving",es:"Buceo",e:"🤿",rx:/diving|\bdive\b|snorkel|scuba|immersion|buceo/i,kw:"immersioni,immersione,diving,snorkeling,snorkel,sub,scuba,buceo"},
-   {k:"x:boat",it:"Barca & mare",en:"Boats & sea",es:"Barco y mar",e:"⛵",rx:/boat|sail|cruise|catamaran|yacht|kayak|canoe|dolphin|whale|barca|crociera|vela\b|velier|delfin|balen|barco|crucero/i,kw:"barca,vela,sailing,boat,yacht,catamarano,crociera,veliero,kayak,delfini,balene,barco"},
+   {k:"x:boat",it:"Barca & mare",en:"Boats & sea",es:"Barco y mar",e:"⛵",rx:/boat|sail|cruise|catamaran|yacht|kayak|canoe|dolphin|whale|barca|crociera|vela\b|velier|delfin|balen|barco|crucero/i,kw:"barca,vela,sailing,boat,yacht,catamarano,crociera,veliero,kayak,delfini,balene,barco,mare,sea,mar"},
    {k:"x:ski",it:"Sci & neve",en:"Ski & snow",es:"Esquí y nieve",e:"⛷️",rx:/\bski|snowboard|snowmobile|husky|\bsci\b|\bneve\b|snow\b/i,kw:"sci,snowboard,neve,ski,snow,husky"},
    {k:"x:nature",it:"Natura & trekking",en:"Nature & hiking",es:"Naturaleza y senderismo",e:"🥾",rx:/hik|trek|volcan|vulcan|national park|parco nazionale|canyon|waterfall|cascat|geyser|aurora|glacier|ghiacc|\bgolden circle|caldera|\bgola\b|gorge|lagoon naturale|natura|senderis/i,kw:"trekking,hiking,escursioni,escursione,sentieri,vulcano,vulcani,geyser,aurora,natura,cascate,hike,volcano,senderismo"},
    {k:"x:spa",it:"Terme & spa",en:"Spas & baths",es:"Termas y spa",e:"♨️",rx:/\bspa\b|thermal|terme|hammam|\bbath|bagni|blue lagoon|sauna|massage|massagg|termas/i,kw:"terme,spa,benessere,thermal,sauna,hammam,massaggi,termas"},
@@ -4816,7 +4816,7 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
   const STOP=new Set("voglio,vorrei,fare,fai,per,con,una,uno,del,della,delle,dei,che,sono,dove,posso,andare,weekend,week,end,the,and,for,want,quiero,hacer,donde,las,los".split(","));
   const nrm=x=>String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
   TAGACTS.forEach(a=>{a.kw=a.kw.split(",")}); VCATS.forEach(a=>{a.kw=a.kw.split(",")});
-  const ALLACTS=TAGACTS.concat(VCATS), ACTBY={}; ALLACTS.forEach(a=>{a.kwN=a.kw.map(nrm).concat([nrm(a.it),nrm(a.en),nrm(a.es)]);ACTBY[a.k]=a});
+  const ALLACTS=VCATS.slice(), ACTBY={}; ALLACTS.forEach(a=>{a.kwN=a.kw.map(nrm).concat([nrm(a.it),nrm(a.en),nrm(a.es)]);ACTBY[a.k]=a});
   let qKeys=new Set(), qText="", qOn=false, qCnt={tot:0,inS:0}, qT=0, fly=null, vxQ=null, vxDone=0, vxTot=0;
   const lblA=a=>a[bpL()]||a.it;
   const vxItems=it=>{let j=null; try{j=vxNow(it.d)}catch(e){} return j&&vxOk(j)?j.items:[]};
