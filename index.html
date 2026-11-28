@@ -4859,7 +4859,7 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
   qIn.addEventListener("input",()=>{qText=qIn.value; clearTimeout(qDeb); qDeb=setTimeout(()=>qApply(true),220)});
   qIn.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();qIn.blur()}});
   $m("mapQx").addEventListener("click",()=>{qText="";qIn.value="";qKeys.clear();qApply(false)});
-  $m("mapChips").addEventListener("click",e=>{const b=e.target.closest(".mchip"); if(!b) return; const k=b.dataset.k; if(qKeys.has(k)) qKeys.delete(k); else qKeys.add(k); qApply(true)});
+  $m("mapChips").addEventListener("click",e=>{const b=e.target.closest(".mchip"); if(!b) return; const k=b.dataset.k; if(qKeys.has(k)) qKeys.clear(); else {qKeys.clear(); qKeys.add(k); qText="";$m("mapQ").value=""} qApply(true)});
   /* first-visit intro: the map opens by itself, arcs fly out, the camera swoops to the best deal, then it hands over to the boarding pass */
   let cam=null, introEnd=null;
   function introView(){V.K=Math.max(V.Kf,(V.k0||V.K)*.95); if(V.fc){V.clon=V.fc[0];V.clat=V.fc[1]} clamp(); dirty=true}
