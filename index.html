@@ -2703,7 +2703,11 @@ const wzPrice=total=>`<div class="pr wzp" data-wzp="${total}">${wzPriceInner(tot
 function wzPrices(){if(!WZ) return; document.querySelectorAll("[data-wzp]").forEach(el=>el.innerHTML=wzPriceInner(+el.dataset.wzp));}
 const wzNum=v=>{const n=parseFloat(String(v==null?"":v).replace(/[^0-9.]/g,""));return isFinite(n)?n:0};
 const wzPeople=()=>`${S.trip.adults} adult${S.trip.adults>1?"s":""}`;
+let SHEET_T=0;
+/* the tap that opens the sheet must not also "click" the activity card that appears under the finger */
+document.addEventListener("click",e=>{if(Date.now()-SHEET_T<600&&e.target.closest&&e.target.closest(".fxC,.sheet.wz a")){e.preventDefault();e.stopPropagation()}},true);
 function openSheet(code){
+  SHEET_T=Date.now();
   const d=DATA.find(x=>x.code===code); if(!d||!d.hotels.length) return;
   TRK.sheet=code; trk("sheet",{c:cityOf(code)});
   bookCtl.n++;
