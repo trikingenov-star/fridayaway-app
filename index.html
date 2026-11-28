@@ -977,6 +977,8 @@ body.v2{--r-card:28px}
 .svAdd{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:50%;border:0;background:linear-gradient(90deg,#E8417A,#FF5A7A);color:#fff;font:inherit;font-size:20px;font-weight:800;line-height:1;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.25);display:grid;place-items:center}
 .svAct.on .svAdd{background:#fff;color:#C2185B;font-size:16px}
 .svAct.on{border-color:#E8417A;box-shadow:0 0 0 1.5px #E8417A}
+.svLeft{display:block;margin-top:4px;font-size:11.5px;font-weight:800;color:#0f766e}.svLeft[data-ac]{cursor:pointer}.svLeft.over{color:#c2410c}
+.xpBud{display:flex;align-items:center;gap:8px;background:#E6FAF6;color:#0f5f58;border-radius:12px;padding:8px 10px;margin:6px 0 8px;font-size:12.5px;font-weight:700}.xpBud span{flex:1}.xpBud button{flex:none;border:0;border-radius:999px;background:#fff;color:#0f5f58;font:inherit;font-weight:800;font-size:12px;padding:5px 10px;cursor:pointer}.xpBud.over{background:#FFEDE5;color:#c2410c}
 .svPl{display:inline-block;margin-top:3px;font-size:11.5px;font-weight:800;color:#C2185B}
 /* ===== saved: events in the saved cities ===== */
 .svEv{margin-top:18px;display:flex;flex-direction:column;gap:10px}
@@ -3603,6 +3605,11 @@ function xpRowInner(d){
 }
 function xpSumInner(d,h){const v=planSum(d.code), n=planOf(d.code).length; if(!n) return ""; const it=xpIt();
   return v>0?`+ ${eur(v)} ${it?"attività":"activities"} · ${it?"totale":"total"} ${eur(h.price+v)}`:`+ ${n} ${it?"nel piano":"in your plan"}`}
+function leftBadge(d,h){ if(!S.budgetOn) return ""; const j=vxNow(d); if(!j){vxGet(d).then(()=>{try{renderSaved()}catch(e){}});return ""}
+  const left=Math.round(S.budget-h.price-planSum(d.code)), it=xpIt(), ad=planAdults();
+  if(left<=0) return `<span class="svLeft over">${it?`⚠️ ${eur(-left)} oltre il budget`:`⚠️ ${eur(-left)} over budget`}</span>`;
+  const n=vxOk(j)?j.items.filter(x=>!x.p||x.p*ad<=left).length:0;
+  return `<span class="svLeft" ${n?`data-ac="${d.code}"`:""}>${it?`💡 Ti restano ${eur(left)}`:`💡 ${eur(left)} left`}${n?` · ${n} ${it?(n>1?"attività ci rientrano":"attività ci rientra"):(n>1?"activities fit":"activity fits")} ›`:""}</span>`}
 function planBadge(d,h){const n=planOf(d.code).length, v=planSum(d.code), it=xpIt(); return n?`<span class="svPl">🎟️ +${n} ${it?"nel piano":"planned"}${v?` · +${eur(v)}${h?` = ${eur(h.price+v)}`:""}`:""}</span>`:""}
 function xpRefresh(code){const d=DATA.find(x=>x.code===code); if(!d) return; const h=hotelFor(d);
   document.querySelectorAll(`[data-xp="${code}"]`).forEach(el=>{el.innerHTML=xpRowInner(d)});
@@ -3636,9 +3643,15 @@ function renderXC(d){
 }
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-xc]"); if(b){e.stopPropagation();e.preventDefault();openXC(b.dataset.xc);}},true);
 /* sheet to explore and add (inside the weekend) */
-let XPT="act";
+let XPT="act", XPALL=false;
+/* budget left for activities: budget minus the package price (the one shown in the summary, or the saved one) minus what is already in the plan */
+function xpLeft(d){ if(!S.budgetOn) return {on:false};
+  const P=document.getElementById("wzPlan"), sv=S.saved.find(s=>s.code===d.code); let base=P&&P.dataset.code===d.code?+P.dataset.pr:0;
+  if(!base&&sv&&d.hotels[sv.j]) base=d.hotels[sv.j].price; if(!base) base=hotelFor(d).price;
+  const left=Math.round(S.budget-base-planSum(d.code)); return {on:left>0,over:left<=0,left,base}}
+const xpFits=(d,x,xl)=>!xl.on||XPALL||!x.p||x.p*planAdults()<=xl.left;
 async function openXP(code,tab){
-  const d=DATA.find(x=>x.code===code); if(!d) return; XPT=tab||"act";
+  const d=DATA.find(x=>x.code===code); if(!d) return; XPT=tab||"act"; XPALL=false;
   let o=$("xpOv"); if(!o){o=document.createElement("div");o.id="xpOv";o.className="evOv";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.addEventListener("click",e=>{if(e.target===o)o.hidden=true});document.body.appendChild(o);}
   o.hidden=false; o.innerHTML=`<div class="evCard"><div class="pskel" style="height:60px"></div><div class="pskel" style="height:60px"></div></div>`;
   try{trk("plan_open",{c:d.city,k:XPT})}catch(e){}
@@ -3651,15 +3664,19 @@ function renderXP(d){
   if(XPT==="ev"&&!ev.length) XPT="act"; if(XPT==="act"&&!acts.length&&ev.length) XPT="ev";
   const inPlan=id=>planOf(d.code).some(x=>x.id===id);
   const tabs=acts.length&&ev.length?`<div class="xpTabs"><button data-xpt="act" aria-pressed="${XPT==="act"}">🎟️ ${it?"Attività":"Activities"}</button><button data-xpt="ev" aria-pressed="${XPT==="ev"}">🎫 ${it?"Eventi":"Events"}</button></div>`:"";
+  const xl=xpLeft(d), ad0=planAdults();
   const btn=on=>`<button class="xpAdd">${on?(it?"✓ Aggiunta":"✓ Added"):(it?"+ Aggiungi":"+ Add")}</button>`;
   const rows=XPT==="act"
-    ?acts.map((x,i)=>{const id="a:"+(x.id||x.u),on=inPlan(id);return `<div class="xpIt${on?" on":""}" data-xi="${i}"><span class="evImg"><img src="${esc_(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span><a href="${esc_(x.u)}" target="_blank" rel="noopener sponsored"><b translate="no">${esc_(x.t)}</b><small>${x.r?`★ ${x.r.toFixed(1)} (${x.n.toLocaleString(it?"it-IT":"en-GB")}) · `:""}${x.p?`${it?"da":"from"} ${eur(x.p)} ${it?"a persona":"pp"}${planAdults()>1?` · ${eur(x.p*planAdults())} ${it?"per":"for"} ${planAdults()}`:""}`:""}</small></a>${btn(on)}</div>`}).join("")
+    ?acts.map((x,i)=>{const id="a:"+(x.id||x.u),on=inPlan(id); if(!on&&!xpFits(d,x,xl)) return ""; return `<div class="xpIt${on?" on":""}" data-xi="${i}"><span class="evImg"><img src="${esc_(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span><a href="${esc_(x.u)}" target="_blank" rel="noopener sponsored"><b translate="no">${esc_(x.t)}</b><small>${x.r?`★ ${x.r.toFixed(1)} (${x.n.toLocaleString(it?"it-IT":"en-GB")}) · `:""}${x.p?`${it?"da":"from"} ${eur(x.p)} ${it?"a persona":"pp"}${planAdults()>1?` · ${eur(x.p*planAdults())} ${it?"per":"for"} ${planAdults()}`:""}`:""}</small></a>${btn(on)}</div>`}).join("")
     :ev.map((e,i)=>{const id="e:"+(e.url||e.name),on=inPlan(id);return `<div class="xpIt${on?" on":""}" data-xi="${i}"><span class="evImg">${e.img?`<img src="${esc_(e.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:(EV_ICON[e.seg]||"🎫")}</span><a href="${esc_(e.url)}" target="_blank" rel="noopener"><b translate="no">${esc_(e.name)}</b><small>${esc_(evDay(e))}${e.time?" · "+esc_(e.time):""}${e.venue?" · "+esc_(e.venue):""}</small></a>${btn(on)}</div>`}).join("");
   const n=planOf(d.code).length, v=planSum(d.code);
-  const empty=!acts.length&&!ev.length?`<p>${it?"Nessuna attività disponibile per ora.":"Nothing available right now."}</p>`:"";
-  o.innerHTML=`<div class="evCard"><button class="evX" aria-label="Close">✕</button><h3>${it?"Cosa fare a":"Things to do in"} ${esc_(d.city)}</h3><p>${it?"Aggiungi al tuo weekend: le prenoti dopo il volo, una per una":"Add them to your weekend: you book each one after the trip"}${planAdults()>1?(it?` · prezzi per ${planAdults()} persone`:` · prices for ${planAdults()} people`):""}.</p>${tabs}${rows}${empty}<p>${XPT==="act"?"Experiences from Viator":"Events from Ticketmaster"}</p><div class="xpFoot"><span>${n?`${it?"Nel piano":"In your plan"}: <b>${n}</b>${v?` · <b>${eur(v)}</b>${planAdults()>1?` (${planAdults()} ${it?"pers.":"people"})`:""}`:""}`:(it?"Niente aggiunto per ora":"Nothing added yet")}</span><button class="xpDone">${it?"Fatto":"Done"}</button></div></div>`;
+  const noFit=XPT==="act"&&acts.length&&!rows.trim();
+  const empty=!acts.length&&!ev.length?`<p>${it?"Nessuna attività disponibile per ora.":"Nothing available right now."}</p>`:noFit?`<p>${it?"Nessuna attività rientra nel budget rimasto.":"No activity fits the budget you have left."}</p>`:"";
+  const note=XPT==="act"&&xl.on?`<div class="xpBud">💡 <span>${it?`Ti restano <b>${eur(xl.left)}</b> di budget`:`You have <b>${eur(xl.left)}</b> of budget left`} · ${XPALL?(it?"mostro tutte":"showing all"):(it?"mostro solo quelle che ci rientrano":"showing only what fits")}</span><button type="button" id="xpAll">${XPALL?(it?"Solo nel budget":"Only in budget"):(it?"Mostra tutte":"Show all")}</button></div>`:XPT==="act"&&xl.over?`<div class="xpBud over">⚠️ <span>${it?`Sei già oltre il budget di <b>${eur(-xl.left)}</b>`:`You are already <b>${eur(-xl.left)}</b> over budget`}</span></div>`:"";
+  o.innerHTML=`<div class="evCard"><button class="evX" aria-label="Close">✕</button><h3>${it?"Cosa fare a":"Things to do in"} ${esc_(d.city)}</h3><p>${it?"Aggiungi al tuo weekend: le prenoti dopo il volo, una per una":"Add them to your weekend: you book each one after the trip"}${planAdults()>1?(it?` · prezzi per ${planAdults()} persone`:` · prices for ${planAdults()} people`):""}.</p>${tabs}${note}${rows}${empty}<p>${XPT==="act"?"Experiences from Viator":"Events from Ticketmaster"}</p><div class="xpFoot"><span>${n?`${it?"Nel piano":"In your plan"}: <b>${n}</b>${v?` · <b>${eur(v)}</b>${planAdults()>1?` (${planAdults()} ${it?"pers.":"people"})`:""}`:""}`:(it?"Niente aggiunto per ora":"Nothing added yet")}</span><button class="xpDone">${it?"Fatto":"Done"}</button></div></div>`;
   o.querySelector(".evX").onclick=o.querySelector(".xpDone").onclick=()=>{o.hidden=true};
   o.querySelectorAll("[data-xpt]").forEach(b=>b.onclick=()=>{XPT=b.dataset.xpt;renderXP(d)});
+  const xa=o.querySelector("#xpAll"); if(xa) xa.onclick=()=>{XPALL=!XPALL;renderXP(d)};
   o.querySelectorAll(".xpAdd").forEach(b=>b.onclick=()=>{const i=+b.closest(".xpIt").dataset.xi;
     if(XPT==="act"){const x=acts[i]; planToggle(d.code,{k:"act",id:"a:"+(x.id||x.u),t:x.t,p:x.p||0,u:x.u,img:x.img});}
     else {const e=ev[i]; planToggle(d.code,{k:"ev",id:"e:"+(e.url||e.name),t:e.name,u:e.url,when:evDay(e)+(e.time?" · "+e.time:"")});}
@@ -3723,7 +3740,7 @@ function renderSaved(){
   const L=$("savedList");
   if(!S.saved.length){L.innerHTML=`<div class="box"><p>Nothing saved yet. Swipe right on a weekend you like.</p></div>`;$("cmpWrap").hidden=true;return}
   const items=S.saved.map(s=>{const d=DATA.find(x=>x.code===s.code);const h=d.hotels[s.j];return {d,h}});
-  L.innerHTML=items.map(({d,h})=>`<div class="item open" role="button" tabindex="0" data-open="${d.code}" aria-label="Open ${d.city}"><div class="thumb">${art(d,true)}</div><div><h3>${d.city}</h3><div class="sub">${starStr(h.stars)} ${h.name}</div>${planBadge(d,h)}<div class="vlink">View & book ›</div></div><div><div class="p">${S.split?eur(h.price/2)+" pp":eur(h.price)}</div><button class="rm" data-rm="${d.code}">Remove</button></div></div>`).join("");
+  L.innerHTML=items.map(({d,h})=>`<div class="item open" role="button" tabindex="0" data-open="${d.code}" aria-label="Open ${d.city}"><div class="thumb">${art(d,true)}</div><div><h3>${d.city}</h3><div class="sub">${starStr(h.stars)} ${h.name}</div>${planBadge(d,h)}${leftBadge(d,h)}<div class="vlink">View & book ›</div></div><div><div class="p">${S.split?eur(h.price/2)+" pp":eur(h.price)}</div><button class="rm" data-rm="${d.code}">Remove</button></div></div>`).join("");
   L.querySelectorAll("[data-rm]").forEach(b=>b.onclick=e=>{e.stopPropagation();S.saved=S.saved.filter(s=>s.code!==b.dataset.rm);updateCount();renderSaved()});
   L.querySelectorAll("[data-open]").forEach(el=>{const go=()=>{const c=el.dataset.open,s=S.saved.find(x=>x.code===c);if(s)S.choice[c]=s.j;openSheet(c)};el.onclick=go;el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}}});
   if(items.length>=2){
@@ -4565,7 +4582,7 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
 #mapView{display:block;position:fixed;inset:0;z-index:37;background:radial-gradient(120% 70% at 50% 0%,#2b2f8f 0%,#0c1247 55%,#060a2b 100%);overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;color:#fff}
 #mapView[hidden]{display:none}
 #mapC{position:absolute;inset:0;width:100%;height:100%}
-#mapPins{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+#mapPins{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
 .mpin{position:absolute;left:0;top:0;border:0;background:none;padding:0;margin:0;font:inherit;color:inherit;pointer-events:auto;touch-action:none;transform-origin:50% 100%;will-change:transform;cursor:pointer}
 .mpin .mc{position:relative;display:block;width:64px;height:58px;border-radius:13px;overflow:hidden;border:2px solid var(--pc);background:linear-gradient(135deg,#E8417A,#FF9F45);box-shadow:0 6px 16px rgba(0,0,0,.45),0 0 14px var(--pg)}
 .mpin .mc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -4645,8 +4662,8 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
     const lons=use.map(i=>i.g[1]).concat(O[1]), lats=use.map(i=>i.g[0]).concat(O[0]);
     let a=Math.min(...lons)-1.5,b=Math.max(...lons)+1.5,c=Math.min(...lats)-1.2,d=Math.max(...lats)+1.2; if(b-a<16){const m=(a+b)/2;a=m-8;b=m+8} if(d-c<9){const m=(c+d)/2;c=m-4.5;d=m+4.5}
     const fitK=(sw,sh)=>Math.min(W*.92/(sw*CL),viewH()*.7/(sh*CT));
-    V.clon=(a+b)/2; V.clat=(c+d)/2; V.K=fitK(b-a,d-c);
-    V.Kf=Math.min(fitK(TB[1]-TB[0],TB[3]-TB[2]),V.K); V.Kmax=Math.max(V.K*6,V.Kf*10); dirty=true;
+    const k0=fitK(b-a,d-c); V.clon=O[1]+((a+b)/2-O[1])*.45; V.clat=O[0]+((c+d)/2-O[0])*.45; V.K=k0*1.75;
+    V.Kf=Math.min(fitK(TB[1]-TB[0],TB[3]-TB[2]),k0); V.Kmax=Math.max(V.K*5,V.Kf*10); dirty=true;
   }
   function clamp(){V.K=Math.max(V.Kf*.9,Math.min(V.Kmax,V.K)); V.clon=Math.max(TB[0],Math.min(TB[1],V.clon)); V.clat=Math.max(TB[2],Math.min(TB[3],V.clat))}
   function tilePath(c,z){c.beginPath();[[TB[0],TB[3]],[TB[1],TB[3]],[TB[1],TB[2]],[TB[0],TB[2]]].forEach(([lo,la],i)=>{const p=P(lo,la,z);i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1])});c.closePath()}
@@ -4677,7 +4694,7 @@ window.addEventListener("fa-lang",()=>{try{pillSync()}catch(e){}});
     let i=0; items.forEach(it=>{if(!it.inS||anim&&T<2)return; i++; const q=((T*.3+i*.13)%1),G=it.g,dist=Math.hypot((G[1]-O[1])*CL,G[0]-O[0]),hz=Math.max(1.2,dist*.42),p=P(O[1]+(G[1]-O[1])*q,O[0]+(G[0]-O[0])*q,hz*Math.sin(Math.PI*q));cx.fillStyle="#fff";cx.beginPath();cx.arc(p[0],p[1],it===sel?3:2,0,7);cx.fill()});
     const op=P(O[1],O[0],0),pul=(T*1.2)%1;cx.strokeStyle=`rgba(47,214,192,${1-pul})`;cx.lineWidth=2;cx.beginPath();cx.ellipse(op[0],op[1],10+pul*26,(10+pul*26)*CT,0,0,7);cx.stroke();
     cx.fillStyle="#2fd6c0";cx.beginPath();cx.arc(op[0],op[1],6,0,7);cx.fill();cx.strokeStyle="#fff";cx.lineWidth=2;cx.stroke();
-    {const t="📍 "+oriName();cx.font="800 12px Inter,system-ui";const tw=cx.measureText(t).width+14;cx.fillStyle="#2fd6c0";cx.beginPath();cx.roundRect?cx.roundRect(op[0]-tw/2,op[1]+10,tw,22,11):cx.rect(op[0]-tw/2,op[1]+10,tw,22);cx.fill();cx.fillStyle="#06211d";cx.textAlign="center";cx.fillText(t,op[0],op[1]+25)}
+    {const t="📍 "+(()=>{try{return TX(oriName())}catch(e){return oriName()}})();cx.font="800 12px Inter,system-ui";const tw=cx.measureText(t).width+14;cx.fillStyle="#2fd6c0";cx.beginPath();cx.roundRect?cx.roundRect(op[0]-tw/2,op[1]+10,tw,22,11):cx.rect(op[0]-tw/2,op[1]+10,tw,22);cx.fill();cx.fillStyle="#06211d";cx.textAlign="center";cx.fillText(t,op[0],op[1]+25)}
     // ground dots
     items.forEach(it=>{const b=P(it.g[1],it.g[0],0);cx.fillStyle=it.inS?"rgba(255,255,255,.35)":"rgba(255,255,255,.15)";cx.beginPath();cx.ellipse(b[0],b[1],5,2.5,0,0,7);cx.fill()});
     // pins: position, scale, collisions
